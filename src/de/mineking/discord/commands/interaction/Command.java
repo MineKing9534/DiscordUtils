@@ -4,9 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +14,7 @@ import de.mineking.discord.commands.interaction.context.ContextCommand;
 import de.mineking.discord.commands.reply.ModalReplyAction;
 import de.mineking.discord.commands.reply.ReplyManager;
 import de.mineking.exceptions.Checks;
+import de.mineking.utils.ReflectionUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -267,19 +265,6 @@ public abstract class Command {
 			throw new IllegalStateException();
 		}
 	}
-
-	
-	private static List<Field> getAllFields(Class<?> clazz) {
-		List<Field> fields = new ArrayList<>();
-		
-		do {
-			fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-			
-			clazz = clazz.getSuperclass();
-		} while(clazz != null);
-		
-		return fields;
-	}
 	
 	/**
 	 * @return A clone of this Command
@@ -291,7 +276,7 @@ public abstract class Command {
 		
 		Command cmd = c.newInstance();
 		
-		for(Field f : getAllFields(cmd.getClass())) {
+		for(Field f : ReflectionUtils.getFields(cmd.getClass())) {
 			f.setAccessible(true);
 			
 			if(!Modifier.isStatic(f.getModifiers())) {
