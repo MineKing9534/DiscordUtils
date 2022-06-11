@@ -19,6 +19,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class ListCommand<T extends Listable> extends SlashCommand {
+	public static boolean ephemeral = true;
+	
 	public static int defaultMax = 20;
 	public static Option pageOption = new Option(OptionType.INTEGER, "page");
 	
@@ -38,6 +40,7 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 		Checks.nonNull(getter, "getter");
 		
 		permission = perm;
+		defaultAcknowledge = ephemeral;
 		
 		this.getter = getter;
 		
