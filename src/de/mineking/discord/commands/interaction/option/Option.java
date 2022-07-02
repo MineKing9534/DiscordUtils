@@ -3,6 +3,7 @@ package de.mineking.discord.commands.interaction.option;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -195,14 +196,39 @@ public class Option extends OptionData {
 		}
 		
 		if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-			Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd));
-			
-			for(var e : locales.entrySet()) {
-				data.setDescription(e.getValue(), e.getKey());
+			{
+				Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd));
+				
+				for(var e : locales.entrySet()) {
+					data.setDescription(e.getValue(), e.getKey());
+				}
+				
+				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
+					data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
+				}
 			}
 			
-			if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
-				data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
+			List<Choice> choices = data.getChoices();
+			
+			for(Choice c : choices) {
+				Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd) + "." + c.getName());
+				
+				for(var e : locales.entrySet()) {
+					c.setName(e.getValue(), e.getKey());
+				}
+				
+				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
+					c.setName(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
+				}
+			}
+			
+			try {
+				Field f = data.getClass().getDeclaredField("choices");
+				
+				f.setAccessible(true);
+				f.set(data, choices);
+			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+				e.printStackTrace();
 			}
 		}
 		
