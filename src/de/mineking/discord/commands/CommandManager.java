@@ -145,7 +145,11 @@ public class CommandManager extends ListenerAdapter {
 				try {
 					while(true) {
 						if((line = reader.readLine()) != null) {
-							performConsole(line);
+							try {
+								performConsole(line);
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				} finally {
