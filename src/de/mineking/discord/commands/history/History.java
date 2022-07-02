@@ -1,6 +1,6 @@
 package de.mineking.discord.commands.history;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -14,7 +14,7 @@ public class History {
 	private CommandManager cmdMan;	
 	
 	public History(CommandManager cmdMan) {
-		history = new ArrayList<>();
+		history = new LinkedList<>();
 		
 		this.cmdMan = cmdMan;
 	}
