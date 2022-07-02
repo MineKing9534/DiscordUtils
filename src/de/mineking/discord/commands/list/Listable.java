@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public interface Listable {
@@ -68,7 +67,7 @@ public interface Listable {
 				back = back.asDisabled();
 			}
 			
-			mb.setActionRows(ActionRow.of(back, pageDisplay, next));
+			mb.setActionRow(back, pageDisplay, next);
 		}
 		
 		return mb.build();

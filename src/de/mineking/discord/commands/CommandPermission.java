@@ -10,8 +10,7 @@ public interface CommandPermission {
 	 * @param g
 	 * 		The guild
 	 * 
-	 * @return
-	 * 		The discord role for this guild
+	 * @return  The discord role for this guild
 	 */
 	public default Role getRole(Guild g) {
 		return g.getPublicRole();
