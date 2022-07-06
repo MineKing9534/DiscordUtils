@@ -7,10 +7,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.exceptions.Checks;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public class History {
-	private List<ExecutionData> history;
+	private List<ExecutionData<?, ?>> history;
 	private CommandManager cmdMan;	
 	
 	public History(CommandManager cmdMan) {
@@ -27,7 +29,7 @@ public class History {
 	 * 
 	 * @return The HistoryEntry at a specific position or the last if position is greater or equal to getSize()
 	 */
-	public ExecutionData get(int position) {
+	public ExecutionData<?, ?> get(int position) {
 		return (position < getSize() ? history.get(position) : getLast());
 	}
 	
@@ -35,7 +37,7 @@ public class History {
 	 * @return The last HistoryEntry or null if this history is empty
 	 */
 	@Nullable
-	public ExecutionData getLast() {
+	public ExecutionData<?, ?> getLast() {
 		return history.size() == 0 ? null : history.get(0);
 	}
 	
@@ -70,7 +72,7 @@ public class History {
 	 * @param entry
 	 * 		The HistoryEntry
 	 */
-	public void add(@Nonnull ExecutionData entry) {
+	public <T extends GenericCommandInteractionEvent, C extends Context<T>> void add(@Nonnull ExecutionData<T, C> entry) {
 		Checks.nonNull(entry, "entry");
 		
 		history.add(0, entry);

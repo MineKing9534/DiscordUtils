@@ -1,25 +1,26 @@
-package de.mineking.discord.commands.interaction.context;
+package de.mineking.discord.commands.interaction;
 
 import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import de.mineking.discord.commands.history.ExecutionData;
+import de.mineking.discord.commands.interaction.context.MessageContext;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public abstract class MessageCommand extends ContextCommand {
-	@Override
-	public void perform() {
-		performCommand(getRuntimeData().getMember(), getRuntimeData().getChannel(), ((MessageContextInteractionEvent)getRuntimeData().getEvent()).getTarget());
+public abstract class MessageCommand extends ContextCommand<MessageContextInteractionEvent, MessageContext> {
+	public MessageCommand() {
+		super(MessageContextInteractionEvent.class);
 	}
 	
-	public void performCommand(Member m, GuildMessageChannel channel, Message target) {}
+	@Override
+	protected MessageContext buildContext(ExecutionData<MessageContextInteractionEvent, MessageContext> data) {
+		return new MessageContext(data);
+	}
 	
 	@Override
 	@Nonnull

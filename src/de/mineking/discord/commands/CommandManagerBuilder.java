@@ -21,9 +21,11 @@ import de.mineking.discord.commands.history.RuntimeData;
 import de.mineking.discord.commands.interaction.Command;
 import de.mineking.discord.commands.interaction.Feature;
 import de.mineking.discord.commands.interaction.SlashCommand;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.discord.commands.interaction.handler.InteractionHandler;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public class CommandManagerBuilder {
 	private int threadPool;
@@ -34,7 +36,7 @@ public class CommandManagerBuilder {
 	
 	private BiPredicate<Guild, Feature> featureStateGetter;
 	private Map<String, Consumer<Feature>> commands;
-	private Map<String, Command> stdCommands;
+	private Map<String, Command<?, ?>> stdCommands;
 	private Map<String, ConsoleCommand> consoleCommands;
 	
 	
@@ -53,7 +55,7 @@ public class CommandManagerBuilder {
 	
 	
 	private CommandManagerBuilder(int threadPool, CommandPermission everyonePermission, ErrorMessageHandler errorHandler, BiPredicate<Guild, Feature> featureStateGetter, 
-			Map<String, Command> stdCommands, Map<String, Consumer<Feature>> commands, Map<String, ConsoleCommand> consoleCommands,
+			Map<String, Command<? ,?>> stdCommands, Map<String, Consumer<Feature>> commands, Map<String, ConsoleCommand> consoleCommands,
 			Function<String, Map<Locale, String>> localeMapper, Locale defaultLanguage, SlashCommand helpCommand,
 			Predicate<RuntimeData> historyfilter, Consumer<RuntimeData> commandListener, Integer maxHistoryLength,
 			Map<String, InteractionHandler<?, ?>> interactionHandlers) {
@@ -179,7 +181,7 @@ public class CommandManagerBuilder {
 	 * @return the same CommandManagerBuilder instance
 	 */
 	@Nonnull
-	public CommandManagerBuilder registerCommand(@Nonnull String name, @Nonnull Command cmd) {
+	public <T extends GenericCommandInteractionEvent, C extends Context<T>> CommandManagerBuilder registerCommand(@Nonnull String name, @Nonnull Command<T, C> cmd) {
 		Checks.nonNull(name, "name");
 		Checks.nonNull(cmd, "cmd");
 		

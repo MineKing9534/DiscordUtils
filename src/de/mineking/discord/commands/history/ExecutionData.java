@@ -1,19 +1,20 @@
 package de.mineking.discord.commands.history;
 
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.interaction.Command;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.exceptions.Checks;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class ExecutionData extends RuntimeData {
-	protected Command cmd;
+public class ExecutionData<T extends GenericCommandInteractionEvent, C extends Context<T>> extends RuntimeData {
+	protected Command<T, C> cmd;
 	protected boolean isPermitted;
 	
-	public ExecutionData(@Nonnull RuntimeData data, @Nonnull Command cmd, boolean isPermitted) {
+	public ExecutionData(@Nonnull RuntimeData data, @Nonnull Command<T, C> cmd, boolean isPermitted) {
 		super(data);
 		
 		Checks.nonNull(cmd, "cmd");
@@ -26,7 +27,7 @@ public class ExecutionData extends RuntimeData {
 	 * @return The executed command
 	 */
 	@Nonnull
-	public Command getCommand() {
+	public Command<T, C> getCommand() {
 		return cmd;
 	}
 	
@@ -42,7 +43,9 @@ public class ExecutionData extends RuntimeData {
 	 */
 	@Nonnull
 	public String getArgsString() {
-		return new ArrayList<>(args.keySet()).stream().map((s) -> s + ":" + mapOptionToString(args.get(s))).collect(Collectors.joining(" "));
+		return event.getOptions().stream()
+				.map(o -> o.getName() + ": " + mapOptionToString(o))
+				.collect(Collectors.joining(" "));
 	}
 	
 	private String mapOptionToString(OptionMapping om) {

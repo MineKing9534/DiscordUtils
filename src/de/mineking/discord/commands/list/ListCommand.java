@@ -8,12 +8,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.CommandPermission;
-import de.mineking.discord.commands.history.RuntimeData;
 import de.mineking.discord.commands.interaction.SlashCommand;
+import de.mineking.discord.commands.interaction.context.SlashContext;
 import de.mineking.discord.commands.interaction.option.Option;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -26,7 +25,7 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 	
 	private BiFunction<Guild, Member, T> getter;
 	
-	private BiPredicate<ListCommand<T>, Map<String, OptionMapping>> cond;
+	private BiPredicate<ListCommand<T>, SlashContext> cond;
 	
 	@SuppressWarnings("unused")
 	private ListCommand() {}
@@ -51,47 +50,45 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 		cond = null;
 	}
 	
-	public SlashCommand condition(BiPredicate<ListCommand<T>, Map<String, OptionMapping>> cond) {
+	public SlashCommand condition(BiPredicate<ListCommand<T>, SlashContext> cond) {
 		this.cond = cond;
 	
 		return this;
 	}
 	
+	
+	
 	@Override
-	public void performCommand(Member m, GuildMessageChannel channel, Map<String, OptionMapping> args) {
+	public void performCommand(SlashContext context) {
 		if(cond != null) {
-			if(!cond.test(this, args)) {
+			if(!cond.test(this, context)) {
 				return;
 			}
 		}
 		
-		Listable obj = getter.apply(channel.getGuild(), m);
+		Listable obj = getter.apply(context.guild, context.member);
 		
-		Map<String, Object> data = args.entrySet().stream()
-				.collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getAsString()));
+		Map<String, Object> data = context.event.getOptions().stream()
+				.collect(Collectors.toMap(OptionMapping::getName, OptionMapping::getAsString));
 		
-		int page = args.get("page") == null ? 1 : args.get("page").getAsInt();
+		int page = context.getOption("page", 1, OptionMapping::getAsInt);
 		data.put("page", page);
 		
 		if(page != 1 && (page < 1 || page > obj.getMaxPages(data))) {
-			getFeature().getManager().getErrorHandler().invalidPage(getData(), page, obj.getMaxPages(data));
+			getFeature().getManager().getErrorHandler().invalidPage(context.data, page, obj.getMaxPages(data));
 			
 			return;	
 		}
 
-		reply(
+		context.event.getHook().editOriginal(
 			obj.buildMessage(
-					getEvent().getUserLocale(), 
-					channel.getGuild(), 
-					m, 
+					context.event.getUserLocale(), 
+					context.guild, 
+					context.member, 
 					data
 			)
-		).queue((mes) -> {
+		).queue(mes -> {
 			getFeature().getManager().addList(mes.getIdLong(), obj);
 		});
-	}
-	
-	public RuntimeData getData() {
-		return getRuntimeData();
 	}
 }

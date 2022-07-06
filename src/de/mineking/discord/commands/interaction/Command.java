@@ -9,26 +9,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandPermission;
-import de.mineking.discord.commands.history.RuntimeData;
-import de.mineking.discord.commands.interaction.context.ContextCommand;
-import de.mineking.discord.commands.reply.ModalReplyAction;
-import de.mineking.discord.commands.reply.ReplyManager;
+import de.mineking.discord.commands.history.ExecutionData;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.exceptions.Checks;
 import de.mineking.utils.ReflectionUtils;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.components.Modal;
-import net.dv8tion.jda.api.requests.RestAction;
 
-public abstract class Command {
-	private RuntimeData execData;
-	private ReplyManager replyManager;
-	
-	
+public abstract class Command<T extends GenericCommandInteractionEvent, C extends Context<T>> {
 	String name;
 	Feature feature;
 	
@@ -51,21 +40,27 @@ public abstract class Command {
 	protected Boolean defaultAcknowledge;
 	
 	
-	public Command() {
+	private final Class<T> type;
+	
+	
+	public Command(Class<T> type) {
+		this.type = type;
+		
 		permission = null;
 		defaultAcknowledge = true;
 	}
 	
-	public final void run(@Nonnull RuntimeData data) {
+	public final void run(@Nonnull ExecutionData<T, C> data) {
 		Checks.nonNull(data, "data");
-		
-		this.execData = data;
-		this.replyManager = new ReplyManager(data);
-		
-		perform();
+
+		if(type.isAssignableFrom(data.event.getClass())) {
+			performCommand(buildContext(data));
+		}
 	}
 	
-	public abstract void perform();
+	protected abstract C buildContext(ExecutionData<T, C> data);
+	
+	protected void performCommand(C context) {}
 	
 	/**
 	 * @return Whether the command action should be acknowledged by default.
@@ -112,15 +107,15 @@ public abstract class Command {
 	 */
 	@Nullable
 	public final SlashCommand getAsSlash() {
-		return (this instanceof SlashCommand ? (SlashCommand)this : null);
+		return (this instanceof SlashCommand sc ? sc : null);
 	}
 	
 	/**
 	 * @return This command as ContextCommand, or null if it isn't a context command
 	 */
 	@Nullable
-	public final ContextCommand getAsContext() {
-		return (this instanceof ContextCommand ? (ContextCommand)this : null);
+	public final ContextCommand<T, C> getAsContext() {
+		return (this instanceof ContextCommand<T, C> cc ? cc : null);
 	}
 	
 	/**
@@ -143,138 +138,16 @@ public abstract class Command {
 		return permission != null ? permission : feature.getManager().getEveryonePermission();
 	}
 	
-	
-	
-	/**
-	 * This method will only work in execution instances create by the CommandManager!
-	 * 
-	 * @return The ExecutionData attached to this execution instance
-	 */
-	@Nonnull
-	protected final RuntimeData getRuntimeData() {
-		if(execData != null) {
-			return execData;
-		}
-		
-		else {
-			throw new IllegalStateException("You cannot reply to a non-executed command!");
-		}
-	}
-	
-	/**
-	 * This method will only work in execution instances create by the CommandManager!
-	 * 
-	 * @return The ReplyManager attached to this execution instance
-	 */
-	@Nonnull
-	protected final ReplyManager getReplyManager() {
-		if(replyManager != null) {
-			return replyManager;
-		}
-		
-		else {
-			throw new IllegalStateException("You cannot reply to a non-executed command!");
-		}
-	}
-	
-	/**
-	 * This method will only work in execution instances create by the CommandManager!
-	 * 
-	 * @return The GenericCommandInteractionEvent attached to this execution instance
-	 */
-	@Nonnull
-	protected final GenericCommandInteractionEvent getEvent() {
-		return getRuntimeData().getEvent();
-	}
-	
-	/**
-	 * Replies to the Command
-	 * <b>WARNING:</b> This does only work for acknowledged interactions. To use this enable the defaultAcknowledge field or acknowledge the interaction yourself!
-	 * 
-	 * @param mes
-	 * 		The Message you want to reply
-	 * 
-	 * @return A MessageReplyAction for handling the sending
-	 */
-	@Nonnull
-	protected final RestAction<Message> reply(@Nonnull Message mes) {
-		Checks.nonNull(mes, "mes");
-		
-		if(getReplyManager() != null) {
-			return getReplyManager().reply(mes);
-		}
-		
-		else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	/**
-	 * Replies to the command
-	 * <b>WARNING:</b> This does only work for acknowledged interactions. To use this enable the defaultAcknowledge field or acknowledge the interaction yourself!
-	 * 
-	 * @param message
-	 * 		The String to reply
-	 * 
-	 * @return A MessageReplyAction for handling the sending
-	 */
-	@Nonnull
-	protected final RestAction<Message> reply(@Nonnull String message) {
-		Checks.nonNull(message, "message");
-		
-		return reply(new MessageBuilder()
-				.setContent(message)
-				.build());
-	}
-	
-	/**
-	 * Replies to the command
-	 * <b>WARNING:</b> This does only work for acknowledged interactions. To use this enable the defaultAcknowledge field or acknowledge the interaction yourself!
-	 * 
-	 * @param embed
-	 * 		The MessageEmbed to reply
-	 * 
-	 * @return A MessageReplyAction for handling the sending
-	 */
-	@Nonnull
-	protected final RestAction<Message> reply(@Nonnull MessageEmbed embed) {
-		Checks.nonNull(embed, "embed");
-		
-		return reply(new MessageBuilder()
-				.setEmbeds(embed)
-				.build());
-	}
-	
-	/**
-	 * Replies a modal to the command
-	 * 
-	 * @param modal
-	 * 		The modal to reply
-	 * 
-	 * @return A ModalReplyAction for handling the sending
-	 */
-	@Nonnull
-	protected final ModalReplyAction reply(@Nonnull Modal modal) {
-		Checks.nonNull(modal, "modal");
-		
-		if(getReplyManager() != null) {
-			return getReplyManager().reply(modal);
-		}
-		
-		else {
-			throw new IllegalStateException();
-		}
-	}
-	
 	/**
 	 * @return A clone of this Command
 	 */
+	@SuppressWarnings("unchecked")
 	@Nonnull
-	public Command createClone() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Constructor<? extends Command> c = getClass().getDeclaredConstructor();
+	public Command<T, C> createClone() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Constructor<? extends Command<T, C>> c = (Constructor<? extends Command<T, C>>)getClass().getDeclaredConstructor();
 		c.setAccessible(true);
 		
-		Command cmd = c.newInstance();
+		Command<T, C> cmd = c.newInstance();
 		
 		for(Field f : ReflectionUtils.getFields(cmd.getClass())) {
 			f.setAccessible(true);

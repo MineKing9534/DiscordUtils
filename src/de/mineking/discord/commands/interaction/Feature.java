@@ -7,14 +7,16 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public class Feature {
 	private CommandManager cmdMan;
 
 	private String name;
-	private Map<String, Command> commands;
+	private Map<String, Command<?, ?>> commands;
 
 	public Feature(@Nonnull String name, @Nonnull CommandManager cmdMan) {
 		Checks.nonNull(name, "name");
@@ -52,12 +54,12 @@ public class Feature {
 	 * 
 	 * @return The same Feature instance
 	 */
-	public Feature addCommand(@Nonnull String command, @Nonnull Command cmd) {	
+	public <T extends GenericCommandInteractionEvent, C extends Context<T>> Feature addCommand(@Nonnull String command, @Nonnull Command<T, C> cmd) {	
 		Checks.nonNull(command, "command");
 		Checks.nonNull(cmd, "cmd");
 		
 		try {
-			Command c = cmd.createClone();
+			Command<T, C> c = cmd.createClone();
 			
 			c.name = command;
 			c.feature = this;
@@ -99,7 +101,7 @@ public class Feature {
 	 * @return All commands added to this feature
 	 */
 	@Nonnull
-	public Map<String, Command> getCommands() {
+	public Map<String, Command<?, ?>> getCommands() {
 		return commands;
 	}
 }

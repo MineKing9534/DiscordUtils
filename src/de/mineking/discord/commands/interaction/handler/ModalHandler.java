@@ -18,6 +18,6 @@ public abstract class ModalHandler extends InteractionHandler<ModalInteractionEv
 	@Override
 	protected Map<String, ModalMapping> getArguments(ModalInteractionEvent event) {
 		return event.getValues().stream()
-				.collect(Collectors.toMap((e) -> e.getId(), (e) -> e));
+				.collect(Collectors.toMap(ModalMapping::getId, e -> e));
 	}
 }

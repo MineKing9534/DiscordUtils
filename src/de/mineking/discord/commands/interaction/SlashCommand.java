@@ -11,12 +11,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandPermission;
+import de.mineking.discord.commands.history.ExecutionData;
+import de.mineking.discord.commands.interaction.context.SlashContext;
 import de.mineking.discord.commands.interaction.option.Option;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
-public abstract class SlashCommand extends Command {
+public abstract class SlashCommand extends Command<SlashCommandInteractionEvent, SlashContext> {
 	private SlashCommand owner;
 	
 	private Map<String, SlashCommand> subcommands;
@@ -34,19 +34,19 @@ public abstract class SlashCommand extends Command {
 	private List<Function<Guild, Option>> options;
 	
 	public SlashCommand() {
+		super(SlashCommandInteractionEvent.class);
+		
 		subcommands = new LinkedHashMap<>();
 		
 		options = new ArrayList<>();
 		
 		owner = null;
 	}
-	
+
 	@Override
-	public final void perform() {
-		performCommand(getRuntimeData().getMember(), getRuntimeData().getChannel(), getRuntimeData().getArgs());
+	protected final SlashContext buildContext(ExecutionData<SlashCommandInteractionEvent, SlashContext> data) {
+		return new SlashContext(data);
 	}
-	
-	public void performCommand(Member m, GuildMessageChannel channel, Map<String, OptionMapping> args) {}
 	
 	@Override
 	public Feature getFeature() {
@@ -175,7 +175,7 @@ public abstract class SlashCommand extends Command {
 	public final SlashCommand addOption(@Nonnull Function<Guild, Option> handler) {
 		Checks.nonNull(handler, "handler");
 		
-		this.options.add((g) -> handler.apply(g));
+		this.options.add(handler::apply);
 		
 		return this;
 	}
@@ -192,15 +192,15 @@ public abstract class SlashCommand extends Command {
 	public final SlashCommand addOption(@Nonnull Option option){
 		Checks.nonNull(option, "option");
 		
-		this.options.add((g) -> option);
+		this.options.add(g -> option);
 		
 		return this;
 	}
 	
 	private List<SubcommandData> buildSubcommands(Guild g) {
 		return getSubcommands().values().stream()
-				.filter((cmd) -> cmd.subcommands.isEmpty())
-				.map((cmd) -> {
+				.filter(cmd -> cmd.subcommands.isEmpty())
+				.map(cmd -> {
 					SubcommandData data = new SubcommandData(cmd.getName(), cmd.getDescription())
 							.addOptions(cmd.buildOptions(g));
 				
@@ -223,8 +223,8 @@ public abstract class SlashCommand extends Command {
 	
 	private List<SubcommandGroupData> buildGroups(Guild g) {
 		return getSubcommands().values().stream()
-				.filter((cmd) -> !cmd.subcommands.isEmpty())
-				.map((cmd) -> {
+				.filter(cmd -> !cmd.subcommands.isEmpty())
+				.map(cmd -> {
 					SubcommandGroupData data = new SubcommandGroupData(cmd.getName(), cmd.getDescription())
 						.addSubcommands(cmd.buildSubcommands(g));
 					
@@ -282,7 +282,7 @@ public abstract class SlashCommand extends Command {
 	
 	private final List<OptionData> buildOptions(Guild g) {
 		return getOptions(g).stream()
-				.map((o) -> o.build(this))
+				.map(o -> o.build(this))
 				.toList();
 	}
 	
@@ -297,7 +297,7 @@ public abstract class SlashCommand extends Command {
 		Checks.nonNull(g, "g");
 		
 		return options.stream()
-				.map((f) -> f.apply(g))
+				.map(f -> f.apply(g))
 				.toList();
 	}
 	

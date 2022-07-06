@@ -25,7 +25,7 @@ public class ReflectionUtils {
 	}
 	
 	public static List<Field> getFields(Class<?> clazz) {
-		return getFields(clazz, (f) ->
+		return getFields(clazz, f ->
 			!Modifier.isStatic(f.getModifiers()) &&
 			!Modifier.isTransient(f.getModifiers()) &&
 			!Modifier.isFinal(f.getModifiers())
@@ -33,6 +33,6 @@ public class ReflectionUtils {
 	}
 	
 	public static List<Field> getAllFields(Class<?> clazz) {
-		return getFields(clazz, (f) -> true);
+		return getFields(clazz, f -> true);
 	}
 }

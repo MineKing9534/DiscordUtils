@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,13 +28,13 @@ import javax.annotation.Nullable;
 import com.google.gson.Gson;
 
 import de.mineking.discord.Utils;
-import de.mineking.discord.commands.history.CommandData;
 import de.mineking.discord.commands.history.ExecutionData;
 import de.mineking.discord.commands.history.History;
 import de.mineking.discord.commands.history.RuntimeData;
 import de.mineking.discord.commands.interaction.Command;
 import de.mineking.discord.commands.interaction.Feature;
 import de.mineking.discord.commands.interaction.SlashCommand;
+import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.discord.commands.interaction.handler.ButtonHandler;
 import de.mineking.discord.commands.interaction.handler.InteractionHandler;
 import de.mineking.discord.commands.interaction.handler.ModalHandler;
@@ -220,7 +219,7 @@ public class CommandManager extends ListenerAdapter {
 		Checks.nonNull(name, "name");
 		
 		return features.stream()
-				.filter((f) -> f.getName().equals(name))
+				.filter(f -> f.getName().equals(name))
 				.findFirst()
 				.orElse(null);
 	}
@@ -229,19 +228,19 @@ public class CommandManager extends ListenerAdapter {
 	 * @return All commands of the features added to this CommandManager
 	 */
 	@Nonnull
-	public List<Command> getAllCommands() {
+	public List<Command<?, ?>> getAllCommands() {
 		return features.stream()
-				.flatMap((f) -> f.getCommands().values().stream())
+				.flatMap(f -> f.getCommands().values().stream())
 				.toList();
 	}
 	
 	@Nonnull
-	public Command getCommand(@Nonnull String name) {
+	public Command<?, ?> getCommand(@Nonnull String name) {
 		Checks.nonNull(name, "name");
 		
 		return features.stream()
-				.flatMap((f) -> f.getCommands().values().stream())
-				.filter((c) -> c.getName().equals(name))
+				.flatMap(f -> f.getCommands().values().stream())
+				.filter(c -> c.getName().equals(name))
 				.findFirst()
 				.orElse(null);
 	}
@@ -346,11 +345,11 @@ public class CommandManager extends ListenerAdapter {
 		}
 	}
 	
-	private Command getCommandByPath(String p) {
+	private Command<?, ?> getCommandByPath(String p) {
 		List<String> path = new LinkedList<>(Arrays.asList(p.split("/")));
 		
 		for(Feature f : features) {
-			Command c;
+			Command<?, ?> c;
 			if((c = f.getCommands().get(path.get(0))) != null) {
 				path.remove(0);
 				
@@ -399,24 +398,23 @@ public class CommandManager extends ListenerAdapter {
 	 * @param addToHistory
 	 * 		Whether this execution should be added to the executing users history
 	 */
-	public void performCommand(@Nonnull RuntimeData data, @Nonnull CommandData cmdData, boolean addToHistory) {
+	public void performCommand(@Nonnull RuntimeData data, boolean addToHistory) {
 		Checks.nonNull(data, "data");
-		Checks.nonNull(cmdData, "cmdData");
 		
-		Command c = getCommandByPath(cmdData.getPath());
+		Command<?, ?> c = getCommandByPath(data.path);
 		
 		execute(
-				new ExecutionData(
+				new ExecutionData<>(
 						data, 
 						c, 
-						Utils.hasRole(data.getMember(), c.getPermission().getRole(data.getGuild()))
+						Utils.hasRole(data.member, c.getPermission().getRole(data.guild))
 				), 
 				c.getPermission(), 
 				addToHistory
 		);
 	}
 	
-	private void execute(ExecutionData data, CommandPermission perm, boolean addToHistory) {
+	private void execute(ExecutionData<?, ?> data, CommandPermission perm, boolean addToHistory) {
 		if(!data.isPermitted()) {
 			errorHandler.unlicensed(data, perm);
 			
@@ -427,7 +425,7 @@ public class CommandManager extends ListenerAdapter {
 		
 		if(addToHistory) {
 			if(historyfilter == null || historyfilter.test(data)) {
-				addToHistory(data.getMember().getIdLong(), data);
+				addToHistory(data.member.getIdLong(), data);
 			}
 		}
 		
@@ -436,20 +434,15 @@ public class CommandManager extends ListenerAdapter {
 		}
 	}
 	
-	private void execute0(ExecutionData data) {
+	private <T extends GenericCommandInteractionEvent, C extends Context<T>> void execute0(ExecutionData<T, C> data) {
 		try {
-			Command cmd = data.getCommand().createClone();
+			Command<T, C> cmd = data.getCommand();
 			
-			if(!data.getEvent().isAcknowledged() && cmd.defaultAcknowledge() != null) {
-				data.getEvent().deferReply(cmd.defaultAcknowledge()).queue();
+			if(!data.event.isAcknowledged() && cmd.defaultAcknowledge() != null) {
+				data.event.deferReply(cmd.defaultAcknowledge()).queue();
 			}
 			
 			cmd.run(data);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-			
-			return;
 		} catch(Exception e) {
 			throw new RuntimeException("Execution of command " + data.getCommand().getPath() + " failed with error: ", e);
 		}
@@ -474,14 +467,14 @@ public class CommandManager extends ListenerAdapter {
 	 * @param after
 	 * 		A task to execute after the command execution in the command thread
 	 */
-	public void performCommandAsync(@Nonnull RuntimeData data, @Nonnull CommandData cmd, boolean addToHistory, @Nullable Runnable before, @Nullable Runnable after) {
+	public void performCommandAsync(@Nonnull RuntimeData data, boolean addToHistory, @Nullable Runnable before, @Nullable Runnable after) {
 		executor.execute(() -> {
 			if(before != null) {
 				before.run();
 			}
 			
 			try {
-				performCommand(data, cmd, addToHistory);
+				performCommand(data, addToHistory);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -495,14 +488,14 @@ public class CommandManager extends ListenerAdapter {
 	@Override
 	public void onGenericCommandInteraction(GenericCommandInteractionEvent event) {
 		if(event.isFromGuild()) {
-			performCommandAsync(new RuntimeData(this, event), new CommandData(event), true, null, null);
+			performCommandAsync(new RuntimeData(event), true, null, null);
 		}
 	}
 	
 	@Override
 	public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
 		if(event.isFromGuild()) {
-			Command c = getCommandByPath(event.getCommandPath());
+			Command<?, ?> c = getCommandByPath(event.getCommandPath());
 			
 			if(c != null) {
 				if(c instanceof SlashCommand) {					
@@ -539,7 +532,7 @@ public class CommandManager extends ListenerAdapter {
 	 * 
 	 * @return The same CommandManager instance for chaining
 	 */
-	public CommandManager addToHistory(long memberid, @Nonnull ExecutionData cmd) {
+	public CommandManager addToHistory(long memberid, @Nonnull ExecutionData<?, ?> cmd) {
 		Checks.nonNull(cmd, "cmd");
 		
 		if(!history.containsKey(memberid)) {
@@ -654,8 +647,8 @@ public class CommandManager extends ListenerAdapter {
 		
 		return guild.updateCommands().addCommands(
 				getAllCommands().stream()
-					.filter((cmd) -> cmd.getFeature().isEnabled(guild))
-					.map((cmd) -> cmd.build(guild))
+					.filter(cmd -> cmd.getFeature().isEnabled(guild))
+					.map(cmd -> cmd.build(guild))
 					.toList()
 		);
 	}
