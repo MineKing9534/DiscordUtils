@@ -2,14 +2,13 @@ package de.mineking.discord.commands.history;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandManager;
-import de.mineking.discord.commands.interaction.context.Context;
 import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public class History {
 	private List<ExecutionData<?, ?>> history;
@@ -72,7 +71,7 @@ public class History {
 	 * @param entry
 	 * 		The HistoryEntry
 	 */
-	public <T extends GenericCommandInteractionEvent, C extends Context<T>> void add(@Nonnull ExecutionData<T, C> entry) {
+	public void add(@Nonnull ExecutionData<?, ?> entry) {
 		Checks.nonNull(entry, "entry");
 		
 		history.add(0, entry);
@@ -87,5 +86,12 @@ public class History {
 	 */
 	public int getSize() {
 		return history.size();
+	}
+	
+	/**
+	 * @return A stream of all elements in the list
+	 */
+	public Stream<ExecutionData<?, ?>> stream() {
+		return history.stream();
 	}
 }
