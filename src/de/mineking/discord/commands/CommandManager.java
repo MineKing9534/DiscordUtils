@@ -33,7 +33,8 @@ import de.mineking.discord.commands.history.RuntimeData;
 import de.mineking.discord.commands.interaction.Command;
 import de.mineking.discord.commands.interaction.Feature;
 import de.mineking.discord.commands.interaction.SlashCommand;
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.AutocompleteContext;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.discord.commands.interaction.handler.ButtonHandler;
 import de.mineking.discord.commands.interaction.handler.InteractionHandler;
 import de.mineking.discord.commands.interaction.handler.ModalHandler;
@@ -434,7 +435,7 @@ public class CommandManager extends ListenerAdapter {
 		}
 	}
 	
-	private <T extends GenericCommandInteractionEvent, C extends Context<T>> void execute0(ExecutionData<T, C> data) {
+	private <T extends GenericCommandInteractionEvent, C extends CommandContext<T>> void execute0(ExecutionData<T, C> data) {
 		try {
 			Command<T, C> cmd = data.getCommand();
 			
@@ -502,7 +503,7 @@ public class CommandManager extends ListenerAdapter {
 					for(Option o : ((SlashCommand)c).getOptions(event.getGuild())) {
 						if(o.getName().equals(event.getFocusedOption().getName())) {
 							if(o instanceof AutocompleteOption ao) {
-								List<Choice> result = ao.execute(event);
+								List<Choice> result = ao.handle(new AutocompleteContext(event));
 								
 								if(result != null) {
 									event.replyChoices(result).queue();

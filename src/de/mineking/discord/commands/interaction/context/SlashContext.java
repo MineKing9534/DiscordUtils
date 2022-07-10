@@ -7,8 +7,8 @@ import de.mineking.discord.commands.history.ExecutionData;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class SlashContext extends Context<SlashCommandInteractionEvent> {
-	public SlashContext(ExecutionData<SlashCommandInteractionEvent, ? extends Context<SlashCommandInteractionEvent>> data) {
+public class SlashContext extends CommandContext<SlashCommandInteractionEvent> {
+	public SlashContext(ExecutionData<SlashCommandInteractionEvent, ? extends CommandContext<SlashCommandInteractionEvent>> data) {
 		super(data);
 	}
 	

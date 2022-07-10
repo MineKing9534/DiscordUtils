@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.CommandManager;
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -54,7 +54,7 @@ public class Feature {
 	 * 
 	 * @return The same Feature instance
 	 */
-	public <T extends GenericCommandInteractionEvent, C extends Context<T>> Feature addCommand(@Nonnull String command, @Nonnull Command<T, C> cmd) {	
+	public <T extends GenericCommandInteractionEvent, C extends CommandContext<T>> Feature addCommand(@Nonnull String command, @Nonnull Command<T, C> cmd) {	
 		Checks.nonNull(command, "command");
 		Checks.nonNull(cmd, "cmd");
 		

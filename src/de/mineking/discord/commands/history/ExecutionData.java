@@ -5,12 +5,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.interaction.Command;
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class ExecutionData<T extends GenericCommandInteractionEvent, C extends Context<T>> extends RuntimeData {
+public class ExecutionData<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> extends RuntimeData {
 	protected Command<T, C> cmd;
 	protected boolean isPermitted;
 	

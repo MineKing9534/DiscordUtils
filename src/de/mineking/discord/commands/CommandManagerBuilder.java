@@ -20,7 +20,7 @@ import de.mineking.discord.commands.history.RuntimeData;
 import de.mineking.discord.commands.interaction.Command;
 import de.mineking.discord.commands.interaction.Feature;
 import de.mineking.discord.commands.interaction.SlashCommand;
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.discord.commands.interaction.handler.InteractionHandler;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
@@ -181,7 +181,7 @@ public class CommandManagerBuilder {
 	 * @return the same CommandManagerBuilder instance
 	 */
 	@Nonnull
-	public <T extends GenericCommandInteractionEvent, C extends Context<T>> CommandManagerBuilder registerCommand(@Nonnull String name, @Nonnull Command<T, C> cmd) {
+	public <T extends GenericCommandInteractionEvent, C extends CommandContext<T>> CommandManagerBuilder registerCommand(@Nonnull String name, @Nonnull Command<T, C> cmd) {
 		Checks.nonNull(name, "name");
 		Checks.nonNull(cmd, "cmd");
 		

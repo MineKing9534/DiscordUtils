@@ -2,10 +2,10 @@ package de.mineking.discord.commands.interaction;
 
 import javax.annotation.Nullable;
 
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
-public abstract class ContextCommand<T extends GenericCommandInteractionEvent, C extends Context<T>> extends Command<T, C> {
+public abstract class ContextCommand<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> extends Command<T, C> {
 	public ContextCommand(Class<T> type) {
 		super(type);
 	}

@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.history.ExecutionData;
-import de.mineking.discord.commands.interaction.context.Context;
+import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.exceptions.Checks;
 import de.mineking.utils.ReflectionUtils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-public abstract class Command<T extends GenericCommandInteractionEvent, C extends Context<T>> {
+public abstract class Command<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> {
 	String name;
 	Feature feature;
 	
