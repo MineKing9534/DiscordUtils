@@ -1,6 +1,5 @@
 package de.mineking.discord.commands.list;
 
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -9,21 +8,23 @@ import com.google.gson.Gson;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public interface Listable {
 	@Nonnull
-	public default MessageEmbed list(@Nonnull Locale lang, @Nonnull Guild guild, @Nonnull Member m, @Nonnull Map<String, Object> args) {
+	public default MessageEmbed list(@Nonnull DiscordLocale lang, @Nonnull Guild guild, @Nonnull Member m, @Nonnull Map<String, Object> args) {
 		return list(lang, guild, m, (int)args.get("page"));
 	}
 
 	@Nonnull
-	public MessageEmbed list(@Nonnull Locale lang, @Nonnull Guild guild, @Nonnull Member m, int page);
+	public MessageEmbed list(@Nonnull DiscordLocale lang, @Nonnull Guild guild, @Nonnull Member m, int page);
 	
 	public default boolean showButtons() {
 		return true;
@@ -48,7 +49,7 @@ public interface Listable {
 	}
 	
 	@Nonnull
-	public default Message buildMessage(@Nonnull Locale locale, @Nonnull Guild guild, @Nonnull Member m, @Nonnull Map<String, Object> data) {
+	public default Message buildMessage(@Nonnull DiscordLocale locale, @Nonnull Guild guild, @Nonnull Member m, @Nonnull Map<String, Object> data) {
 		MessageBuilder mb = new MessageBuilder(new EmbedBuilder(list(locale, guild, m, data))
 				.build());
 		
@@ -67,7 +68,7 @@ public interface Listable {
 				back = back.asDisabled();
 			}
 			
-			mb.setActionRow(back, pageDisplay, next);
+			mb.setActionRows(ActionRow.of(back, pageDisplay, next));
 		}
 		
 		return mb.build();

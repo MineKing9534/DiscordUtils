@@ -56,7 +56,7 @@ public class ExecutionData<T extends GenericCommandInteractionEvent, C extends C
 				result = String.valueOf(om.getAsBoolean());
 				break;
 			case CHANNEL:
-				result = om.getAsGuildChannel().getAsMention();
+				result = om.getAsChannel().getAsMention();
 				break;
 			case INTEGER:
 				result = String.valueOf(om.getAsLong());

@@ -3,7 +3,6 @@ package de.mineking.discord.commands.interaction;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -17,6 +16,7 @@ import de.mineking.discord.commands.interaction.option.Option;
 import de.mineking.exceptions.Checks;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -205,11 +205,9 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 							.addOptions(cmd.buildOptions(g));
 				
 					if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-						Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
+						Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
 						
-						for(Map.Entry<Locale, String> e : locales.entrySet()) {
-							data.setDescription(e.getValue(), e.getKey());
-						}
+						data.setDescriptionLocalizations(locales);
 						
 						if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
 							data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
@@ -229,11 +227,9 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 						.addSubcommands(cmd.buildSubcommands(g));
 					
 					if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-						Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
+						Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
 						
-						for(Map.Entry<Locale, String> e : locales.entrySet()) {
-							data.setDescription(e.getValue(), e.getKey());
-						}
+						data.setDescriptionLocalizations(locales);
 						
 						if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
 							data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
@@ -257,11 +253,9 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 		SlashCommandData data = Commands.slash(getName(), getDescription());
 		
 		if(getFeature().getManager().getLocalizationMapper() != null) {
-			Map<Locale, String> locales = getFeature().getManager().getLocalizationMapper().apply(getPath());
+			Map<DiscordLocale, String> locales = getFeature().getManager().getLocalizationMapper().apply(getPath());
 			
-			for(Map.Entry<Locale, String> e : locales.entrySet()) {
-				data.setDescription(e.getValue(), e.getKey());
-			}
+			data.setDescriptionLocalizations(locales);
 			
 			if(getFeature().getManager().getDefaultLanguage() != null) {
 				data.setDescription(locales.get(getFeature().getManager().getDefaultLanguage()));

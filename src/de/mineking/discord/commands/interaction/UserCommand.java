@@ -1,8 +1,5 @@
 package de.mineking.discord.commands.interaction;
 
-import java.util.Locale;
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.history.ExecutionData;
@@ -28,11 +25,7 @@ public abstract class UserCommand extends ContextCommand<UserContextInteractionE
 		CommandData data = Commands.user(getName());
 		
 		if(getFeature().getManager().getLocalizationMapper() != null) {
-			Map<Locale, String> locales = getFeature().getManager().getLocalizationMapper().apply(getPath());
-			
-			for(var e : locales.entrySet()) {
-				data.setName(e.getValue(), e.getKey());
-			}
+			data.setNameLocalizations(getFeature().getManager().getLocalizationMapper().apply(getPath()));
 		}
 		
 		return data;

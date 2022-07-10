@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>com.github.MineKing9534</groupId>
 			<artifactId>JDA</artifactId>
-			<version>89c440d</version>
+			<version>6942fb5</version>
 		</dependency>
 	</dependencies>
 </project>

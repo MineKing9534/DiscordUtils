@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +49,7 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
@@ -65,8 +65,8 @@ public class CommandManager extends ListenerAdapter {
 	private final Map<String, ConsoleCommand> consoleCommands;
 	
 	
-	private final Function<String, Map<Locale, String>> localeMapper;
-	private final Locale defaultLanguage;
+	private final Function<String, Map<DiscordLocale, String>> localeMapper;
+	private final DiscordLocale defaultLanguage;
 	
 	private final SlashCommand helpCommand;
 	
@@ -83,7 +83,7 @@ public class CommandManager extends ListenerAdapter {
 	
 	
 	CommandManager(int threadPool, CommandPermission everyonePermission, ErrorMessageHandler errorHandler, BiPredicate<Guild, Feature> featureStateGetter, List<Feature> features, Map<String, ConsoleCommand> consoleCommands,
-			Function<String, Map<Locale, String>> localeMapper, Locale defaultLanguage, SlashCommand helpCommand,
+			Function<String, Map<DiscordLocale, String>> localeMapper, DiscordLocale defaultLanguage, SlashCommand helpCommand,
 			Predicate<RuntimeData> historyfilter, Consumer<RuntimeData> commandListener, Integer maxHistoryLength,
 			Map<String, InteractionHandler<?, ?>> interactionHandlers) {
 		this.errorHandler = errorHandler;
@@ -249,7 +249,7 @@ public class CommandManager extends ListenerAdapter {
 	 * @return The default language for localization or {@code null} if none is set
 	 */
 	@Nullable
-	public Locale getDefaultLanguage() {
+	public DiscordLocale getDefaultLanguage() {
 		return defaultLanguage;
 	}
 
@@ -265,7 +265,7 @@ public class CommandManager extends ListenerAdapter {
 	 * @return The added localeMapper or {@code null} if none is set
 	 */
 	@Nullable
-	public Function<String, Map<Locale, String>> getLocalizationMapper() {
+	public Function<String, Map<DiscordLocale, String>> getLocalizationMapper() {
 		return localeMapper;
 	}
 

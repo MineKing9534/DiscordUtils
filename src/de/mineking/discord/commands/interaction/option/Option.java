@@ -4,13 +4,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.interaction.SlashCommand;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -96,8 +96,15 @@ public class Option extends OptionData {
 	}
 	
 	@Override
-	public Option setDescription(String description, Locale... locales) {
-		super.setDescription(description, locales);
+	public Option setDescriptionLocalization(DiscordLocale locale, String description) {
+		super.setDescriptionLocalization(locale, description);
+		
+		return this;
+	}
+	
+	@Override
+	public Option setDescriptionLocalizations(Map<DiscordLocale, String> map) {
+		super.setDescriptionLocalizations(map);
 		
 		return this;
 	}
@@ -138,8 +145,15 @@ public class Option extends OptionData {
 	}
 	
 	@Override
-	public Option setName(String name, Locale... locales) {
-		super.setName(name, locales);
+	public Option setNameLocalization(DiscordLocale locale, String name) {
+		super.setNameLocalization(locale, name);
+		
+		return this;
+	}
+	
+	@Override
+	public Option setNameLocalizations(Map<DiscordLocale, String> map) {
+		super.setNameLocalizations(map);
 		
 		return this;
 	}
@@ -197,11 +211,9 @@ public class Option extends OptionData {
 		
 		if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
 			{
-				Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd));
-				
-				for(var e : locales.entrySet()) {
-					data.setDescription(e.getValue(), e.getKey());
-				}
+				Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd));
+			
+				data.setDescriptionLocalizations(locales);
 				
 				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
 					data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
@@ -211,11 +223,9 @@ public class Option extends OptionData {
 			List<Choice> choices = data.getChoices();
 			
 			for(Choice c : choices) {
-				Map<Locale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd) + "." + c.getName());
+				Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd) + "." + c.getName());
 				
-				for(var e : locales.entrySet()) {
-					c.setName(e.getValue(), e.getKey());
-				}
+				c.setNameLocalizations(locales);
 				
 				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
 					c.setName(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
