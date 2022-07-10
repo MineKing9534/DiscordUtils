@@ -26,10 +26,5 @@ public abstract class AutocompleteOption extends Option {
 		this(type, name, false);
 	}
 	
-	@Override
-	public Option setAutoComplete(boolean autoComplete) {
-		throw new UnsupportedOperationException();
-	}
-	
 	public abstract List<Choice> handle(AutocompleteContext context);
 }
