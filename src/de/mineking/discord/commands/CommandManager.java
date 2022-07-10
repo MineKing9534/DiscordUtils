@@ -1,21 +1,19 @@
 package de.mineking.discord.commands;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -43,16 +41,6 @@ import de.mineking.discord.commands.interaction.option.AutocompleteOption;
 import de.mineking.discord.commands.interaction.option.Option;
 import de.mineking.discord.commands.list.Listable;
 import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 public class CommandManager extends ListenerAdapter {
 	private final ExecutorService executor;
@@ -127,35 +115,19 @@ public class CommandManager extends ListenerAdapter {
 		}.init());
 		
 		this.executor.execute(() -> {
-			try {
-				String line = "";
+			try(InputStreamReader isr = new InputStreamReader(System.in); BufferedReader br = new BufferedReader(isr)) {
+				String line;
 				
-				BufferedReader reader;
-				
-				File f = new File("stdin");
-				
-				if(!f.exists()) {
-					reader = new BufferedReader(new InputStreamReader(System.in));	
-				}
-				
-				else {
-					reader = new BufferedReader(new FileReader(f));
-				}
-				
-				try {
-					while(true) {
-						if((line = reader.readLine()) != null) {
-							try {
-								performConsole(line);
-							} catch(Exception e) {
-								e.printStackTrace();
-							}
+				while(true) {
+					if((line = br.readLine()) != null) {
+						try {
+							performConsole(line);
+						} catch(Exception e) {
+							new Exception("Error handling console command", e).printStackTrace();
 						}
 					}
-				} finally {
-					reader.close();
 				}
-			} catch (IOException e) { 
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		});
