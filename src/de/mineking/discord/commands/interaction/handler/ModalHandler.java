@@ -1,10 +1,10 @@
 package de.mineking.discord.commands.interaction.handler;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class ModalHandler extends InteractionHandler<ModalInteractionEvent, Map<String, ModalMapping>> {
 	public ModalHandler(boolean autoRemove) {

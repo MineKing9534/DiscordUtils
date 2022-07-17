@@ -7,16 +7,16 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import net.dv8tion.jda.internal.utils.Checks;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -38,9 +38,10 @@ import de.mineking.discord.commands.interaction.handler.InteractionHandler;
 import de.mineking.discord.commands.interaction.handler.ModalHandler;
 import de.mineking.discord.commands.interaction.handler.SelectHandler;
 import de.mineking.discord.commands.interaction.option.AutocompleteOption;
+import de.mineking.discord.commands.interaction.option.Choice;
 import de.mineking.discord.commands.interaction.option.Option;
 import de.mineking.discord.commands.list.Listable;
-import de.mineking.exceptions.Checks;
+import de.mineking.discord.commands.localization.LocalizationMapper;
 
 public class CommandManager extends ListenerAdapter {
 	private final ExecutorService executor;
@@ -54,8 +55,7 @@ public class CommandManager extends ListenerAdapter {
 	private final Map<String, ConsoleCommand> consoleCommands;
 	
 	
-	private final Function<String, Map<DiscordLocale, String>> localeMapper;
-	private final DiscordLocale defaultLanguage;
+	private final LocalizationMapper localizationMapper;
 	
 	private final SlashCommand helpCommand;
 	
@@ -72,7 +72,7 @@ public class CommandManager extends ListenerAdapter {
 	
 	
 	CommandManager(int threadPool, CommandPermission everyonePermission, ErrorMessageHandler errorHandler, BiPredicate<Guild, Feature> featureStateGetter, List<Feature> features, Map<String, ConsoleCommand> consoleCommands,
-			Function<String, Map<DiscordLocale, String>> localeMapper, DiscordLocale defaultLanguage, SlashCommand helpCommand,
+			LocalizationMapper localizationMapper, SlashCommand helpCommand,
 			Predicate<RuntimeData> historyfilter, Consumer<RuntimeData> commandListener, Integer maxHistoryLength,
 			Map<String, InteractionHandler<?, ?>> interactionHandlers) {
 		this.errorHandler = errorHandler;
@@ -82,8 +82,7 @@ public class CommandManager extends ListenerAdapter {
 		this.features = features;
 		this.consoleCommands = consoleCommands;
 		
-		this.localeMapper = localeMapper;
-		this.defaultLanguage = defaultLanguage;
+		this.localizationMapper = localizationMapper;
 		this.helpCommand = helpCommand;
 		
 		this.historyfilter = historyfilter;
@@ -189,7 +188,7 @@ public class CommandManager extends ListenerAdapter {
 	 */
 	@Nonnull
 	public Feature getFeature(@Nonnull String name) {
-		Checks.nonNull(name, "name");
+		Checks.notNull(name, "name");
 		
 		return features.stream()
 				.filter(f -> f.getName().equals(name))
@@ -209,21 +208,13 @@ public class CommandManager extends ListenerAdapter {
 	
 	@Nonnull
 	public Command<?, ?> getCommand(@Nonnull String name) {
-		Checks.nonNull(name, "name");
+		Checks.notNull(name, "name");
 		
 		return features.stream()
 				.flatMap(f -> f.getCommands().values().stream())
 				.filter(c -> c.getName().equals(name))
 				.findFirst()
 				.orElse(null);
-	}
-	
-	/**
-	 * @return The default language for localization or {@code null} if none is set
-	 */
-	@Nullable
-	public DiscordLocale getDefaultLanguage() {
-		return defaultLanguage;
 	}
 
 	/**
@@ -238,10 +229,10 @@ public class CommandManager extends ListenerAdapter {
 	 * @return The added localeMapper or {@code null} if none is set
 	 */
 	@Nullable
-	public Function<String, Map<DiscordLocale, String>> getLocalizationMapper() {
-		return localeMapper;
+	public LocalizationMapper getLocalizationMapper() {
+		return localizationMapper;
 	}
-
+	
 	/**
 	 * @return The maximum length of a users commands history before the first element will be deleted or {@code null} if the history can get infinite long
 	 */
@@ -262,8 +253,8 @@ public class CommandManager extends ListenerAdapter {
 	 */
 	@Nonnull
 	public CommandManager addInteractionHandler(@Nonnull String id, @Nonnull InteractionHandler<?, ?> handler) {
-		Checks.nonNull(id, "id");
-		Checks.nonNull(handler, "handler");
+		Checks.notNull(id, "id");
+		Checks.notNull(handler, "handler");
 		
 		interactionHandlers.put(id, handler);
 		
@@ -292,7 +283,7 @@ public class CommandManager extends ListenerAdapter {
 	 */
 	@Nullable
 	public InteractionHandler<?, ?> removeInteractionHandler(@Nonnull String id) {
-		Checks.nonNull(id, "id");
+		Checks.notNull(id, "id");
 		
 		return interactionHandlers.remove(id);
 	}
@@ -372,7 +363,7 @@ public class CommandManager extends ListenerAdapter {
 	 * 		Whether this execution should be added to the executing users history
 	 */
 	public void performCommand(@Nonnull RuntimeData data, boolean addToHistory) {
-		Checks.nonNull(data, "data");
+		Checks.notNull(data, "data");
 		
 		Command<?, ?> c = getCommandByPath(data.path);
 		
@@ -417,7 +408,7 @@ public class CommandManager extends ListenerAdapter {
 			
 			cmd.run(data);
 		} catch(Exception e) {
-			throw new RuntimeException("Execution of command " + data.getCommand().getPath() + " failed with error: ", e);
+			throw new RuntimeException("Execution of command " + data.getCommand().getPath(true) + " failed with error: ", e);
 		}
 	}
 	
@@ -468,17 +459,23 @@ public class CommandManager extends ListenerAdapter {
 	@Override
 	public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
 		if(event.isFromGuild()) {
-			Command<?, ?> c = getCommandByPath(event.getCommandPath());
+			Command<?, ?> cmd = getCommandByPath(event.getCommandPath());
 			
-			if(c != null) {
-				if(c instanceof SlashCommand) {					
-					for(Option o : ((SlashCommand)c).getOptions(event.getGuild())) {
+			if(cmd != null) {
+				if(cmd instanceof SlashCommand sc) {					
+					for(Option o : sc.getOptions(event.getGuild())) {
 						if(o.getName().equals(event.getFocusedOption().getName())) {
 							if(o instanceof AutocompleteOption ao) {
-								List<Choice> result = ao.handle(new AutocompleteContext(event));
+								AutocompleteContext context = new AutocompleteContext(this, event);
+								
+								List<Choice> result = ao.handle(context);
 								
 								if(result != null) {
-									event.replyChoices(result).queue();
+									event.replyChoices(
+											result.stream()
+											.map(c -> c.build(context))
+											.toList()
+									).queue();
 									
 									return;
 								}
@@ -506,7 +503,7 @@ public class CommandManager extends ListenerAdapter {
 	 * @return The same CommandManager instance for chaining
 	 */
 	public CommandManager addToHistory(long memberid, @Nonnull ExecutionData<?, ?> cmd) {
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(cmd, "cmd");
 		
 		if(!history.containsKey(memberid)) {
 			history.put(memberid, new History(this));
@@ -616,12 +613,18 @@ public class CommandManager extends ListenerAdapter {
 	 */
 	@Nonnull
 	public CommandListUpdateAction updateCommands(@Nonnull Guild guild) {
-		Checks.nonNull(guild, "guild");
+		Checks.notNull(guild, "guild");
 		
 		return guild.updateCommands().addCommands(
 				getAllCommands().stream()
 					.filter(cmd -> cmd.getFeature().isEnabled(guild))
-					.map(cmd -> cmd.build(guild))
+					.map(cmd -> {
+						try {
+							return cmd.build(guild);
+						} catch(Exception e) {
+							throw new RuntimeException("An error occoured when building command " + cmd.getName(), e);
+						}
+					})
 					.toList()
 		);
 	}
@@ -630,7 +633,7 @@ public class CommandManager extends ListenerAdapter {
 	 * <i>Intern method; should only be used by people who know what they're doing</i>
 	 */
 	public void addList(long mesid, @Nonnull Listable obj) {
-		Checks.nonNull(obj, "obj");
+		Checks.notNull(obj, "obj");
 		
 		lists.put(mesid, obj);
 	}

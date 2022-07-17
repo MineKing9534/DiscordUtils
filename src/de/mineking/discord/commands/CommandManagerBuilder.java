@@ -1,16 +1,15 @@
 package de.mineking.discord.commands;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.internal.utils.Checks;
+
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -22,10 +21,7 @@ import de.mineking.discord.commands.interaction.Feature;
 import de.mineking.discord.commands.interaction.SlashCommand;
 import de.mineking.discord.commands.interaction.context.CommandContext;
 import de.mineking.discord.commands.interaction.handler.InteractionHandler;
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
+import de.mineking.discord.commands.localization.LocalizationMapper;
 
 public class CommandManagerBuilder {
 	private int threadPool;
@@ -40,9 +36,7 @@ public class CommandManagerBuilder {
 	private Map<String, ConsoleCommand> consoleCommands;
 	
 	
-	private Function<String, Map<DiscordLocale, String>> localeMapper;
-	private DiscordLocale defaultLanguage;
-	
+	private LocalizationMapper localizationMapper;
 	private SlashCommand helpCommand;
 	
 	
@@ -56,7 +50,7 @@ public class CommandManagerBuilder {
 	
 	private CommandManagerBuilder(int threadPool, CommandPermission everyonePermission, ErrorMessageHandler errorHandler, BiPredicate<Guild, Feature> featureStateGetter, 
 			Map<String, Command<? ,?>> stdCommands, Map<String, Consumer<Feature>> commands, Map<String, ConsoleCommand> consoleCommands,
-			Function<String, Map<DiscordLocale, String>> localeMapper, DiscordLocale defaultLanguage, SlashCommand helpCommand,
+			LocalizationMapper localizationMapper, SlashCommand helpCommand,
 			Predicate<RuntimeData> historyfilter, Consumer<RuntimeData> commandListener, Integer maxHistoryLength,
 			Map<String, InteractionHandler<?, ?>> interactionHandlers) {
 		this.threadPool = threadPool;
@@ -69,8 +63,7 @@ public class CommandManagerBuilder {
 		this.commands = commands;
 		this.consoleCommands = consoleCommands;
 		
-		this.localeMapper = localeMapper;
-		this.defaultLanguage = defaultLanguage;
+		this.localizationMapper = localizationMapper;
 		this.helpCommand = helpCommand;
 		
 		this.historyFilter = historyfilter;
@@ -87,7 +80,7 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public static CommandManagerBuilder createDefault() {
-		return new CommandManagerBuilder(10, new CommandPermission() {} , new ErrorMessageHandler() {}, (guild, feature) -> true, new LinkedHashMap<>(), new LinkedHashMap<>(), new HashMap<>(), null, null, null, null, null, 100, new HashMap<>());
+		return new CommandManagerBuilder(10, new CommandPermission() {} , new ErrorMessageHandler() {}, (guild, feature) -> true, new LinkedHashMap<>(), new LinkedHashMap<>(), new HashMap<>(), null, null, null, null, 100, new HashMap<>());
 	}
 
 	/**
@@ -111,7 +104,7 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder setEveryonePermission(@Nonnull CommandPermission everyonePermission) {
-		Checks.nonNull(everyonePermission, "everyonePermission");
+		Checks.notNull(everyonePermission, "everyonePermission");
 		
 		this.everyonePermission = everyonePermission;
 		
@@ -126,7 +119,7 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder setErrorHandler(@Nonnull ErrorMessageHandler errorHandler) {
-		Checks.nonNull(errorHandler, "errorHandler");
+		Checks.notNull(errorHandler, "errorHandler");
 		
 		this.errorHandler = errorHandler;
 		
@@ -141,7 +134,7 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder setFeatureStateGetter(@Nonnull BiPredicate<Guild, Feature> featureStateGetter) {
-		Checks.nonNull(featureStateGetter, "featureStateGetter");
+		Checks.notNull(featureStateGetter, "featureStateGetter");
 		
 		this.featureStateGetter = featureStateGetter;
 		
@@ -161,8 +154,8 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder createFeature(@Nonnull String name, @Nonnull Consumer<Feature> handler) {
-		Checks.nonNull(name, "name");
-		Checks.nonNull(handler, "handler");
+		Checks.notNull(name, "name");
+		Checks.notNull(handler, "handler");
 		
 		commands.put(name, handler);
 		
@@ -182,8 +175,8 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public <T extends GenericCommandInteractionEvent, C extends CommandContext<T>> CommandManagerBuilder registerCommand(@Nonnull String name, @Nonnull Command<T, C> cmd) {
-		Checks.nonNull(name, "name");
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(name, "name");
+		Checks.notNull(cmd, "cmd");
 		
 		stdCommands.put(name, cmd);
 		
@@ -203,8 +196,8 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder registerConsoleCommand(@Nonnull String name, @Nonnull ConsoleCommand cmd) {
-		Checks.nonNull(name, "name");
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(name, "name");
+		Checks.notNull(cmd, "cmd");
 		
 		this.consoleCommands.put(name, cmd);
 		
@@ -218,21 +211,8 @@ public class CommandManagerBuilder {
 	 * @return the same CommandManagerBuilder instance
 	 */
 	@Nonnull
-	public CommandManagerBuilder setLocaleMapper(@Nullable Function<String, Map<DiscordLocale, String>> localeMapper) {
-		this.localeMapper = localeMapper;
-		
-		return this;
-	}
-
-	/**
-	 * @param defaultLanguage
-	 * 		The default locale or {@code null} if you don't want to set a default locale. The description will be set to the result of the localeMapper for this locale as default. This will be shown to the client if the user doesn't have a supported language selected.
-	 * 
-	 * @return the same CommandManagerBuilder instance
-	 */
-	@Nonnull
-	public CommandManagerBuilder setDefaultLanguage(@Nullable DiscordLocale defaultLanguage) {
-		this.defaultLanguage = defaultLanguage;
+	public CommandManagerBuilder setLocaleMapper(@Nullable LocalizationMapper localizationMapper) {
+		this.localizationMapper = localizationMapper;
 		
 		return this;
 	}
@@ -302,8 +282,8 @@ public class CommandManagerBuilder {
 	 */
 	@Nonnull
 	public CommandManagerBuilder addInteractionHandler(@Nonnull String id, @Nonnull InteractionHandler<?, ?> handler) {
-		Checks.nonNull(id, "id");
-		Checks.nonNull(handler, "handler");
+		Checks.notNull(id, "id");
+		Checks.notNull(handler, "handler");
 		
 		interactionHandlers.put(id, handler);
 		
@@ -332,7 +312,7 @@ public class CommandManagerBuilder {
 	public CommandManager build() {
 		List<Feature> features = new ArrayList<>();
 	
-		CommandManager cmdMan = new CommandManager(threadPool, everyonePermission, errorHandler, featureStateGetter, features, consoleCommands, localeMapper, defaultLanguage, helpCommand, historyFilter, commandListener, maxHistoryLength, interactionHandlers);
+		CommandManager cmdMan = new CommandManager(threadPool, everyonePermission, errorHandler, featureStateGetter, features, consoleCommands, localizationMapper, helpCommand, historyFilter, commandListener, maxHistoryLength, interactionHandlers);
 	
 		Feature std = new Feature("std", cmdMan);
 		

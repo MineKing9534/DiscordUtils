@@ -1,35 +1,52 @@
 package de.mineking.discord.commands.interaction.option;
 
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import de.mineking.discord.commands.interaction.CommandDataImpl;
+import de.mineking.discord.commands.interaction.CommandDataImpl.LocalizationHolder;
 import de.mineking.discord.commands.interaction.SlashCommand;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import de.mineking.discord.commands.localization.LocalizationInfo;
 
 public class Option extends OptionData {
-	public Option(OptionType type, String name, String defaultDescription, boolean isRequired) {
-		super(type, name, defaultDescription, isRequired);
+	private final LocalizationInfo localization;
+	
+	private final List<Command.Choice> choices = new ArrayList<>();
+	
+	public Option(@Nonnull OptionType type, @Nonnull String name, @Nullable LocalizationInfo localization, boolean isRequired) {
+		super(type, name, name, isRequired);
+		
+		this.localization = localization == null ? LocalizationInfo.createEmpty() : localization;
 	}
 	
-	public Option(OptionType type, String name, String defaultDescription) {
-		this(type, name, defaultDescription, false);
+	public Option(@Nonnull OptionType type, @Nonnull String name, @Nullable LocalizationInfo localization) {
+		this(type, name, localization, false);
 	}
 	
-	public Option(OptionType type, String name, boolean isRequired) {
-		this(type, name, " ", isRequired);
+	public Option(@Nonnull OptionType type, @Nonnull String name, boolean isRequired) {
+		this(type, name, null, isRequired);
 	}
-
-	public Option(OptionType type, String name) {
+	
+	public Option(@Nonnull OptionType type, @Nonnull String name) {
 		this(type, name, false);
+	}
+	
+	public LocalizationInfo getLocalization() {
+		return localization;
 	}
 	
 	@Override
@@ -54,19 +71,27 @@ public class Option extends OptionData {
 	}
 	
 	@Override
-	public Option addChoices(Choice... choices) {
+	public Option addChoices(Command.Choice... choices) {
 		super.addChoices(choices);
 		
 		return this;
 	}
 	
 	@Override
-	public Option addChoices(Collection<? extends Choice> choices) {
-		super.addChoices(choices);
+	public Option addChoices(@Nonnull Collection<? extends Command.Choice> choices) {
+		Checks.notNull(choices, "choices");
+		
+		if(isAutoComplete() || !getType().canSupportChoices()) {
+			throw new UnsupportedOperationException();
+		}
+		
+		net.dv8tion.jda.internal.utils.Checks.check(choices.size() + this.choices.size() <= MAX_CHOICES, "Cannot have more than 25 choices for one option!");
+		
+		this.choices.addAll(choices);
 		
 		return this;
 	}
-	
+
 	@Override
 	public Option setAutoComplete(boolean autoComplete) {
 		super.setAutoComplete(autoComplete);
@@ -178,21 +203,17 @@ public class Option extends OptionData {
 		
 		return this;
 	}
-	
+
 	/**
 	 * @param cmd
-	 * 		The Command of this option
+	 * 		The command this option should be built for. It is not recommended to use this method on your own!
 	 * 
-	 * @return The path to get this commands description
+	 * @return The resulting OptionData
 	 */
 	@Nonnull
-	public String getDescriptionPath(SlashCommand cmd) {
-		return getDescription() != " " ?
-				getDescription() :
-				cmd.getPath() + "." + getName();
-	}
-	
-	public OptionData build(SlashCommand cmd) {
+	public OptionData build(@Nonnull SlashCommand cmd) {
+		Checks.notNull(cmd, "cmd");
+		
 		OptionData data = new OptionData(getType(), getName(), getDescription(), isRequired(), isAutoComplete());
 		
 		try {
@@ -209,38 +230,10 @@ public class Option extends OptionData {
 			return this;
 		}
 		
-		if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-			{
-				Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd));
-			
-				data.setDescriptionLocalizations(locales);
-				
-				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
-					data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
-				}
-			}
-			
-			List<Choice> choices = data.getChoices();
-			
-			for(Choice c : choices) {
-				Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(getDescriptionPath(cmd) + "." + c.getName());
-				
-				c.setNameLocalizations(locales);
-				
-				if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
-					c.setName(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
-				}
-			}
-			
-			try {
-				Field f = data.getClass().getDeclaredField("choices");
-				
-				f.setAccessible(true);
-				f.set(data, choices);
-			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-				e.printStackTrace();
-			}
-		}
+		LocalizationHolder holder = CommandDataImpl.handleOption(cmd, this);
+		
+		data.setDescriptionLocalizations(holder.description);
+		data.setNameLocalizations(holder.name);
 		
 		return data;
 	}

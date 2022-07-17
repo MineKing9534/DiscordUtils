@@ -1,14 +1,15 @@
 package de.mineking.discord.commands.history;
 
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.interaction.Command;
 import de.mineking.discord.commands.interaction.context.CommandContext;
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class ExecutionData<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> extends RuntimeData {
 	protected Command<T, C> cmd;
@@ -17,7 +18,7 @@ public class ExecutionData<T extends GenericCommandInteractionEvent, C extends C
 	public ExecutionData(@Nonnull RuntimeData data, @Nonnull Command<T, C> cmd, boolean isPermitted) {
 		super(data);
 		
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(cmd, "cmd");
 		
 		this.cmd = cmd;
 		this.isPermitted = isPermitted;

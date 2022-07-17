@@ -50,9 +50,9 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>com.github.MineKing9534</groupId>
+			<groupId>com.github.DV8FromTheWorld</groupId>
 			<artifactId>JDA</artifactId>
-			<version>6942fb5</version>
+			<version>bc8c2c7</version>
 		</dependency>
 	</dependencies>
 </project>

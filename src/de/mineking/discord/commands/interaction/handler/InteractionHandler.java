@@ -1,13 +1,13 @@
 package de.mineking.discord.commands.interaction.handler;
 
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 
 public abstract class InteractionHandler <Event extends GenericInteractionCreateEvent, Argument> {
 	private boolean autoRemove;
@@ -44,7 +44,7 @@ public abstract class InteractionHandler <Event extends GenericInteractionCreate
 	protected abstract Argument getArguments(Event event);
 	
 	public final boolean execute(@Nonnull Event event) {
-		Checks.nonNull(event, "event");
+		Checks.notNull(event, "event");
 		
 		if(users != null && !users.contains(event.getUser())) {
 			return false;

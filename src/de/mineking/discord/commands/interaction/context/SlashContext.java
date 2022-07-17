@@ -1,15 +1,17 @@
 package de.mineking.discord.commands.interaction.context;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import de.mineking.discord.commands.history.ExecutionData;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.history.ExecutionData;
+
 public class SlashContext extends CommandContext<SlashCommandInteractionEvent> {
-	public SlashContext(ExecutionData<SlashCommandInteractionEvent, ? extends CommandContext<SlashCommandInteractionEvent>> data) {
-		super(data);
+	public SlashContext(CommandManager cmdMan, ExecutionData<SlashCommandInteractionEvent, ? extends CommandContext<SlashCommandInteractionEvent>> data) {
+		super(cmdMan, data);
 	}
 	
 	public OptionMapping getOption(String name) {

@@ -10,7 +10,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import de.mineking.discord.commands.CommandManager;
+
 public class AutocompleteContext {
+	public final CommandManager cmdMan;
+	
 	public final CommandAutoCompleteInteractionEvent event;
 	
 	public final Member member;
@@ -19,7 +23,8 @@ public class AutocompleteContext {
 	
 	public final AutoCompleteQuery current;
 	
-	public AutocompleteContext(CommandAutoCompleteInteractionEvent event) {
+	public AutocompleteContext(CommandManager cmdMan, CommandAutoCompleteInteractionEvent event) {
+		this.cmdMan = cmdMan;
 		this.event = event;
 		
 		member = event.getMember();

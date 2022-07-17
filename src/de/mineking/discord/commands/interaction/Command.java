@@ -1,9 +1,16 @@
 package de.mineking.discord.commands.interaction;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,20 +18,22 @@ import javax.annotation.Nullable;
 import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.history.ExecutionData;
 import de.mineking.discord.commands.interaction.context.CommandContext;
-import de.mineking.exceptions.Checks;
 import de.mineking.utils.ReflectionUtils;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 public abstract class Command<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> {
+	//public static final String descriptionTemplate = " ";
+	
+	
+	public final Map<String, Object> userData = new HashMap<>();
+	
+	
 	String name;
 	Feature feature;
 	
 	/**
 	 * A member has to have at least this permission to perform this command
 	 */
-	protected CommandPermission permission;
+	protected CommandPermission permission = null;
 	
 	/**
 	 * How this command should be acknowledged by default.
@@ -37,21 +46,18 @@ public abstract class Command<T extends GenericCommandInteractionEvent, C extend
 	 * 
 	 * default: true
 	 */
-	protected Boolean defaultAcknowledge;
+	protected Boolean defaultAcknowledge = true;
+	
 	
 	
 	private final Class<T> type;
 	
-	
 	public Command(Class<T> type) {
 		this.type = type;
-		
-		permission = null;
-		defaultAcknowledge = true;
 	}
 	
 	public final void run(@Nonnull ExecutionData<T, C> data) {
-		Checks.nonNull(data, "data");
+		Checks.notNull(data, "data");
 
 		if(type.isAssignableFrom(data.event.getClass())) {
 			performCommand(buildContext(data));
@@ -81,11 +87,22 @@ public abstract class Command<T extends GenericCommandInteractionEvent, C extend
 	public abstract CommandData build(@Nullable Guild g);
 	
 	/**
+	 * @param feature
+	 * 		Whether to include the command's feature 
+	 * 
 	 * @return The path of this command. This includes the feature, the command name and subcommands if present. All of these are separated by '.'
 	 */
 	@Nonnull
+	public String getPath(boolean feature) {
+		return (feature ? this.feature.getName() + "." : "") + name;
+	}
+	
+	/**
+	 * Shortcut for getPath(true)
+	 */
+	@Nonnull
 	public String getPath() {
-		return feature.getName() + "." + name;
+		return getPath(true);
 	}
 	
 	/**
@@ -131,7 +148,7 @@ public abstract class Command<T extends GenericCommandInteractionEvent, C extend
 	}
 	
 	/**
-	 * @return The permission needed, to perform this command
+	 * @return The required permission to perform this command
 	 */
 	@Nonnull
 	public CommandPermission getPermission() {

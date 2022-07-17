@@ -1,19 +1,15 @@
 package de.mineking.discord;
 
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.regex.Matcher;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public class Utils {
 	/**
@@ -28,7 +24,7 @@ public class Utils {
 	 * @return true if the member has the specific role, false otherwise or if the role is null.
 	 */
 	public static boolean hasRole(@Nonnull Member m, @Nullable Role role) {
-		Checks.nonNull(m, "m");
+		Checks.notNull(m, "m");
 		
 		return (m.getPermissions().contains(Permission.ADMINISTRATOR) || (role != null && (m.getRoles().contains(role) || role.equals(role.getGuild().getPublicRole()))));
 	}
@@ -45,8 +41,8 @@ public class Utils {
 	 * @return A RestAction for the message retrieval
 	 */
 	public static RestAction<Message> getByJumpUrl(@Nonnull String url, @Nonnull JDA jda) throws IllegalArgumentException {
-		Checks.nonNull(url, "url");
-		Checks.nonNull(jda, "jda");
+		Checks.notNull(url, "url");
+		Checks.notNull(jda, "jda");
 		
 		Matcher m = Message.JUMP_URL_PATTERN.matcher(url);
 		
@@ -88,7 +84,7 @@ public class Utils {
 	 * @return The resulting string
 	 */
 	public static String label(@Nonnull String str, int max) {
-		Checks.nonNull(str, "str");
+		Checks.notNull(str, "str");
 		
 		return str.length() > max ? str.substring(0, max - 3) + "..." : str;
 	}

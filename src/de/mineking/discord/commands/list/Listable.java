@@ -1,11 +1,5 @@
 package de.mineking.discord.commands.list;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
-import com.google.gson.Gson;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,6 +10,12 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import com.google.gson.Gson;
 
 public interface Listable {
 	@Nonnull

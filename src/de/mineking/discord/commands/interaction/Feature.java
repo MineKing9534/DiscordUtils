@@ -1,5 +1,9 @@
 package de.mineking.discord.commands.interaction;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -8,9 +12,6 @@ import javax.annotation.Nonnull;
 
 import de.mineking.discord.commands.CommandManager;
 import de.mineking.discord.commands.interaction.context.CommandContext;
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public class Feature {
 	private CommandManager cmdMan;
@@ -19,8 +20,8 @@ public class Feature {
 	private Map<String, Command<?, ?>> commands;
 
 	public Feature(@Nonnull String name, @Nonnull CommandManager cmdMan) {
-		Checks.nonNull(name, "name");
-		Checks.nonNull(cmdMan, "cmdMan");
+		Checks.notNull(name, "name");
+		Checks.notNull(cmdMan, "cmdMan");
 		
 		this.cmdMan = cmdMan;
 		this.name = name;
@@ -55,8 +56,8 @@ public class Feature {
 	 * @return The same Feature instance
 	 */
 	public <T extends GenericCommandInteractionEvent, C extends CommandContext<T>> Feature addCommand(@Nonnull String command, @Nonnull Command<T, C> cmd) {	
-		Checks.nonNull(command, "command");
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(command, "command");
+		Checks.notNull(cmd, "cmd");
 		
 		try {
 			Command<T, C> c = cmd.createClone();
@@ -91,7 +92,7 @@ public class Feature {
 	 * @return Whether the specified Feature is enabled for the provided Guild
 	 */
 	public boolean isEnabled(@Nonnull Guild guild) {
-		Checks.nonNull(guild, "guild");
+		Checks.notNull(guild, "guild");
 		
 		return name.equals("std") ? true :
 			cmdMan.getFeatureStateGetter().test(guild, this);

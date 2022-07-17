@@ -1,5 +1,11 @@
 package de.mineking.discord.commands.list;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -11,11 +17,6 @@ import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.interaction.SlashCommand;
 import de.mineking.discord.commands.interaction.context.SlashContext;
 import de.mineking.discord.commands.interaction.option.Option;
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class ListCommand<T extends Listable> extends SlashCommand {
 	public static boolean ephemeral = true;
@@ -35,8 +36,8 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 	}
 	
 	public ListCommand(@Nonnull CommandPermission perm, @Nonnull BiFunction<Guild, Member, T> getter, boolean page) {
-		Checks.nonNull(perm, "perm");
-		Checks.nonNull(getter, "getter");
+		Checks.notNull(perm, "perm");
+		Checks.notNull(getter, "getter");
 		
 		permission = perm;
 		defaultAcknowledge = ephemeral;
@@ -75,7 +76,7 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 		data.put("page", page);
 		
 		if(page != 1 && (page < 1 || page > obj.getMaxPages(data))) {
-			getFeature().getManager().getErrorHandler().invalidPage(context.data, page, obj.getMaxPages(data));
+			context.cmdMan.getErrorHandler().invalidPage(context.data, page, obj.getMaxPages(data));
 			
 			return;	
 		}
@@ -88,7 +89,7 @@ public class ListCommand<T extends Listable> extends SlashCommand {
 					data
 			)
 		).queue(mes -> {
-			getFeature().getManager().addList(mes.getIdLong(), obj);
+			context.cmdMan.addList(mes.getIdLong(), obj);
 		});
 	}
 }

@@ -1,5 +1,7 @@
 package de.mineking.discord.commands.history;
 
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -8,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandManager;
-import de.mineking.exceptions.Checks;
 
 public class History {
 	private List<ExecutionData<?, ?>> history;
@@ -72,7 +73,7 @@ public class History {
 	 * 		The HistoryEntry
 	 */
 	public void add(@Nonnull ExecutionData<?, ?> entry) {
-		Checks.nonNull(entry, "entry");
+		Checks.notNull(entry, "entry");
 		
 		history.add(0, entry);
 		

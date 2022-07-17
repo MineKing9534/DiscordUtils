@@ -1,7 +1,12 @@
 package de.mineking.discord.commands.interaction;
 
-import java.util.ArrayList;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.internal.utils.Checks;
+
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,41 +16,24 @@ import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.history.ExecutionData;
+import de.mineking.discord.commands.interaction.CommandDataImpl.LocalizationHolder;
 import de.mineking.discord.commands.interaction.context.SlashContext;
 import de.mineking.discord.commands.interaction.option.Option;
-import de.mineking.exceptions.Checks;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 public abstract class SlashCommand extends Command<SlashCommandInteractionEvent, SlashContext> {
-	private SlashCommand owner;
+	private SlashCommand owner = null;
 	
-	private Map<String, SlashCommand> subcommands;
+	private Map<String, SlashCommand> subcommands = new LinkedHashMap<>();
 	
-	private String description;
-	
-	private List<Function<Guild, Option>> options;
+	private List<Function<Guild, Option>> options = new LinkedList<>();
 	
 	public SlashCommand() {
 		super(SlashCommandInteractionEvent.class);
-		
-		subcommands = new LinkedHashMap<>();
-		
-		options = new ArrayList<>();
-		
-		owner = null;
 	}
 
 	@Override
 	protected final SlashContext buildContext(ExecutionData<SlashCommandInteractionEvent, SlashContext> data) {
-		return new SlashContext(data);
+		return new SlashContext(getFeature().getManager(), data);
 	}
 	
 	@Override
@@ -68,8 +56,8 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	}
 	
 	@Override
-	public String getPath() {
-		return owner == null ? super.getPath() : (owner.getPath() + "." + getName());
+	public String getPath(boolean feature) {
+		return owner == null ? super.getPath(feature) : (owner.getPath(feature) + "." + getName());
 	}
 	
 	@Override
@@ -82,27 +70,12 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	}
 	
 	/**
-	 * Sets the default description for this command
-	 * 
-	 * @param str
-	 * 		The new default description
-	 * 
-	 * @return The same SlashCommand instance
-	 */
-	@Nonnull
-	public final SlashCommand setDescription(@Nullable String str) {
-		this.description = str;
-		
-		return this;
-	}
-	
-	/**
 	 * @return The description of this command
 	 */
-	@Nonnull
+	/*@Nonnull
 	public final String getDescription() {
 		return description == null ? getPath() : description;
-	}
+	}*/
 	
 	private SlashCommand buildSubcommand(String name, SlashCommand cmd) {
 		cmd.feature = feature;
@@ -151,8 +124,8 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	 */
 	@Nonnull
 	public final SlashCommand addSubcommand(@Nonnull String name, @Nonnull SlashCommand cmd) {
-		Checks.nonNull(name, "name");
-		Checks.nonNull(cmd, "cmd");
+		Checks.notNull(name, "name");
+		Checks.notNull(cmd, "cmd");
 		
 		if(subcommands.containsKey(name)) {
 			throw new IllegalArgumentException("There already is a subcommands registered with the name '" + name + "'");
@@ -173,7 +146,7 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	 */
 	@Nonnull
 	public final SlashCommand addOption(@Nonnull Function<Guild, Option> handler) {
-		Checks.nonNull(handler, "handler");
+		Checks.notNull(handler, "handler");
 		
 		this.options.add(handler::apply);
 		
@@ -190,7 +163,7 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	 */
 	@Nonnull
 	public final SlashCommand addOption(@Nonnull Option option){
-		Checks.nonNull(option, "option");
+		Checks.notNull(option, "option");
 		
 		this.options.add(g -> option);
 		
@@ -201,18 +174,13 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 		return getSubcommands().values().stream()
 				.filter(cmd -> cmd.subcommands.isEmpty())
 				.map(cmd -> {
-					SubcommandData data = new SubcommandData(cmd.getName(), cmd.getDescription())
+					SubcommandData data = new SubcommandData(cmd.getName(), cmd.getName())
 							.addOptions(cmd.buildOptions(g));
 				
-					if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-						Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
-						
-						data.setDescriptionLocalizations(locales);
-						
-						if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
-							data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
-						}
-					}
+					LocalizationHolder holder = CommandDataImpl.handleCommand(cmd);
+					
+					data.setDescriptionLocalizations(holder.description);
+					data.setNameLocalizations(holder.name);
 					
 					return data;
 				})
@@ -223,18 +191,8 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 		return getSubcommands().values().stream()
 				.filter(cmd -> !cmd.subcommands.isEmpty())
 				.map(cmd -> {
-					SubcommandGroupData data = new SubcommandGroupData(cmd.getName(), cmd.getDescription())
+					SubcommandGroupData data = new SubcommandGroupData(cmd.getName(), cmd.getName())
 						.addSubcommands(cmd.buildSubcommands(g));
-					
-					if(cmd.getFeature().getManager().getLocalizationMapper() != null) {
-						Map<DiscordLocale, String> locales = cmd.getFeature().getManager().getLocalizationMapper().apply(cmd.getPath());
-						
-						data.setDescriptionLocalizations(locales);
-						
-						if(cmd.getFeature().getManager().getDefaultLanguage() != null) {
-							data.setDescription(locales.get(cmd.getFeature().getManager().getDefaultLanguage()));
-						}
-					}
 					
 					return data;
 				})
@@ -244,23 +202,13 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	@Override
 	@Nonnull
 	public CommandData build(@Nonnull Guild g) {
-		Checks.nonNull(g, "g");
+		Checks.notNull(g, "g");
 		
 		if(getFeature() == null) {
 			throw new IllegalStateException("You can only build commands attached to a feature");
 		}
 		
-		SlashCommandData data = Commands.slash(getName(), getDescription());
-		
-		if(getFeature().getManager().getLocalizationMapper() != null) {
-			Map<DiscordLocale, String> locales = getFeature().getManager().getLocalizationMapper().apply(getPath());
-			
-			data.setDescriptionLocalizations(locales);
-			
-			if(getFeature().getManager().getDefaultLanguage() != null) {
-				data.setDescription(locales.get(getFeature().getManager().getDefaultLanguage()));
-			}
-		}
+		SlashCommandData data = new CommandDataImpl(getName(), getName(), this);
 		
 		if(options.isEmpty()) {
 			data.addSubcommandGroups(buildGroups(g));
@@ -288,7 +236,7 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 	 */
 	@Nonnull
 	public final List<Option> getOptions(@Nonnull Guild g) {
-		Checks.nonNull(g, "g");
+		Checks.notNull(g, "g");
 		
 		return options.stream()
 				.map(f -> f.apply(g))
