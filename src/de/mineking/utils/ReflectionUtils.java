@@ -12,16 +12,14 @@ public class ReflectionUtils {
 		List<Field> fields = new LinkedList<>();
 		
 		do {
-			fields.addAll(
-					Arrays.stream(clazz.getDeclaredFields())
-					.filter(filter)
-					.toList()
-			);
+			fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
 			
 			clazz = clazz.getSuperclass();
 		} while(clazz != null);
 		
-		return fields;
+		return fields.stream()
+				.filter(filter)
+				.toList();
 	}
 	
 	public static List<Field> getFields(Class<?> clazz) {
