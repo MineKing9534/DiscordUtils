@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>com.github.DV8FromTheWorld</groupId>
 			<artifactId>JDA</artifactId>
-			<version>bc8c2c7</version>
+			<version>62ec3b0</version>
 		</dependency>
 	</dependencies>
 </project>
