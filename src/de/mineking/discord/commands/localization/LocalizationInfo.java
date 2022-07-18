@@ -59,12 +59,14 @@ public class LocalizationInfo {
 		return new LocalizationInfo(null, null);
 	}
 	
-	public LocalizationResult handle(String cmdPath, Function<String, String> getter) {
-		return description == null ? LocalizationResult.createEmpty() : 
-			LocalizationResult.description(
-				description.isConstant ? 
-				description.key :
-				getter.apply(description.key)
+	public LocalizationResult handle(String path, Function<String, String> getter) {
+		return LocalizationResult.description(
+				description == null ?
+				getter.apply(path) : (
+					description.isConstant ? 
+					description.key :
+					getter.apply(description.key)
+				)
 			);
 	}
 }
