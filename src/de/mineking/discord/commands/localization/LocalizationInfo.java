@@ -28,10 +28,15 @@ public class LocalizationInfo {
 	}
 	
 	@Nonnull
-	public static LocalizationInfo name(@Nonnull String name) {
+	public static LocalizationInfo name(@Nonnull LocalizationPackage name) {
 		Checks.notNull(name, "name");
 		
-		return new LocalizationInfo(new LocalizationPackage(name, false), null);
+		return new LocalizationInfo(name, null);
+	}
+	
+	@Nonnull
+	public static LocalizationInfo name(@Nonnull String name) {
+		return name(new LocalizationPackage(name, false));
 	}
 
 	@Nonnull
