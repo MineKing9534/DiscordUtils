@@ -7,8 +7,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -216,19 +214,31 @@ public class Option extends OptionData {
 		
 		OptionData data = new OptionData(getType(), getName(), getDescription(), isRequired(), isAutoComplete());
 		
-		try {
-			for(Field f : OptionData.class.getDeclaredFields()) {
-				f.setAccessible(true);
-				
-				if(!Modifier.isStatic(f.getModifiers())) {
-					f.set(data, f.get(this));
-				}
-			}
-		} catch(IllegalAccessException e) {
-			e.printStackTrace();
-			
-			return this;
+		if(getType().equals(OptionType.CHANNEL)) {
+			data.setChannelTypes(getChannelTypes());
 		}
+	
+		if(getMinValue() instanceof Long l) {
+			data.setMinValue(l);
+		}
+		
+		else if(getMinValue() instanceof Double d) {
+			data.setMinValue(d);
+		}
+	
+		if(getMaxValue() instanceof Long l) {
+			data.setMaxValue(l);
+		}
+		
+		else if(getMaxValue() instanceof Double d) {
+			data.setMaxValue(d);
+		}
+		
+		data.addChoices(
+				choices.stream()
+				.map(c -> c instanceof Choice cc ? cc.build(this, cmd) : c )
+				.toList()
+		);
 		
 		LocalizationHolder holder = CommandDataImpl.handleOption(cmd, this);
 		

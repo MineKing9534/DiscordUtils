@@ -26,8 +26,6 @@ public class Choice extends net.dv8tion.jda.api.interactions.commands.Command.Ch
 	}
 	
 	public net.dv8tion.jda.api.interactions.commands.Command.Choice build(Option option, SlashCommand cmd) {
-		
-		
 		return new net.dv8tion.jda.api.interactions.commands.Command.Choice(getName(), getAsString())
 				.setNameLocalizations(
 						CommandDataImpl.handle(
