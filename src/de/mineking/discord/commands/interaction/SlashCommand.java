@@ -16,9 +16,10 @@ import javax.annotation.Nullable;
 
 import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.history.ExecutionData;
-import de.mineking.discord.commands.interaction.CommandDataImpl.LocalizationHolder;
 import de.mineking.discord.commands.interaction.context.SlashContext;
 import de.mineking.discord.commands.interaction.option.Option;
+import de.mineking.discord.commands.localization.LocalizationHolder;
+import de.mineking.discord.commands.localization.LocalizationUtils;
 
 public abstract class SlashCommand extends Command<SlashCommandInteractionEvent, SlashContext> {
 	private SlashCommand owner = null;
@@ -177,10 +178,14 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 					SubcommandData data = new SubcommandData(cmd.getName(), cmd.getName())
 							.addOptions(cmd.buildOptions(g));
 				
-					LocalizationHolder holder = CommandDataImpl.handleCommand(cmd);
+					LocalizationHolder holder = LocalizationUtils.handleCommand(cmd);
 					
 					data.setDescriptionLocalizations(holder.description);
 					data.setNameLocalizations(holder.name);
+					
+					if(holder.defaultDescription != null) {
+						data.setDescription(holder.defaultDescription);
+					}
 					
 					return data;
 				})
@@ -193,6 +198,15 @@ public abstract class SlashCommand extends Command<SlashCommandInteractionEvent,
 				.map(cmd -> {
 					SubcommandGroupData data = new SubcommandGroupData(cmd.getName(), cmd.getName())
 						.addSubcommands(cmd.buildSubcommands(g));
+					
+					LocalizationHolder holder = LocalizationUtils.handleCommand(cmd);
+					
+					data.setDescriptionLocalizations(holder.description);
+					data.setNameLocalizations(holder.name);
+					
+					if(holder.defaultDescription != null) {
+						data.setDescription(holder.defaultDescription);
+					}
 					
 					return data;
 				})

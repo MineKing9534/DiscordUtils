@@ -7,23 +7,21 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import de.mineking.discord.commands.interaction.CommandDataImpl;
-import de.mineking.discord.commands.interaction.CommandDataImpl.LocalizationHolder;
 import de.mineking.discord.commands.interaction.SlashCommand;
+import de.mineking.discord.commands.localization.Localizable;
+import de.mineking.discord.commands.localization.LocalizationHolder;
 import de.mineking.discord.commands.localization.LocalizationInfo;
+import de.mineking.discord.commands.localization.LocalizationInfo.LocalizationPackage;
+import de.mineking.discord.commands.localization.LocalizationUtils;
 
-public class Option extends OptionData {
+public class Option extends OptionData implements Localizable {
 	private final LocalizationInfo localization;
-	
-	private final List<Command.Choice> choices = new ArrayList<>();
 	
 	public Option(@Nonnull OptionType type, @Nonnull String name, @Nullable LocalizationInfo localization, boolean isRequired) {
 		super(type, name, name, isRequired);
@@ -36,13 +34,23 @@ public class Option extends OptionData {
 	}
 	
 	public Option(@Nonnull OptionType type, @Nonnull String name, boolean isRequired) {
-		this(type, name, null, isRequired);
+		this(type, name, (LocalizationInfo)null, isRequired);
 	}
 	
 	public Option(@Nonnull OptionType type, @Nonnull String name) {
 		this(type, name, false);
 	}
 	
+	public Option(@Nonnull OptionType type, @Nonnull String name, @Nonnull String description, boolean isRequired) {
+		this(type, name, LocalizationInfo.description(LocalizationPackage.constant(description)), isRequired);
+	}
+	
+	public Option(@Nonnull OptionType type, @Nonnull String name, @Nonnull String description) {
+		this(type, name, description, false);
+	}
+	
+	@Nullable
+	@Override
 	public LocalizationInfo getLocalization() {
 		return localization;
 	}
@@ -77,15 +85,7 @@ public class Option extends OptionData {
 	
 	@Override
 	public Option addChoices(@Nonnull Collection<? extends Command.Choice> choices) {
-		Checks.notNull(choices, "choices");
-		
-		if(isAutoComplete() || !getType().canSupportChoices()) {
-			throw new UnsupportedOperationException();
-		}
-		
-		net.dv8tion.jda.internal.utils.Checks.check(choices.size() + this.choices.size() <= MAX_CHOICES, "Cannot have more than 25 choices for one option!");
-		
-		this.choices.addAll(choices);
+		super.addChoices(choices);
 		
 		return this;
 	}
@@ -235,15 +235,19 @@ public class Option extends OptionData {
 		}
 		
 		data.addChoices(
-				choices.stream()
+				getChoices().stream()
 				.map(c -> c instanceof Choice cc ? cc.build(this, cmd) : c )
 				.toList()
 		);
 		
-		LocalizationHolder holder = CommandDataImpl.handleOption(cmd, this);
+		LocalizationHolder holder = LocalizationUtils.handleOption(cmd, this);
 		
 		data.setDescriptionLocalizations(holder.description);
 		data.setNameLocalizations(holder.name);
+		
+		if(holder.defaultDescription != null) {
+			data.setDescription(holder.defaultDescription);
+		}
 		
 		return data;
 	}

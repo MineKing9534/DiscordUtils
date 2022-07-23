@@ -17,6 +17,14 @@ public class LocalizationInfo {
 			this.key = key;
 			this.isConstant = isConstant;
 		}
+		
+		public static LocalizationPackage constant(String key) {
+			return new LocalizationPackage(key, true);
+		}
+		
+		public static LocalizationPackage localize(String key) {
+			return new LocalizationPackage(key, false);
+		}
 	}
 	
 	public final LocalizationPackage name;
@@ -36,7 +44,7 @@ public class LocalizationInfo {
 	
 	@Nonnull
 	public static LocalizationInfo name(@Nonnull String name) {
-		return name(new LocalizationPackage(name, false));
+		return name(LocalizationPackage.localize(name));
 	}
 
 	@Nonnull
@@ -48,7 +56,7 @@ public class LocalizationInfo {
 	
 	@Nonnull
 	public static LocalizationInfo description(@Nonnull String description) {
-		return description(new LocalizationPackage(description, false));
+		return description(LocalizationPackage.localize(description));
 	}
 	
 	@Nonnull

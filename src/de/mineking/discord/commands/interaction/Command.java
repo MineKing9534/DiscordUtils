@@ -9,8 +9,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,14 +16,12 @@ import javax.annotation.Nullable;
 import de.mineking.discord.commands.CommandPermission;
 import de.mineking.discord.commands.history.ExecutionData;
 import de.mineking.discord.commands.interaction.context.CommandContext;
+import de.mineking.discord.commands.localization.Localizable;
+import de.mineking.discord.commands.localization.LocalizationInfo;
 import de.mineking.utils.ReflectionUtils;
 
-public abstract class Command<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> {
+public abstract class Command<T extends GenericCommandInteractionEvent, C extends CommandContext<T>> implements Localizable {
 	//public static final String descriptionTemplate = " ";
-	
-	
-	public final Map<String, Object> userData = new HashMap<>();
-	
 	
 	String name;
 	Feature feature;
@@ -49,6 +45,11 @@ public abstract class Command<T extends GenericCommandInteractionEvent, C extend
 	protected Boolean defaultAcknowledge = true;
 	
 	
+	/**
+	 * Custom localization data
+	 */
+	protected LocalizationInfo localization = null;
+	
 	
 	private final Class<T> type;
 	
@@ -69,8 +70,18 @@ public abstract class Command<T extends GenericCommandInteractionEvent, C extend
 	protected void performCommand(C context) {}
 	
 	/**
+	 * @return The localization information
+	 */
+	@Nullable
+	@Override
+	public final LocalizationInfo getLocalization() {
+		return localization;
+	}
+	
+	/**
 	 * @return Whether the command action should be acknowledged by default.
 	 */
+	@Nullable
 	public final Boolean defaultAcknowledge() {
 		return defaultAcknowledge;
 	}
