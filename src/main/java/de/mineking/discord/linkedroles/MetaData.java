@@ -1,8 +1,6 @@
 package de.mineking.discord.linkedroles;
 
-import de.mineking.discord.oauth2.data.OAuth2Tokens;
 import de.mineking.discord.oauth2.data.OAuth2User;
-import de.mineking.discord.oauth2.restaction.OAuth2Action;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationMap;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.api.utils.data.SerializableData;

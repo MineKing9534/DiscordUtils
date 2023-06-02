@@ -128,6 +128,7 @@ public enum MetaDataType {
 		}
 
 		protected abstract Object convert(T arg);
+
 		protected abstract T reverse(Object arg);
 	}
 }
