@@ -29,9 +29,13 @@ public abstract class CommandImplementation {
 		}
 	}
 
-	public CommandPermission getPermission() {
-		return parent != null ? parent.getPermission() : null;
+	public CommandPermission getEffectivePermission() {
+		var permission = getPermission();
+
+		return permission == null && parent != null ? parent.getEffectivePermission() : permission;
 	}
+
+	public abstract CommandPermission getPermission();
 
 	public boolean addToGuild(Guild guild) {
 		return true;

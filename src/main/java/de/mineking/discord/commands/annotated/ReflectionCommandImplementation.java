@@ -42,7 +42,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	@Override
 	public void handle(GenericCommandInteractionEvent event) {
 		try {
-			var permission = getPermission();
+			var permission = getEffectivePermission();
 
 			if(permission != null && !permission.isPermitted(manager, event)) {
 				permission.handleUnpermitted(manager, event);
@@ -80,7 +80,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@Override
 	public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
-		var permission = getPermission();
+		var permission = getEffectivePermission();
 
 		if(permission != null && !permission.isPermitted(manager, event)) {
 			return;

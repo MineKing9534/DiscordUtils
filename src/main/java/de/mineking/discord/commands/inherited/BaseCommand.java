@@ -81,6 +81,8 @@ public abstract class BaseCommand<C extends ContextBase> {
 			@Override
 			public void handle(GenericCommandInteractionEvent event) {
 				try {
+					var permission = getEffectivePermission();
+
 					if(permission != null && !permission.isPermitted(manager, event)) {
 						permission.handleUnpermitted(manager, event);
 						return;
@@ -95,6 +97,8 @@ public abstract class BaseCommand<C extends ContextBase> {
 			@Override
 			public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
 				try {
+					var permission = getEffectivePermission();
+
 					if(permission != null && !permission.isPermitted(manager, event)) {
 						return;
 					}
