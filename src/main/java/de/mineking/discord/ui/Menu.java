@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -107,12 +108,16 @@ public class Menu implements MenuBase {
 
 	@Override
 	public void close() {
-		if(current != null) {
-			current.cleanup();
+		if(state.reply != null) {
+			if(!state.reply.isAcknowledged() && state.reply instanceof IMessageEditCallback edit) {
+				edit.deferEdit().queue();
+			}
+
+			state.reply.getHook().deleteOriginal().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.UNKNOWN_INTERACTION));
 		}
 
-		if(state.reply != null) {
-			state.reply.getHook().deleteOriginal().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.UNKNOWN_INTERACTION));
+		if(current != null) {
+			current.cleanup();
 		}
 
 		manager.menus.remove(id);
