@@ -6,15 +6,14 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class EventManager extends Module {
-	private final Set<IEventHandler<?>> handlers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+	private final Set<IEventHandler<?>> handlers = new HashSet<>();//Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 	public EventManager(DiscordUtils manager) {
 		super(manager);
@@ -22,7 +21,7 @@ public class EventManager extends Module {
 
 	@Override
 	public void onGenericEvent(@NotNull GenericEvent event) {
-		handlers.forEach(handler -> {
+		new HashSet<>(handlers).forEach(handler -> {
 			if(handler.accepts(event)) {
 				handler.accept(event);
 			}

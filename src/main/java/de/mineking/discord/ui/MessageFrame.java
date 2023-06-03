@@ -48,32 +48,21 @@ public class MessageFrame extends MenuFrame {
 
 		var message = buildMessage();
 
-		if(menu.state.reply instanceof IMessageEditCallback edit) {
-			if(!menu.state.reply.isAcknowledged()) {
-				edit.editMessage(message).queue();
-			}
+		if(menu.state.reply.isAcknowledged()) {
+			menu.state.reply.getHook().editOriginal(message).queue();
+		}
 
-			else {
-				menu.state.reply.getHook().editOriginal(message).queue();
-			}
+		else if(menu.state.reply instanceof IMessageEditCallback edit) {
+			edit.editMessage(message).queue();
 		}
 
 		else {
-			if(menu.state.reply.isAcknowledged()) {
-				menu.state.reply.getHook().editOriginal(message).queue();
-			}
-
-			else {
-				menu.state.reply.reply(MessageCreateData.fromEditData(message)).setEphemeral(true).queue();
-			}
+			menu.state.reply.reply(MessageCreateData.fromEditData(message)).setEphemeral(true).queue();
 		}
-
-		cleanup();
 
 		futures.addAll(
 				components.stream()
 						.flatMap(c -> c.getComponents().stream())
-						.filter(c -> c.type != null)
 						.map(c -> c.createHandler(menu))
 						.toList()
 		);
@@ -81,7 +70,7 @@ public class MessageFrame extends MenuFrame {
 
 	@Override
 	public void cleanup() {
-		futures.forEach(f -> f.cancel(false));
+		futures.forEach(f -> f.cancel(true));
 		futures.clear();
 	}
 }

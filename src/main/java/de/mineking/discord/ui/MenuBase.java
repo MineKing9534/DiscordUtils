@@ -1,12 +1,12 @@
 package de.mineking.discord.ui;
 
 import de.mineking.discord.events.EventManager;
-import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 
 public interface MenuBase {
 	EventManager getEventManager();
 
-	default void handle(GenericComponentInteractionCreateEvent event) {}
+	default void handle(GenericInteractionCreateEvent event) {}
 
 	String getId();
 

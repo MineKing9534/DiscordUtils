@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
 public abstract class Component<T extends GenericComponentInteractionCreateEvent> implements ComponentRow {
 	public final Class<T> type;
@@ -28,18 +29,21 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 
 	public abstract void handle(MenuBase menu, GenericComponentInteractionCreateEvent event);
 
-	public CompletableFuture<?> createHandler(MenuBase menu) {
-		return menu.getEventManager().waitForEvent(type, event -> event.getComponentId().equals(buildComponent(menu).getId()), Menu.timeout)
-				.whenComplete((event, e) -> {
-					if(event != null) {
-						menu.handle(event);
+	public CompletableFuture<T> createHandler(MenuBase menu) {
+		var future = menu.getEventManager().waitForEvent(type, event -> event.getComponentId().equals(buildComponent(menu).getId()), Menu.timeout);
 
-						handle(menu, event);
-					}
+		future.whenComplete((event, e) -> {
+			if(event != null) {
+				menu.handle(event);
 
-					else {
-						menu.close();
-					}
-				});
+				handle(menu, event);
+			}
+
+			else if(e instanceof TimeoutException) {
+				menu.close();
+			}
+		});
+
+		return future;
 	}
 }

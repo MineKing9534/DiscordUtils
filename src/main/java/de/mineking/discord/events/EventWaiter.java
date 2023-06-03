@@ -14,9 +14,8 @@ public class EventWaiter<T extends GenericEvent> extends EventHandlerBase<T> {
 
 		this.filter = filter;
 
-		this.handler = new CompletableFuture<T>().whenComplete((x, e) -> {
-			manager.removeHandler(this);
-		});
+		this.handler = new CompletableFuture<>();
+		this.handler.whenComplete((x, e) -> manager.removeHandler(EventWaiter.this));
 	}
 
 	@Override

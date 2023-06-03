@@ -12,27 +12,35 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class UIManager extends Module {
-	public final static int MENU_ID_LENGTH = 75;
-
 	private final static Random random = new Random();
+	private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	public final static int MENU_ID_LENGTH = 50;
+
 	final Map<String, Menu> menus = new HashMap<>();
 
 	public UIManager(DiscordUtils manager) {
 		super(manager);
 	}
 
+	private String randomString(int length) {
+		return random
+				.ints(length, 0, CHARACTERS.length())
+				.mapToObj(CHARACTERS::charAt)
+				.map(Object::toString)
+				.collect(Collectors.joining());
+	}
+
 	private String generateId() {
-		var temp = new byte[MENU_ID_LENGTH];
-		String result;
+		while(true) {
+			var temp = randomString(MENU_ID_LENGTH);
 
-		do {
-			random.nextBytes(temp);
-			result = new String(temp);
-		} while(menus.containsKey(result));
-
-		return result;
+			if(!menus.containsKey(temp)) {
+				return temp;
+			}
+		}
 	}
 
 	public synchronized Menu createMenu() {
@@ -51,6 +59,8 @@ public class UIManager extends Module {
 
 		menus.put(id, null);
 
-		return manager.getEventManager().waitForEvent(ModalInteractionEvent.class, evt -> evt.getModalId().equals(id), Duration.ofMinutes(5)).whenComplete((x, e) -> menus.remove(id));
+		var future = manager.getEventManager().waitForEvent(ModalInteractionEvent.class, evt -> evt.getModalId().equals(id), Duration.ofMinutes(5));
+		future.whenComplete((x, e) -> menus.remove(id));
+		return future;
 	}
 }

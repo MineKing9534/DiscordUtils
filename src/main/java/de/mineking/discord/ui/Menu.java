@@ -2,11 +2,13 @@ package de.mineking.discord.ui;
 
 import de.mineking.discord.events.EventManager;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -41,14 +43,9 @@ public class Menu implements MenuBase {
 	}
 
 	@Override
-	public void handle(GenericComponentInteractionCreateEvent event) {
-		state.reply = event;
-		state.modal = event;
-	}
-
-	void update(IReplyCallback reply, IModalCallback modal) {
-		state.reply = reply;
-		state.modal = modal;
+	public void handle(GenericInteractionCreateEvent event) {
+		state.reply = event instanceof IReplyCallback reply ? reply : null;
+		state.modal = event instanceof IModalCallback modal ? modal : null;
 	}
 
 	public Menu addMessageFrame(String name, Supplier<MessageEmbed> message, Consumer<MessageFrame> config) {
@@ -73,6 +70,7 @@ public class Menu implements MenuBase {
 			}
 
 			current = frame;
+
 			frame.show();
 		} catch(Exception e) {
 			close();
@@ -111,6 +109,10 @@ public class Menu implements MenuBase {
 	public void close() {
 		if(current != null) {
 			current.cleanup();
+		}
+
+		if(state.reply != null) {
+			state.reply.getHook().deleteOriginal().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.UNKNOWN_INTERACTION));
 		}
 
 		manager.menus.remove(id);
