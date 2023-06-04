@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class ReflectionCommandImplementation extends ReflectionCommandImplementationBase {
-	private final CommandManager<?> manager;
-	private final Method method;
+	public final CommandManager<?> manager;
+	public final Method method;
 
 	public ReflectionCommandImplementation(CommandManager<?> manager, CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Object instance, Method method) {
 		super(parent, children, info, instance);
