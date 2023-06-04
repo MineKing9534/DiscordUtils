@@ -66,7 +66,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				}
 
 				else if(param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class)) {
-					params[i] = getOption(event, getOptionNameFromParameter(param), param.getType());
+					params[i] = getOption(event, getOptionNameFromParameter(manager, param), param.getType());
 				}
 			}
 
@@ -87,7 +87,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		}
 
 		for(var param : method.getParameters()) {
-			if(Objects.equals(getOptionNameFromParameter(param), event.getFocusedOption().getName())) {
+			if(Objects.equals(getOptionNameFromParameter(manager, param), event.getFocusedOption().getName())) {
 				String resolver;
 				Object object;
 
@@ -135,7 +135,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		}
 	}
 
-	public String getOptionNameFromParameter(Parameter param) {
+	public static String getOptionNameFromParameter(CommandManager<?> manager, Parameter param) {
 		if(param.isAnnotationPresent(ExternalOption.class)) {
 			var external = param.getAnnotation(ExternalOption.class);
 			var type = external.value();
@@ -292,7 +292,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@SuppressWarnings("unchecked")
 	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Object instance) {
-		var name = getOptionNameFromParameter(param);
+		var name = getOptionNameFromParameter(manager, param);
 
 		var localization = manager.getManager().getLocalization().getOptionDescription(getLocalizationPath(), name, paramInfo, custom);
 
