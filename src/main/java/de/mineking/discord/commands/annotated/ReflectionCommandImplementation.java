@@ -135,7 +135,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		}
 	}
 
-	private String getOptionNameFromParameter(Parameter param) {
+	public String getOptionNameFromParameter(Parameter param) {
 		if(param.isAnnotationPresent(ExternalOption.class)) {
 			var external = param.getAnnotation(ExternalOption.class);
 			var type = external.value();
