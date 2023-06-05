@@ -107,7 +107,7 @@ public class Menu implements MenuBase {
 	}
 
 	@Override
-	public void close() {
+	public void close(boolean delete) {
 		if(state.reply != null) {
 			if(!state.reply.isAcknowledged() && state.reply instanceof IMessageEditCallback edit) {
 				edit.deferEdit().queue();
@@ -116,7 +116,7 @@ public class Menu implements MenuBase {
 			state.reply.getHook().deleteOriginal().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.UNKNOWN_INTERACTION));
 		}
 
-		if(current != null) {
+		if(current != null && delete) {
 			current.cleanup();
 		}
 
