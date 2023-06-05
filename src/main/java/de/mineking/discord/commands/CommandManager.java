@@ -176,7 +176,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 		return impl;
 	}
 
-	public CommandManager<C> registerCommand(String name, BaseCommand<?> command) {
+	public CommandManager<C> registerCommand(String name, BaseCommand<C> command) {
 		var temp = name.split(" ");
 
 		if(temp.length == 1) {
