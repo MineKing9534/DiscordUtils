@@ -14,5 +14,9 @@ public interface MenuBase {
 
 	void display(String name);
 
-	void close();
+	default void close() {
+		close(true);
+	}
+
+	void close(boolean delete);
 }

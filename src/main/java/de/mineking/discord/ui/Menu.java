@@ -107,8 +107,8 @@ public class Menu implements MenuBase {
 	}
 
 	@Override
-	public void close() {
-		if(state.reply != null) {
+	public void close(boolean delete) {
+		if(state.reply != null && delete) {
 			if(!state.reply.isAcknowledged() && state.reply instanceof IMessageEditCallback edit) {
 				edit.deferEdit().queue();
 			}
