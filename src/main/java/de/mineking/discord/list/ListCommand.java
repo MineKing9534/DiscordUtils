@@ -10,16 +10,15 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 public class ListCommand<C extends ContextBase, E extends ListEntry, T extends Listable<E>> extends BaseCommand<C> {
-	private final Function<GenericCommandInteractionEvent, T> handler;
+	public final ListProvider<T, E> handler;
 
-	public ListCommand(CommandPermission permission, Function<GenericCommandInteractionEvent, T> handler) {
+	public ListCommand(CommandPermission permission, ListProvider<T, E> handler) {
 		this(permission, handler, Collections.emptyList());
 	}
 
-	public ListCommand(CommandPermission permission, Function<GenericCommandInteractionEvent, T> handler, List<Option> options) {
+	public ListCommand(CommandPermission permission, ListProvider<T, E> handler, List<Option> options) {
 		options.forEach(this::addOption);
 		addOption(new Option(OptionType.INTEGER, "page", "page").localizeCustom().range(1, null));
 
@@ -31,7 +30,7 @@ public class ListCommand<C extends ContextBase, E extends ListEntry, T extends L
 	public void performCommand(C context, GenericCommandInteractionEvent event) {
 		event.deferReply(true).queue();
 
-		var listable = handler.apply(event);
+		var listable = handler.getObject(event);
 
 		if(listable == null) {
 			return;
