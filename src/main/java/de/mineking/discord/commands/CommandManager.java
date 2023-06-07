@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,10 +31,17 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 	private CommandExceptionHandler exceptionHandler;
 
+	public final ExecutorService executor = Executors.newCachedThreadPool(r -> new Thread(r, "CommandManager"));
+
 	public CommandManager(DiscordUtils manager, ContextCreator<C> context) {
 		super(manager);
 
 		this.context = context;
+	}
+
+	@Override
+	public void cleanup() {
+		executor.shutdownNow();
 	}
 
 	public CommandManager<C> setExceptionHandler(CommandExceptionHandler exceptionHandler) {
@@ -66,23 +75,25 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 	@Override
 	public void onGenericCommandInteraction(@NotNull GenericCommandInteractionEvent event) {
-		Optional.ofNullable(commands.get(event.getFullCommandName())).ifPresent(c -> {
-			try {
-				c.handle(event);
-			} catch(Exception e) {
-				if(exceptionHandler != null) {
-					exceptionHandler.handleException(c, e, event);
-				}
+		executor.execute(() ->
+				Optional.ofNullable(commands.get(event.getFullCommandName())).ifPresent(c -> {
+					try {
+						c.handle(event);
+					} catch(Exception e) {
+						if(exceptionHandler != null) {
+							exceptionHandler.handleException(c, e, event);
+						}
 
-				if(e instanceof CommandExecutionException) {
-					logger.error(e.getMessage(), e.getCause());
-				}
+						if(e instanceof CommandExecutionException) {
+							logger.error(e.getMessage(), e.getCause());
+						}
 
-				else {
-					logger.error("Something went wrong when executing command", e);
-				}
-			}
-		});
+						else {
+							logger.error("Something went wrong when executing command", e);
+						}
+					}
+				})
+		);
 	}
 
 	@Override
