@@ -17,7 +17,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.EnumSet;
 import java.util.Random;
 
 public class OAuth2Manager extends Module {
@@ -92,20 +91,20 @@ public class OAuth2Manager extends Module {
 			states.put(state, handler);
 			handler.handleRegister(state, ctx);
 
-			ctx.redirect(getAuthorizationUrl(state, handler.getScopes()));
+			ctx.redirect(getAuthorizationUrl(state, handler));
 		});
 
 		return this;
 	}
 
-	public String getAuthorizationUrl(String state, EnumSet<OAuth2Scope> scopes) {
+	public String getAuthorizationUrl(String state, OAuth2Endpoint endpoint) {
 		return "https://discord.com/api/oauth2/authorize?" +
 				"client_id=" + manager.getJDA().getSelfUser().getId() +
 				"&redirect_uri=" + config.getRedirectUrl() +
-				"&response_type=code" +
+				"&response_type=" + endpoint.getOAuth2Type().name +
 				"&state=" + state +
 				"&prompt=consent" +
-				"&scope=" + URLEncoder.encode(OAuth2Scope.build(scopes), StandardCharsets.UTF_8);
+				"&scope=" + URLEncoder.encode(OAuth2Scope.build(endpoint.getScopes()), StandardCharsets.UTF_8);
 	}
 
 	public RestAction<OAuth2Tokens> retrieveTokens(String code) {
