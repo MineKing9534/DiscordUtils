@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ListCommand<C extends ContextBase, E extends ListEntry, T extends Listable<E>> extends BaseCommand<C> {
 	public final ListProvider<C, E, T> handler;
 
-	public ListCommand(CommandPermission permission, ListProvider<C, E ,T> handler) {
+	public ListCommand(CommandPermission permission, ListProvider<C, E, T> handler) {
 		this(permission, handler, Collections.emptyList());
 	}
 

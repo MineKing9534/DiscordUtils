@@ -10,19 +10,22 @@ import net.dv8tion.jda.api.interactions.commands.build.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 public abstract class CommandImplementation {
 	public final CommandImplementation parent;
 	public final Set<CommandImplementation> children;
 
 	public final CommandInfo info;
-	public final Object instance;
+	public final Function<Object, Object> instance;
+	public final Class<?> type;
 
-	public CommandImplementation(CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Object instance) {
+	public CommandImplementation(CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Class<?> type, Function<Object, Object> instance) {
 		this.parent = parent;
 		this.children = children;
 		this.info = info;
 		this.instance = instance;
+		this.type = type;
 
 		if(instance == null) {
 			throw new IllegalArgumentException("null instance for command '" + getPath() + "' provided");

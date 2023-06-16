@@ -7,18 +7,19 @@ import net.dv8tion.jda.api.entities.Guild;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.function.Function;
 
 public class ReflectionCommandImplementationBase extends CommandImplementation {
-	public ReflectionCommandImplementationBase(CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Object instance) {
-		super(parent, children, info, instance);
+	public ReflectionCommandImplementationBase(CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Class<?> type, Function<Object, Object> instance) {
+		super(parent, children, info, type, instance);
 	}
 
 	@Override
 	public boolean addToGuild(Guild guild) {
 		try {
-			for(var m : instance.getClass().getMethods()) {
+			for(var m : type.getMethods()) {
 				if(m.isAnnotationPresent(GuildCommandPredicate.class)) {
-					return (boolean) m.invoke(instance, guild);
+					return (boolean) m.invoke(instance.apply(null), guild);
 				}
 			}
 		} catch(IllegalAccessException | InvocationTargetException e) {
@@ -30,10 +31,10 @@ public class ReflectionCommandImplementationBase extends CommandImplementation {
 
 	@Override
 	public CommandPermission getPermission() {
-		for(var f : instance.getClass().getFields()) {
+		for(var f : type.getFields()) {
 			if(CommandPermission.class.isAssignableFrom(f.getType())) {
 				try {
-					return (CommandPermission) f.get(instance);
+					return (CommandPermission) f.get(instance.apply(null));
 				} catch(IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}

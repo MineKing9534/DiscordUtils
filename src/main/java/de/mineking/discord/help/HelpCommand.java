@@ -3,7 +3,7 @@ package de.mineking.discord.help;
 import de.mineking.discord.commands.ContextBase;
 import de.mineking.discord.commands.annotated.ApplicationCommand;
 import de.mineking.discord.commands.annotated.ApplicationCommandMethod;
-import de.mineking.discord.commands.annotated.Option;
+import de.mineking.discord.commands.annotated.option.Option;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;

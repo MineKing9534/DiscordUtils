@@ -1,4 +1,4 @@
-package de.mineking.discord.commands.annotated;
+package de.mineking.discord.commands.annotated.option;
 
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 

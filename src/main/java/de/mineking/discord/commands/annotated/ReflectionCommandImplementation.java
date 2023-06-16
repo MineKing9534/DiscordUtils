@@ -4,7 +4,12 @@ import de.mineking.discord.commands.Choice;
 import de.mineking.discord.commands.CommandImplementation;
 import de.mineking.discord.commands.CommandInfo;
 import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.annotated.option.CustomOptionCreator;
+import de.mineking.discord.commands.annotated.option.CustomOptionType;
+import de.mineking.discord.commands.annotated.option.ExternalOption;
+import de.mineking.discord.commands.annotated.option.Option;
 import de.mineking.discord.commands.exception.CommandExecutionException;
+import de.mineking.discord.commands.exception.ExecutionTermination;
 import de.mineking.discord.localization.LocalizationManager;
 import de.mineking.discord.localization.LocalizationPath;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -26,14 +31,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ReflectionCommandImplementation extends ReflectionCommandImplementationBase {
 	public final CommandManager<?> manager;
 	public final Method method;
 
-	public ReflectionCommandImplementation(CommandManager<?> manager, CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Object instance, Method method) {
-		super(parent, children, info, instance);
+	public ReflectionCommandImplementation(CommandManager<?> manager, CommandImplementation parent, Set<CommandImplementation> children, CommandInfo info, Class<?> type, Function<Object, Object> instance, Method method) {
+		super(parent, children, info, type, instance);
 
 		this.manager = manager;
 		this.method = method;
@@ -70,10 +76,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				}
 			}
 
-			method.invoke(instance, params);
+			method.invoke(instance.apply(context), params);
 		} catch(IllegalAccessException e) {
 			throw new RuntimeException(e);
-		} catch(InvocationTargetException e) {
+		} catch(ExecutionTermination ignored) {
+		}  catch(InvocationTargetException e) {
 			throw new CommandExecutionException(this, e.getCause());
 		}
 	}
@@ -91,9 +98,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				String resolver;
 				Object object;
 
+				var context = manager.getContext().createContext(manager, event);
+
 				if(param.isAnnotationPresent(Option.class)) {
 					resolver = param.getAnnotation(Option.class).autocomplete();
-					object = instance;
+					object = instance.apply(context);
 				}
 
 				else {
@@ -102,8 +111,6 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 					resolver = type.getAnnotation(Option.class).autocomplete();
 					object = manager.getExternalOption(type);
 				}
-
-				var context = manager.getContext().createContext(manager, event);
 
 				for(var m : object.getClass().getMethods()) {
 					if(m.getName().equals(resolver)) {
@@ -173,7 +180,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 					if(param.isAnnotationPresent(Option.class)) {
 						var option = param.getAnnotation(Option.class);
 
-						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, instance);
+						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, type, instance.apply(null));
 					}
 
 					else {
@@ -187,7 +194,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 							throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
 						}
 
-						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, instance);
+						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, instance.getClass(), instance);
 					}
 				})
 				.toList();
@@ -228,6 +235,10 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 		else if(type.isAssignableFrom(Message.Attachment.class)) {
 			return OptionType.ATTACHMENT;
+		}
+
+		else if(type.isAnnotationPresent(CustomOptionType.class)) {
+			return type.getAnnotation(CustomOptionType.class).type();
 		}
 
 		return OptionType.UNKNOWN;
@@ -287,11 +298,25 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			return event.getOption(name, OptionMapping::getAsAttachment);
 		}
 
+		else if(type.isAnnotationPresent(CustomOptionType.class)) {
+			for(var m : type.getMethods()) {
+				var creator = m.getAnnotation(CustomOptionCreator.class);
+
+				if(creator != null) {
+					try {
+						return m.invoke(null, event, name);
+					} catch(Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Object instance) {
+	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Class<?> instanceType, Object instance) {
 		var name = getOptionNameFromParameter(manager, param);
 
 		var localization = manager.getManager().getLocalization().getOptionDescription(getLocalizationPath(), name, paramInfo, custom);
@@ -341,7 +366,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 		if(!paramInfo.choices().isEmpty()) {
 			try {
-				var choices = (Collection<? extends Choice>) instance.getClass().getField(paramInfo.choices()).get(instance);
+				var choices = (Collection<? extends Choice>) instanceType.getField(paramInfo.choices()).get(instance);
 
 				option.addChoices(choices.stream().map(c -> c.build(getLocalizationPath(), name, manager.getManager().getLocalization())).toList());
 			} catch(IllegalAccessException | ClassCastException e) {

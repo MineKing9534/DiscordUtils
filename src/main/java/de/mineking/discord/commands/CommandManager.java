@@ -3,6 +3,7 @@ package de.mineking.discord.commands;
 import de.mineking.discord.DiscordUtils;
 import de.mineking.discord.Module;
 import de.mineking.discord.commands.annotated.*;
+import de.mineking.discord.commands.annotated.option.Option;
 import de.mineking.discord.commands.exception.CommandExceptionHandler;
 import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.inherited.BaseCommand;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,7 +113,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 	public <O> CommandManager<C> registerExternalOption(O instance) {
 		if(!instance.getClass().isAnnotationPresent(Option.class)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(instance.getClass().getName() + ": " + Stream.of(instance.getClass().getAnnotations()).map(a -> a.getClass().getName()).collect(Collectors.joining("; ")));
 		}
 
 		externalOptions.add(instance);
@@ -160,7 +162,9 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 		commands.put((parent == null || info.type() != Command.Type.SLASH ? "" : (parent.getPath() + " ")) + info.name(), impl);
 
-		for(var m : impl.instance.getClass().getMethods()) {
+		var instance = impl.instance.apply(null);
+
+		for(var m : type.getMethods()) {
 			if(m.isAnnotationPresent(WhenFinished.class)) {
 				var params = new Object[m.getParameterCount()];
 
@@ -177,7 +181,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 				}
 
 				try {
-					m.invoke(impl.instance, params);
+					m.invoke(instance, params);
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new RuntimeException("Failed to initialize command", e);
 				}
@@ -212,6 +216,22 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 	public CommandManager<C> registerCommand(String name, CommandImplementation impl) {
 		commands.put(name, impl);
+
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> CommandManager<C> registerCommands(Class<T> type, Function<C, T> creator) {
+		for(var m : type.getMethods()) {
+			var cmd = m.getAnnotation(ApplicationCommand.class);
+
+			if(cmd != null) {
+				commands.put(cmd.name(), new ReflectionCommandImplementation(this, null, Collections.emptySet(), CommandInfo.ofAnnotation(cmd), type,
+						ctx -> ctx != null ? creator.apply((C) ctx) : new Object(),
+						m
+				));
+			}
+		}
 
 		return this;
 	}
@@ -251,11 +271,11 @@ public class CommandManager<C extends ContextBase> extends Module {
 	public CommandImplementation findImplementation(CommandImplementation parent, Set<CommandImplementation> children, Object instance, Class<?> type, ApplicationCommand info) {
 		for(var m : type.getMethods()) {
 			if(m.isAnnotationPresent(ApplicationCommandMethod.class)) {
-				return new ReflectionCommandImplementation(this, parent, children, CommandInfo.ofAnnotation(info), instance, m);
+				return new ReflectionCommandImplementation(this, parent, children, CommandInfo.ofAnnotation(info), type, ctx -> instance, m);
 			}
 		}
 
-		return new ReflectionCommandImplementationBase(parent, children, CommandInfo.ofAnnotation(info), instance);
+		return new ReflectionCommandImplementationBase(parent, children, CommandInfo.ofAnnotation(info), type, ctx -> instance);
 	}
 
 	public CommandListUpdateAction updateCommands() {

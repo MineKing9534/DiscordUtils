@@ -2,7 +2,7 @@ package de.mineking.discord.localization;
 
 import de.mineking.discord.commands.Choice;
 import de.mineking.discord.commands.CommandImplementation;
-import de.mineking.discord.commands.annotated.Option;
+import de.mineking.discord.commands.annotated.option.Option;
 import de.mineking.discord.commands.inherited.LocalizedChoice;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 
@@ -32,7 +32,7 @@ public class LocalizationManager {
 
 	public LocalizationPackage getCommandDescription(CommandImplementation command) {
 		if(command.info.description.isEmpty()) {
-			var custom = command.instance.getClass().getAnnotation(LocalizationPath.class);
+			var custom = command.type.getAnnotation(LocalizationPath.class);
 
 			if(custom == null) {
 				return localize(new LocalizationInfo(command.getLocalizationPath()));
