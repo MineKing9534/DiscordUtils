@@ -12,17 +12,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class ListManager extends Module {
 	private final Map<Long, ListState<?>> states = new HashMap<>();
-	private Function<IReplyCallback, Optional<ListState<?>>> customProvider;
+	private BiFunction<Long, IReplyCallback, Optional<ListState<?>>> customProvider;
 
 	public ListManager(DiscordUtils manager) {
 		super(manager);
 	}
 
-	public ListManager setCustomProvider(Function<IReplyCallback, Optional<ListState<?>>> provider) {
+	public ListManager setCustomProvider(BiFunction<Long, IReplyCallback, Optional<ListState<?>>> provider) {
 		this.customProvider = provider;
 		return this;
 	}
@@ -44,7 +44,7 @@ public class ListManager extends Module {
 	@SuppressWarnings("rawtypes")
 	public Optional<ListState> getState(long message, IReplyCallback event) {
 		return Optional.ofNullable((ListState) states.get(message))
-				.or(() -> Optional.ofNullable(customProvider).flatMap(provider -> provider.apply(event)));
+				.or(() -> Optional.ofNullable(customProvider).flatMap(provider -> provider.apply(message, event)));
 	}
 
 	public void sendList(IReplyCallback event, int page, Listable<?> listable) {
