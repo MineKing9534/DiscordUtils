@@ -16,13 +16,13 @@ import java.util.function.Function;
 
 public class ListManager extends Module {
 	private final Map<Long, ListState<?>> states = new HashMap<>();
-	private Function<ButtonInteractionEvent, Optional<ListState<?>>> customProvider;
+	private Function<IReplyCallback, Optional<ListState<?>>> customProvider;
 
 	public ListManager(DiscordUtils manager) {
 		super(manager);
 	}
 
-	public ListManager setCustomProvider(Function<ButtonInteractionEvent, Optional<ListState<?>>> provider) {
+	public ListManager setCustomProvider(Function<IReplyCallback, Optional<ListState<?>>> provider) {
 		this.customProvider = provider;
 		return this;
 	}
@@ -41,6 +41,12 @@ public class ListManager extends Module {
 		return states.get(message);
 	}
 
+	@SuppressWarnings("rawtypes")
+	public Optional<ListState> getState(long message, IReplyCallback event) {
+		return Optional.ofNullable((ListState) states.get(message))
+				.or(() -> Optional.ofNullable(customProvider).flatMap(provider -> provider.apply(event)));
+	}
+
 	public void sendList(IReplyCallback event, int page, Listable<?> listable) {
 		var maxPages = listable.getPageCount();
 		var state = new ListState<>(Math.min(page, maxPages), listable);
@@ -56,16 +62,13 @@ public class ListManager extends Module {
 				});
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 		if(!event.getComponentId().startsWith("list:")) {
 			return;
 		}
 
-		Optional.ofNullable((ListState) states.get(event.getMessageIdLong()))
-				.or(() -> Optional.ofNullable(customProvider).flatMap(provider -> provider.apply(event)))
-				.ifPresent(state -> {
+		getState(event.getMessageIdLong(), event).ifPresent(state -> {
 					switch(event.getComponentId().split(":")[1]) {
 						case "first" -> state.page = 1;
 						case "back" -> state.page--;
