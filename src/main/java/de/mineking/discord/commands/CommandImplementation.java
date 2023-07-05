@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 
 import java.util.Collections;
@@ -113,11 +114,13 @@ public abstract class CommandImplementation {
 						})
 						.toList();
 
+				var permission = getEffectivePermission();
 				var options = getOptions(manager.getManager().getLocalization());
 
 				return Commands.slash(info.name, description.defaultValue)
 						.setDescriptionLocalizations(description.values)
 						.setGuildOnly(info.guildOnly)
+						.setDefaultPermissions(permission != null ? permission.requirePermissions() : DefaultMemberPermissions.ENABLED)
 						.addSubcommands(subcommands)
 						.addSubcommandGroups(groups)
 						.addOptions(options);
