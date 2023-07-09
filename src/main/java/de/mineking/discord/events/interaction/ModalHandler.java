@@ -6,23 +6,23 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ModalHandler<T extends ModalInteractionEvent> extends EventHandlerBase<T> {
-	private final Predicate<T> filter;
-	private final Consumer<T> handler;
+public class ModalHandler extends EventHandlerBase<ModalInteractionEvent> {
+	private final Predicate<ModalInteractionEvent> filter;
+	private final Consumer<ModalInteractionEvent> handler;
 
-	public ModalHandler(Class<T> type, Predicate<T> filter, Consumer<T> handler) {
-		super(type);
+	public ModalHandler(Predicate<ModalInteractionEvent> filter, Consumer<ModalInteractionEvent> handler) {
+		super(ModalInteractionEvent.class);
 
 		this.filter = filter;
 		this.handler = handler;
 	}
 
-	public ModalHandler(Class<T> type, String id, Consumer<T> handler) {
-		this(type, event -> event.getModalId().matches(id), handler);
+	public ModalHandler(String id, Consumer<ModalInteractionEvent> handler) {
+		this(event -> event.getModalId().matches(id), handler);
 	}
 
 	@Override
-	public void handleEvent(T event) {
+	public void handleEvent(ModalInteractionEvent event) {
 		if(filter.test(event)) {
 			handler.accept(event);
 		}
