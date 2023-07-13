@@ -12,10 +12,7 @@ import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.exception.ExecutionTermination;
 import de.mineking.discord.localization.LocalizationManager;
 import de.mineking.discord.localization.LocalizationPath;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.interaction.command.*;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -24,7 +21,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
@@ -217,7 +213,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			return OptionType.BOOLEAN;
 		}
 
-		else if(type.isAssignableFrom(User.class)) {
+		else if(type.isAssignableFrom(User.class) || type.isAssignableFrom(Member.class)) {
 			return OptionType.USER;
 		}
 
