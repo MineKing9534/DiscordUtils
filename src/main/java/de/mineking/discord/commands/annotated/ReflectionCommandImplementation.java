@@ -221,7 +221,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			return OptionType.ROLE;
 		}
 
-		else if(type.isAssignableFrom(Channel.class)) {
+		else if(Channel.class.isAssignableFrom(type)) {
 			return OptionType.CHANNEL;
 		}
 
@@ -286,7 +286,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			return event.getOption(name, OptionMapping::getAsRole);
 		}
 
-		else if(type.isAssignableFrom(Channel.class)) {
+		else if(Channel.class.isAssignableFrom(type)) {
 			return event.getOption(name, OptionMapping::getAsChannel);
 		}
 
