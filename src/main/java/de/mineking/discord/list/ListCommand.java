@@ -39,6 +39,6 @@ public class ListCommand<C extends ContextBase, E extends ListEntry, T extends L
 			return;
 		}
 
-		context.manager.getManager().getListManager().sendList(event, event.getOption("page", 1, OptionMapping::getAsInt), listable);
+		context.manager.getManager().getListManager().sendList(event, event.getOption(pageOption.name, 1, OptionMapping::getAsInt), listable);
 	}
 }
