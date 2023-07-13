@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ListCommand<C extends ContextBase, E extends ListEntry, T extends Listable<E>> extends BaseCommand<C> {
+	public static Option pageOption = new Option(OptionType.INTEGER, "page", "page").localizeCustom().range(1, null);
+
 	public final ListProvider<C, E, T> handler;
 
 	public ListCommand(CommandPermission permission, ListProvider<C, E, T> handler) {
@@ -21,7 +23,7 @@ public class ListCommand<C extends ContextBase, E extends ListEntry, T extends L
 
 	public ListCommand(CommandPermission permission, ListProvider<C, E, T> handler, List<Option> options) {
 		options.forEach(this::addOption);
-		addOption(new Option(OptionType.INTEGER, "page", "page").localizeCustom().range(1, null));
+		addOption(pageOption);
 
 		this.permission = permission;
 		this.handler = handler;
