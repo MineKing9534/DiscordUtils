@@ -5,6 +5,7 @@ import de.mineking.discord.commands.CommandImplementation;
 import de.mineking.discord.commands.CommandManager;
 import de.mineking.discord.commands.ContextBase;
 import de.mineking.discord.commands.ContextCreator;
+import de.mineking.discord.commands.customrestaction.CustomRestActionManager;
 import de.mineking.discord.events.EventManager;
 import de.mineking.discord.help.HelpManager;
 import de.mineking.discord.help.HelpTarget;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.requests.RestConfig;
 import net.dv8tion.jda.internal.utils.Checks;
+import okhttp3.HttpUrl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -213,11 +215,14 @@ public class DiscordUtils {
 	public DiscordUtils useOAuth2Manager(OAuth2Config config, CredentialsManager credentialsManager, Consumer<OAuth2Manager> handler) {
 		restConfig.setCustomBuilder(
 				b -> {
-					var temp = b.build();
-					var oauth2 = temp.header("oauth2");
+					if(restConfig.getCustomBuilder() != null) {
+						restConfig.getCustomBuilder().accept(b);
+					}
+
+					var oauth2 = b.build().header("du-oauth2");
 
 					if(oauth2 != null) {
-						b.header("Authorization", oauth2).removeHeader("oauth2");
+						b.header("Authorization", oauth2).removeHeader("du-oauth2");
 					}
 				}
 		);
@@ -239,6 +244,26 @@ public class DiscordUtils {
 
 	public LinkedRolesManager getLinkedRolesManager() {
 		return getModule(LinkedRolesManager.class).orElseThrow(() -> new IllegalStateException("No LinkedRolesManager registered"));
+	}
+
+	public DiscordUtils useCustomRestactionManager(Consumer<CustomRestActionManager> handler) {
+		restConfig.setCustomBuilder(b -> {
+			var temp = b.build();
+			var host = temp.header("du-host");
+
+			if(host != null) {
+				b.url(HttpUrl.parse(host).newBuilder()
+						.addPathSegments(temp.header("du-route"))
+						.build()
+				).removeHeader("du-host").removeHeader("du-route");
+			}
+		});
+
+		return addModule(new CustomRestActionManager(this), handler);
+	}
+
+	public CustomRestActionManager getCustomRestActionManager() {
+		return getModule(CustomRestActionManager.class).orElseThrow(() -> new IllegalStateException("No CustomRestActionManager registered"));
 	}
 
 	/**

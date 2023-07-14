@@ -47,7 +47,7 @@ public class OAuth2Action<T> extends RestActionImpl<T> {
 	protected CaseInsensitiveMap<String, String> finalizeHeaders() {
 		CaseInsensitiveMap<String, String> headers = new CaseInsensitiveMap<>();
 
-		headers.put("oauth2", tokens.getAuthentication());
+		headers.put("du-oauth2", tokens.getAuthentication());
 
 		return headers;
 	}
