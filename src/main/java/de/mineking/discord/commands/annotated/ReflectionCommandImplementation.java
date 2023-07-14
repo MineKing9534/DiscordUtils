@@ -76,7 +76,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		} catch(IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch(ExecutionTermination ignored) {
-		}  catch(InvocationTargetException e) {
+		} catch(InvocationTargetException e) {
 			throw new CommandExecutionException(this, e.getCause());
 		}
 	}

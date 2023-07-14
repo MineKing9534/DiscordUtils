@@ -69,17 +69,17 @@ public class ListManager extends Module {
 		}
 
 		getState(event.getMessageIdLong(), event).ifPresent(state -> {
-					switch(event.getComponentId().split(":")[1]) {
-						case "first" -> state.page = 1;
-						case "back" -> state.page--;
-						case "next" -> state.page++;
-						case "last" -> state.page = state.object.getPageCount();
-						default -> {
-							return;
-						}
-					}
+			switch(event.getComponentId().split(":")[1]) {
+				case "first" -> state.page = 1;
+				case "back" -> state.page--;
+				case "next" -> state.page++;
+				case "last" -> state.page = state.object.getPageCount();
+				default -> {
+					return;
+				}
+			}
 
-					event.editMessage(state.buildMessage(manager, event)).queue();
-				});
+			event.editMessage(state.buildMessage(manager, event)).queue();
+		});
 	}
 }
