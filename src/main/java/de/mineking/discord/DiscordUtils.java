@@ -213,10 +213,12 @@ public class DiscordUtils {
 	}
 
 	public DiscordUtils useOAuth2Manager(OAuth2Config config, CredentialsManager credentialsManager, Consumer<OAuth2Manager> handler) {
+		var oldBuilder = restConfig.getCustomBuilder();
+
 		restConfig.setCustomBuilder(
 				b -> {
-					if(restConfig.getCustomBuilder() != null) {
-						restConfig.getCustomBuilder().accept(b);
+					if(oldBuilder != null) {
+						oldBuilder.accept(b);
 					}
 
 					var oauth2 = b.build().header("du-oauth2");
@@ -247,7 +249,13 @@ public class DiscordUtils {
 	}
 
 	public DiscordUtils useCustomRestactionManager(Consumer<CustomRestActionManager> handler) {
+		var oldBuilder = restConfig.getCustomBuilder();
+
 		restConfig.setCustomBuilder(b -> {
+			if(oldBuilder != null) {
+				oldBuilder.accept(b);
+			}
+
 			var temp = b.build();
 			var host = temp.header("du-host");
 
