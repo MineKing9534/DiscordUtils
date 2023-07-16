@@ -199,7 +199,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 				try {
 					var listener = m.getAnnotation(Listener.class);
-					var handler = listener.handler().getConstructor(String.class, Consumer.class).newInstance(
+					var handler = listener.type().getConstructor(String.class, Consumer.class).newInstance(
 							listener.filter(),
 							(Consumer<?>) event -> {
 								var params = new Object[m.getParameterCount()];
