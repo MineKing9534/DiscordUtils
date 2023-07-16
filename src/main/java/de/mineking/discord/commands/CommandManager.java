@@ -7,6 +7,7 @@ import de.mineking.discord.commands.annotated.option.Option;
 import de.mineking.discord.commands.exception.CommandExceptionHandler;
 import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.inherited.BaseCommand;
+import de.mineking.discord.events.Listener;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -184,6 +186,51 @@ public class CommandManager<C extends ContextBase> extends Module {
 					m.invoke(instance, params);
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new RuntimeException("Failed to initialize command", e);
+				}
+			}
+
+			else if(m.isAnnotationPresent(Listener.class)) {
+				var eventManager = manager.getEventManager();
+
+				if(eventManager == null) {
+					logger.warn("Couldn't register listener in command because no EventManager is present in it's parent DiscordUtils");
+					continue;
+				}
+
+				try {
+					var listener = m.getAnnotation(Listener.class);
+					var handler = listener.handler().getConstructor(String.class, Consumer.class).newInstance(
+							listener.filter(),
+							(Consumer<?>) event -> {
+								var params = new Object[m.getParameterCount()];
+
+								for(int i = 0; i < m.getParameterCount(); i++) {
+									var param = m.getParameters()[i];
+
+									if(param.getType().isAssignableFrom(CommandManager.class)) {
+										params[i] = this;
+									}
+
+									else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
+										params[i] = manager;
+									}
+
+									else if(param.getType().isAssignableFrom(event.getClass())) {
+										params[i] = event;
+									}
+								}
+
+								try {
+									m.invoke(instance, params);
+								} catch(IllegalAccessException | InvocationTargetException e) {
+									logger.error("Failed to call listener in command", e);
+								}
+							}
+					);
+
+					eventManager.registerHandler(handler);
+				} catch(Exception e) {
+					logger.error("Failed to register listener in command", e);
 				}
 			}
 		}
