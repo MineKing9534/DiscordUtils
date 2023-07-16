@@ -6,13 +6,14 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class ModalFrame extends MenuFrame {
-	private final Modal modal;
+	private final Supplier<Modal> modal;
 	private final BiConsumer<Menu, ModalInteractionEvent> handler;
 	private CompletableFuture<ModalInteractionEvent> future;
 
-	public ModalFrame(Menu menu, Modal modal, BiConsumer<Menu, ModalInteractionEvent> handler) {
+	public ModalFrame(Menu menu, Supplier<Modal> modal, BiConsumer<Menu, ModalInteractionEvent> handler) {
 		super(menu);
 
 		this.modal = modal;
@@ -25,6 +26,7 @@ public class ModalFrame extends MenuFrame {
 			throw new IllegalStateException();
 		}
 
+		var modal = this.modal.get();
 		menu.state.modal.replyModal(modal).queue();
 
 		future = menu.getEventManager().waitForEvent(ModalInteractionEvent.class, event -> event.getModalId().equals(modal.getId()), Menu.timeout);

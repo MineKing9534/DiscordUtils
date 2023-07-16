@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -23,7 +23,7 @@ public class Menu implements MenuBase {
 	final UIManager manager;
 	final String id;
 
-	private MenuFrame current;
+	private final List<MenuFrame> current = new LinkedList<>();
 
 	CallbackState state;
 	private final HashMap<String, MenuFrame> frames = new HashMap<>();
@@ -57,22 +57,31 @@ public class Menu implements MenuBase {
 	}
 
 	public Menu addModalFrame(String name, String title, Consumer<Modal.Builder> config, BiConsumer<Menu, ModalInteractionEvent> handler) {
-		var builder = Modal.create(id + ":" + name, title);
-		config.accept(builder);
-		var frame = new ModalFrame(this, builder.build(), handler);
+		var frame = new ModalFrame(this, () -> {
+			var builder = Modal.create(id + ":" + name, title);
+			config.accept(builder);
+			return builder.build();
+		}, handler);
 		frames.put(name, frame);
 		return this;
 	}
 
 	private void showFrame(MenuFrame frame) {
 		try {
-			if(current != null) {
-				current.cleanup();
+			if(frame instanceof ModalFrame && !current.isEmpty()) {
+				var last = current.get(current.size() - 1);
+				current.forEach(MenuFrame::cleanup);
+				current.clear();
+				current.add(last);
 			}
 
-			current = frame;
+			else {
+				current.forEach(MenuFrame::cleanup);
+				current.clear();
+			}
 
-			frame.show();
+			current.add(0, frame);
+			current.forEach(MenuFrame::show);
 		} catch(Exception e) {
 			close();
 			throw new RuntimeException(e);
@@ -81,11 +90,11 @@ public class Menu implements MenuBase {
 
 	@Override
 	public void update() {
-		if(current == null) {
+		if(current.isEmpty()) {
 			throw new IllegalStateException();
 		}
 
-		showFrame(current);
+		showFrame(current.get(0));
 	}
 
 	@Override
@@ -116,9 +125,7 @@ public class Menu implements MenuBase {
 			state.reply.getHook().deleteOriginal().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.UNKNOWN_INTERACTION));
 		}
 
-		if(current != null) {
-			current.cleanup();
-		}
+		current.forEach(MenuFrame::cleanup);
 
 		manager.menus.remove(id);
 	}
