@@ -1,4 +1,4 @@
-package de.mineking.discord.commands.customrestaction;
+package de.mineking.discord.customrestaction;
 
 import de.mineking.discord.DiscordUtils;
 import de.mineking.discord.Module;

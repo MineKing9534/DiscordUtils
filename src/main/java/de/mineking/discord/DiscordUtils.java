@@ -5,7 +5,7 @@ import de.mineking.discord.commands.CommandImplementation;
 import de.mineking.discord.commands.CommandManager;
 import de.mineking.discord.commands.ContextBase;
 import de.mineking.discord.commands.ContextCreator;
-import de.mineking.discord.commands.customrestaction.CustomRestActionManager;
+import de.mineking.discord.customrestaction.CustomRestActionManager;
 import de.mineking.discord.events.EventManager;
 import de.mineking.discord.help.HelpManager;
 import de.mineking.discord.help.HelpTarget;

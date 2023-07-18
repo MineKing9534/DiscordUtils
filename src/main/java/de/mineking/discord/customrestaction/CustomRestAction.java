@@ -1,4 +1,4 @@
-package de.mineking.discord.commands.customrestaction;
+package de.mineking.discord.customrestaction;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.requests.Request;
