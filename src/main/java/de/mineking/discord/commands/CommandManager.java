@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -236,6 +238,18 @@ public class CommandManager<C extends ContextBase> extends Module {
 		}
 
 		return impl;
+	}
+
+	public CommandManager<C> registerAllCommands() {
+		return registerAllCommands(x -> true);
+	}
+
+	public CommandManager<C> registerAllCommands(Predicate<ApplicationCommand> filter) {
+		new Reflections().getTypesAnnotatedWith(ApplicationCommand.class).stream()
+				.filter(c -> filter.test(c.getAnnotation(ApplicationCommand.class)))
+				.forEach(this::registerCommand);
+
+		return this;
 	}
 
 	public CommandManager<C> registerCommand(String name, BaseCommand<C> command) {
