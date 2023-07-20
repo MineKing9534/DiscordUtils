@@ -240,12 +240,12 @@ public class CommandManager<C extends ContextBase> extends Module {
 		return impl;
 	}
 
-	public CommandManager<C> registerAllCommands() {
-		return registerAllCommands(x -> true);
+	public CommandManager<C> registerAllCommands(String commandsPackage) {
+		return registerAllCommands(commandsPackage, x -> true);
 	}
 
-	public CommandManager<C> registerAllCommands(Predicate<ApplicationCommand> filter) {
-		new Reflections().getTypesAnnotatedWith(ApplicationCommand.class).stream()
+	public CommandManager<C> registerAllCommands(String commandsPackage, Predicate<ApplicationCommand> filter) {
+		new Reflections(commandsPackage).getTypesAnnotatedWith(ApplicationCommand.class).stream()
 				.filter(c -> filter.test(c.getAnnotation(ApplicationCommand.class)))
 				.forEach(this::registerCommand);
 
