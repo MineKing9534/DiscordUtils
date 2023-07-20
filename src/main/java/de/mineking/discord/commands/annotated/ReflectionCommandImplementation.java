@@ -1,21 +1,19 @@
 package de.mineking.discord.commands.annotated;
 
-import de.mineking.discord.commands.Choice;
-import de.mineking.discord.commands.CommandImplementation;
-import de.mineking.discord.commands.CommandInfo;
-import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.*;
 import de.mineking.discord.commands.annotated.option.CustomOptionCreator;
 import de.mineking.discord.commands.annotated.option.CustomOptionType;
 import de.mineking.discord.commands.annotated.option.ExternalOption;
 import de.mineking.discord.commands.annotated.option.Option;
+import de.mineking.discord.commands.annotated.option.defaultValue.*;
 import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.exception.ExecutionTermination;
 import de.mineking.discord.localization.LocalizationManager;
 import de.mineking.discord.localization.LocalizationPath;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.events.interaction.command.*;
-import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -63,12 +61,13 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 					params[i] = context;
 				}
 
-				else if(param.getType().isAssignableFrom(getEventType(info.type))) {
+				else if(param.getType().isAssignableFrom(event.getClass())) {
 					params[i] = event;
 				}
 
 				else if(param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class)) {
-					params[i] = getOption(event, getOptionNameFromParameter(manager, param), param.getType());
+					var value = getOption(event, getOptionNameFromParameter(manager, param), param.getType());
+					params[i] = value == null ? getDefault(event, context, instance, param): value;
 				}
 			}
 
@@ -240,13 +239,52 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		return OptionType.UNKNOWN;
 	}
 
-	protected Class<? extends GenericCommandInteractionEvent> getEventType(Command.Type type) {
-		return switch(type) {
-			case SLASH -> SlashCommandInteractionEvent.class;
-			case MESSAGE -> MessageContextInteractionEvent.class;
-			case USER -> UserContextInteractionEvent.class;
-			case UNKNOWN -> null;
-		};
+	protected Object getDefault(GenericCommandInteractionEvent event, ContextBase context, Object instance, Parameter param) {
+		if(param.isAnnotationPresent(BooleanDefault.class)) {
+			return param.getAnnotation(BooleanDefault.class).value();
+		}
+
+		else if(param.isAnnotationPresent(IntegerDefault.class)) {
+			return param.getAnnotation(IntegerDefault.class).value();
+		}
+
+		else if(param.isAnnotationPresent(DoubleDefault.class)) {
+			return param.getAnnotation(DoubleDefault.class).value();
+		}
+
+		else if(param.isAnnotationPresent(StringDefault.class)) {
+			return param.getAnnotation(StringDefault.class).value();
+		}
+
+		else if(param.isAnnotationPresent(DefaultFunction.class)) {
+			for(var method : instance.getClass().getMethods()) {
+				if(method.getName().equals(param.getAnnotation(DefaultFunction.class).value())) {
+					var params = new Object[method.getParameterCount()];
+
+					for(int i = 0; i < method.getParameterCount(); i++) {
+						var p = method.getParameterTypes()[i];
+
+						if(p.isAssignableFrom(context.getClass())) {
+							params[i] = context;
+						}
+
+						else if(p.isAssignableFrom(event.getClass())) {
+							params[i] = event;
+						}
+					}
+
+					try {
+						return method.invoke(instance, params);
+					} catch(IllegalAccessException e) {
+						throw new RuntimeException(e);
+					} catch(InvocationTargetException e) {
+						throw new RuntimeException("Failed to call option-default-value function", e.getCause());
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	protected Object getOption(GenericCommandInteractionEvent event, String name, Class<?> type) {
