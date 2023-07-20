@@ -12,6 +12,10 @@ public class Choice {
 		this.value = value;
 	}
 
+	public Choice(String name) {
+		this(name, name);
+	}
+
 	public Command.Choice build(String command, String option, LocalizationManager manager) {
 		return new Command.Choice(name, value);
 	}
