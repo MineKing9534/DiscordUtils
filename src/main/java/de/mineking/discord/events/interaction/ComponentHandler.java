@@ -1,7 +1,6 @@
 package de.mineking.discord.events.interaction;
 
 import de.mineking.discord.events.EventHandlerBase;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 
 import java.util.function.Consumer;
@@ -24,12 +23,8 @@ public class ComponentHandler<T extends GenericComponentInteractionCreateEvent> 
 
 	@Override
 	public void handleEvent(T event) {
-		handler.accept(event);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean accepts(GenericEvent event) {
-		return super.accepts(event) && filter.test((T) event);
+		if(filter.test(event)) {
+			handler.accept(event);
+		}
 	}
 }

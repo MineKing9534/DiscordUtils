@@ -46,8 +46,4 @@ public class EventManager extends Module {
 	public <T extends GenericEvent> CompletableFuture<T> waitForEvent(Class<T> type, Predicate<T> filter, Duration timeout) {
 		return waitForEvent(type, filter).orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 	}
-
-	public Set<IEventHandler<?>> getHandlers() {
-		return Collections.unmodifiableSet(handlers);
-	}
 }
