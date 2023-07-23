@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface ComponentRow {
-	List<Component<?>> getComponents();
+	List<? extends Component<?>> getComponents();
 
 	default ActionRow build(MenuBase menu) {
 		return ActionRow.of(
@@ -21,7 +21,7 @@ public interface ComponentRow {
 		return of(Arrays.asList(components));
 	}
 
-	static ComponentRow of(List<Component<?>> components) {
+	static ComponentRow of(List<? extends Component<?>> components) {
 		return () -> components;
 	}
 }
