@@ -77,6 +77,8 @@ public class UIManager extends Module {
 
 	@Override
 	public void onGenericComponentInteractionCreate(@NotNull GenericComponentInteractionCreateEvent event) {
+		if(defaultHandler == null) return;
+
 		if(!event.getComponentId().startsWith(MENU_ID_PREFIX)) return;
 		if(manager.getEventManager().getHandlers().stream().anyMatch(h -> h.accepts(event))) return;
 
