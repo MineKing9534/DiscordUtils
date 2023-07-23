@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
@@ -18,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Menu implements MenuBase {
+	public final static Logger logger = LoggerFactory.getLogger(Menu.class);
 	public final static Duration timeout = Duration.ofMinutes(10);
 
 	final UIManager manager;
@@ -83,8 +86,8 @@ public class Menu implements MenuBase {
 			current.add(0, frame);
 			current.forEach(MenuFrame::show);
 		} catch(Exception e) {
+			logger.error("An error occurred whilst rendering frame", e);
 			close();
-			throw new RuntimeException(e);
 		}
 	}
 
