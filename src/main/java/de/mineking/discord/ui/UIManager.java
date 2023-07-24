@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class UIManager extends Module {
 				.collect(Collectors.joining());
 	}
 
-	private String generateId() {
+	private synchronized String generateId() {
 		while(true) {
 			var temp = MENU_ID_PREFIX + randomString(MENU_ID_LENGTH - MENU_ID_PREFIX.length());
 
@@ -57,6 +58,15 @@ public class UIManager extends Module {
 	public synchronized Menu createMenu() {
 		var id = generateId();
 		var menu = new Menu(this, id);
+
+		menus.put(id, menu);
+
+		return menu;
+	}
+
+	public synchronized <T extends Menu> T createMenu(BiFunction<UIManager, String, T> creator) {
+		var id = generateId();
+		var menu = creator.apply(this, id);
 
 		menus.put(id, menu);
 
