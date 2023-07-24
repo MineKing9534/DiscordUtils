@@ -55,8 +55,7 @@ public class Menu implements MenuBase {
 	public Menu addMessageFrame(String name, Supplier<MessageEmbed> message, Consumer<MessageFrame> config) {
 		var frame = new MessageFrame(this, message);
 		config.accept(frame);
-		frames.put(name, frame);
-		return this;
+		return addFrame(name, frame);
 	}
 
 	public Menu addModalFrame(String name, String title, Consumer<Modal.Builder> config, BiConsumer<Menu, ModalInteractionEvent> handler) {
@@ -65,6 +64,10 @@ public class Menu implements MenuBase {
 			config.accept(builder);
 			return builder.build();
 		}, handler);
+		return addFrame(name, frame);
+	}
+
+	public Menu addFrame(String name, MenuFrame frame) {
 		frames.put(name, frame);
 		return this;
 	}
