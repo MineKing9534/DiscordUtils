@@ -23,15 +23,15 @@ public class Menu implements MenuBase {
 	public final static Logger logger = LoggerFactory.getLogger(Menu.class);
 	public final static Duration timeout = Duration.ofMinutes(10);
 
-	final UIManager manager;
-	final String id;
+	protected final UIManager manager;
+	protected final String id;
 
-	private final List<MenuFrame> current = new LinkedList<>();
+	protected final List<MenuFrame> current = new LinkedList<>();
 
-	CallbackState state;
-	private final HashMap<String, MenuFrame> frames = new HashMap<>();
+	protected CallbackState state;
+	protected final HashMap<String, MenuFrame> frames = new HashMap<>();
 
-	Menu(UIManager manager, String id) {
+	protected Menu(UIManager manager, String id) {
 		this.manager = manager;
 		this.id = id;
 	}
