@@ -2,7 +2,7 @@ package de.mineking.discord.commands.annotated;
 
 import de.mineking.discord.commands.CommandImplementation;
 import de.mineking.discord.commands.CommandInfo;
-import de.mineking.discord.commands.CommandPermission;
+import de.mineking.discord.commands.ICommandPermission;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,11 +30,11 @@ public class ReflectionCommandImplementationBase extends CommandImplementation {
 	}
 
 	@Override
-	public CommandPermission getPermission() {
+	public ICommandPermission getPermission() {
 		for(var f : type.getFields()) {
-			if(CommandPermission.class.isAssignableFrom(f.getType())) {
+			if(ICommandPermission.class.isAssignableFrom(f.getType())) {
 				try {
-					return (CommandPermission) f.get(instance.apply(null));
+					return (ICommandPermission) f.get(instance.apply(null));
 				} catch(IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}

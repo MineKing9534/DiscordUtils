@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-public interface CommandPermission {
+public interface ICommandPermission {
 	default boolean isPermitted(CommandManager<?> manager, GenericInteractionCreateEvent event) {
 		return true;
 	}

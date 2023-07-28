@@ -1,6 +1,6 @@
 package de.mineking.discord.list;
 
-import de.mineking.discord.commands.CommandPermission;
+import de.mineking.discord.commands.ICommandPermission;
 import de.mineking.discord.commands.ContextBase;
 import de.mineking.discord.commands.inherited.BaseCommand;
 import de.mineking.discord.commands.inherited.Option;
@@ -17,11 +17,11 @@ public class ListCommand<C extends ContextBase, E extends ListEntry, T extends L
 
 	public final ListProvider<C, E, T> handler;
 
-	public ListCommand(CommandPermission permission, ListProvider<C, E, T> handler) {
+	public ListCommand(ICommandPermission permission, ListProvider<C, E, T> handler) {
 		this(permission, handler, Collections.emptyList());
 	}
 
-	public ListCommand(CommandPermission permission, ListProvider<C, E, T> handler, List<Option> options) {
+	public ListCommand(ICommandPermission permission, ListProvider<C, E, T> handler, List<Option> options) {
 		options.forEach(this::addOption);
 		addOption(pageOption);
 

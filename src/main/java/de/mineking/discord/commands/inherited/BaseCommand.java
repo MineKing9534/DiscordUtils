@@ -18,7 +18,7 @@ public abstract class BaseCommand<C extends ContextBase> {
 	private final List<Option> options = new LinkedList<>();
 	private final Map<String, BaseCommand<C>> subcommands = new HashMap<>();
 
-	public CommandPermission permission = null;
+	public ICommandPermission permission = null;
 
 	public String description = "";
 	public String feature = "";
@@ -122,7 +122,7 @@ public abstract class BaseCommand<C extends ContextBase> {
 			}
 
 			@Override
-			public CommandPermission getPermission() {
+			public ICommandPermission getPermission() {
 				return permission;
 			}
 		};
