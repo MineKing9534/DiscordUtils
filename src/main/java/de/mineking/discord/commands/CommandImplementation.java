@@ -62,9 +62,7 @@ public abstract class CommandImplementation {
 	}
 
 	public String getLocalizationPath() {
-		var prefix = info.feature.isEmpty() ? "" : info.feature + ".";
-
-		return (parent == null ? prefix : parent.getLocalizationPath() + ".") + info.name;
+		return getPath();
 	}
 
 	public CommandData build(CommandManager<?> manager) {
