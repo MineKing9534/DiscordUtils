@@ -29,7 +29,7 @@ public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
 		);
 
 		handler = (menu, event) -> {
-			state.setState(!state.getState());
+			state.setState(!state.getState(), event);
 			menu.update();
 		};
 	}
@@ -46,7 +46,7 @@ public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
 		);
 
 		handler = (menu, event) -> {
-			state.setState(!state.getState());
+			state.setState(!state.getState(), event);
 			menu.update();
 		};
 	}
