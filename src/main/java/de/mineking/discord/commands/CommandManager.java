@@ -92,9 +92,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 						if(e instanceof CommandExecutionException) {
 							logger.error(e.getMessage(), e.getCause());
-						}
-
-						else {
+						} else {
 							logger.error("Something went wrong when executing command", e);
 						}
 					}
@@ -177,9 +175,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 					if(param.getType().isAssignableFrom(CommandManager.class)) {
 						params[i] = this;
-					}
-
-					else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
+					} else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
 						params[i] = manager;
 					}
 				}
@@ -189,9 +185,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new RuntimeException("Failed to initialize command", e);
 				}
-			}
-
-			else if(m.isAnnotationPresent(Listener.class)) {
+			} else if(m.isAnnotationPresent(Listener.class)) {
 				var eventManager = manager.getEventManager();
 
 				if(eventManager == null) {
@@ -211,13 +205,9 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 									if(param.getType().isAssignableFrom(CommandManager.class)) {
 										params[i] = this;
-									}
-
-									else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
+									} else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
 										params[i] = manager;
-									}
-
-									else if(param.getType().isAssignableFrom(event.getClass())) {
+									} else if(param.getType().isAssignableFrom(event.getClass())) {
 										params[i] = event;
 									}
 								}
@@ -257,9 +247,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 		if(temp.length == 1) {
 			commands.putAll(command.build(this, name));
-		}
-
-		else {
+		} else {
 			var cmdName = temp[temp.length - 1];
 			var parent = commands.get(name.substring(0, name.length() - cmdName.length() - 1));
 
@@ -302,9 +290,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 			for(var constructor : command.getConstructors()) {
 				if(constructor.getParameterCount() == 0) {
 					return constructor.newInstance();
-				}
-
-				else if(constructor.isAnnotationPresent(CommandConstructor.class)) {
+				} else if(constructor.isAnnotationPresent(CommandConstructor.class)) {
 					var params = new Object[constructor.getParameterCount()];
 
 					for(int i = 0; i < constructor.getParameterCount(); i++) {
@@ -312,9 +298,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 						if(param.getType().isAssignableFrom(CommandManager.class)) {
 							params[i] = this;
-						}
-
-						else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
+						} else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
 							params[i] = manager;
 						}
 					}

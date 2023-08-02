@@ -25,7 +25,8 @@ public interface OAuth2Endpoint {
 
 	default void handle(OAuth2Manager manager, Context ctx) {
 		var action = switch(getOAuth2Type()) {
-			case CODE -> new TokenRetrieveAction(manager, ctx.queryParam("code"), TokenRetrieveAction.TokenRetrieveType.CODE);
+			case CODE ->
+					new TokenRetrieveAction(manager, ctx.queryParam("code"), TokenRetrieveAction.TokenRetrieveType.CODE);
 			case IMPLICIT -> new CompletedRestAction<>(manager.getManager().getJDA(), new OAuth2Tokens(manager,
 					OAuth2Scope.getScopes(ctx.queryParam("scope")),
 					ctx.queryParam("token_type"),
@@ -46,15 +47,13 @@ public interface OAuth2Endpoint {
 			if(e instanceof ErrorResponseException er) {
 				ctx.status(HttpStatus.BAD_REQUEST);
 				ctx.result(er.getMeaning());
-			}
-
-			else {
-				ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+			} else ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
 		});
 	}
 
-	default void handleRegister(String state, Context context) {}
+	default void handleRegister(String state, Context context) {
+	}
 
-	default void handleError(String state, String error, Context context) throws HttpResponseException {}
+	default void handleError(String state, String error, Context context) throws HttpResponseException {
+	}
 }

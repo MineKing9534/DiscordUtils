@@ -9,7 +9,8 @@ public interface ICommandPermission {
 		return true;
 	}
 
-	default void handleUnpermitted(CommandManager<?> manager, GenericCommandInteractionEvent event) {}
+	default void handleUnpermitted(CommandManager<?> manager, GenericCommandInteractionEvent event) {
+	}
 
 	default DefaultMemberPermissions requirePermissions() {
 		return DefaultMemberPermissions.ENABLED;

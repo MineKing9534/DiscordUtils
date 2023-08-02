@@ -48,19 +48,12 @@ public class OAuth2Manager extends Module {
 
 			var endpoint = states.getIfPresent(state);
 
-			if(endpoint == null) {
-				throw new BadRequestResponse();
-			}
+			if(endpoint == null) throw new BadRequestResponse();
 
 			var error = ctx.queryParam("error");
 
-			if(error != null) {
-				endpoint.handleError(state, error, ctx);
-			}
-
-			else {
-				endpoint.handle(this, ctx);
-			}
+			if(error != null) endpoint.handleError(state, error, ctx);
+			else endpoint.handle(this, ctx);
 		});
 	}
 

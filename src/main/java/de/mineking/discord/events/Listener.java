@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Listener {
 	Class<? extends EventHandlerBase<?>> type();
+
 	String filter();
 }

@@ -57,17 +57,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			for(int i = 0; i < method.getParameterCount(); i++) {
 				var param = paramTypes[i];
 
-				if(param.getType().isAssignableFrom(context.getClass())) {
-					params[i] = context;
-				}
-
-				else if(param.getType().isAssignableFrom(event.getClass())) {
-					params[i] = event;
-				}
-
+				if(param.getType().isAssignableFrom(context.getClass())) params[i] = context;
+				else if(param.getType().isAssignableFrom(event.getClass())) params[i] = event;
 				else if(param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class)) {
 					var value = getOption(event, getOptionNameFromParameter(manager, param), param.getType());
-					params[i] = value == null ? getDefault(event, context, instance, param): value;
+					params[i] = value == null ? getDefault(event, context, instance, param) : value;
 				}
 			}
 
@@ -84,9 +78,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
 		var permission = getEffectivePermission();
 
-		if(permission != null && !permission.isPermitted(manager, event)) {
-			return;
-		}
+		if(permission != null && !permission.isPermitted(manager, event)) return;
 
 		for(var param : method.getParameters()) {
 			if(Objects.equals(getOptionNameFromParameter(manager, param), event.getFocusedOption().getName())) {
@@ -98,9 +90,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				if(param.isAnnotationPresent(Option.class)) {
 					resolver = param.getAnnotation(Option.class).autocomplete();
 					object = instance.apply(context);
-				}
-
-				else {
+				} else {
 					var type = param.getAnnotation(ExternalOption.class).value();
 
 					resolver = type.getAnnotation(Option.class).autocomplete();
@@ -114,13 +104,8 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 						for(int i = 0; i < m.getParameterCount(); i++) {
 							var p = m.getParameters()[i];
 
-							if(p.getType().isAssignableFrom(CommandAutoCompleteInteractionEvent.class)) {
-								params[i] = event;
-							}
-
-							else if(p.getType().isAssignableFrom(manager.getContext().type)) {
-								params[i] = context;
-							}
+							if(p.getType().isAssignableFrom(CommandAutoCompleteInteractionEvent.class)) params[i] = event;
+							else if(p.getType().isAssignableFrom(manager.getContext().type)) params[i] = context;
 						}
 
 						try {
@@ -145,18 +130,14 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 			var instance = manager.getExternalOption(type);
 
-			if(option == null || instance == null) {
-				throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
-			}
+			if(option == null || instance == null) throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
 
 			return !external.name().isEmpty()
 					? external.name()
 					: !option.name().isEmpty()
 					? option.name()
 					: param.getName().toLowerCase();
-		}
-
-		else if(param.isAnnotationPresent(Option.class)) {
+		} else if(param.isAnnotationPresent(Option.class)) {
 			var option = param.getAnnotation(Option.class);
 
 			return !option.name().isEmpty()
@@ -176,18 +157,14 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 						var option = param.getAnnotation(Option.class);
 
 						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, type, instance.apply(null));
-					}
-
-					else {
+					} else {
 						var external = param.getAnnotation(ExternalOption.class);
 						var type = external.value();
 						var option = type.getAnnotation(Option.class);
 
 						var instance = manager.getExternalOption(type);
 
-						if(option == null || instance == null) {
-							throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
-						}
+						if(option == null || instance == null) throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
 
 						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, instance.getClass(), instance);
 					}
@@ -196,66 +173,25 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	protected OptionType getOptionType(Class<?> type) {
-		if(type.isAssignableFrom(String.class)) {
-			return OptionType.STRING;
-		}
-
-		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
-			return OptionType.NUMBER;
-		}
-
-		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class) || type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
-			return OptionType.INTEGER;
-		}
-
-		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) {
-			return OptionType.BOOLEAN;
-		}
-
-		else if(type.isAssignableFrom(User.class) || type.isAssignableFrom(Member.class)) {
-			return OptionType.USER;
-		}
-
-		else if(type.isAssignableFrom(Role.class)) {
-			return OptionType.ROLE;
-		}
-
-		else if(Channel.class.isAssignableFrom(type)) {
-			return OptionType.CHANNEL;
-		}
-
-		else if(type.isAssignableFrom(IMentionable.class)) {
-			return OptionType.MENTIONABLE;
-		}
-
-		else if(type.isAssignableFrom(Message.Attachment.class)) {
-			return OptionType.ATTACHMENT;
-		}
-
-		else if(type.isAnnotationPresent(CustomOptionType.class)) {
-			return type.getAnnotation(CustomOptionType.class).type();
-		}
+		if(type.isAssignableFrom(String.class)) return OptionType.STRING;
+		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) return OptionType.NUMBER;
+		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class) || type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) return OptionType.INTEGER;
+		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) return OptionType.BOOLEAN;
+		else if(type.isAssignableFrom(User.class) || type.isAssignableFrom(Member.class)) return OptionType.USER;
+		else if(type.isAssignableFrom(Role.class)) return OptionType.ROLE;
+		else if(Channel.class.isAssignableFrom(type)) return OptionType.CHANNEL;
+		else if(type.isAssignableFrom(IMentionable.class)) return OptionType.MENTIONABLE;
+		else if(type.isAssignableFrom(Message.Attachment.class)) return OptionType.ATTACHMENT;
+		else if(type.isAnnotationPresent(CustomOptionType.class)) return type.getAnnotation(CustomOptionType.class).type();
 
 		return OptionType.UNKNOWN;
 	}
 
 	protected Object getDefault(GenericCommandInteractionEvent event, ContextBase context, Object instance, Parameter param) {
-		if(param.isAnnotationPresent(BooleanDefault.class)) {
-			return param.getAnnotation(BooleanDefault.class).value();
-		}
-
-		else if(param.isAnnotationPresent(IntegerDefault.class)) {
-			return param.getAnnotation(IntegerDefault.class).value();
-		}
-
-		else if(param.isAnnotationPresent(DoubleDefault.class)) {
-			return param.getAnnotation(DoubleDefault.class).value();
-		}
-
-		else if(param.isAnnotationPresent(StringDefault.class)) {
-			return param.getAnnotation(StringDefault.class).value();
-		}
-
+		if(param.isAnnotationPresent(BooleanDefault.class)) return param.getAnnotation(BooleanDefault.class).value();
+		else if(param.isAnnotationPresent(IntegerDefault.class)) return param.getAnnotation(IntegerDefault.class).value();
+		else if(param.isAnnotationPresent(DoubleDefault.class)) return param.getAnnotation(DoubleDefault.class).value();
+		else if(param.isAnnotationPresent(StringDefault.class)) return param.getAnnotation(StringDefault.class).value();
 		else if(param.isAnnotationPresent(DefaultFunction.class)) {
 			for(var method : instance.getClass().getMethods()) {
 				if(method.getName().equals(param.getAnnotation(DefaultFunction.class).value())) {
@@ -266,9 +202,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 						if(p.isAssignableFrom(context.getClass())) {
 							params[i] = context;
-						}
-
-						else if(p.isAssignableFrom(event.getClass())) {
+						} else if(p.isAssignableFrom(event.getClass())) {
 							params[i] = event;
 						}
 					}
@@ -288,50 +222,17 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	protected Object getOption(GenericCommandInteractionEvent event, String name, Class<?> type) {
-		if(type.isAssignableFrom(String.class)) {
-			return event.getOption(name, OptionMapping::getAsString);
-		}
-
-		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) {
-			return event.getOption(name, OptionMapping::getAsInt);
-		}
-
-		else if(type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
-			return event.getOption(name, OptionMapping::getAsLong);
-		}
-
-		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
-			return event.getOption(name, OptionMapping::getAsDouble);
-		}
-
-		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) {
-			return event.getOption(name, OptionMapping::getAsBoolean);
-		}
-
-		else if(type.isAssignableFrom(IMentionable.class)) {
-			return event.getOption(name, OptionMapping::getAsMentionable);
-		}
-
-		else if(type.isAssignableFrom(Member.class)) {
-			return event.getOption(name, OptionMapping::getAsMember);
-		}
-
-		else if(type.isAssignableFrom(User.class)) {
-			return event.getOption(name, OptionMapping::getAsUser);
-		}
-
-		else if(type.isAssignableFrom(Role.class)) {
-			return event.getOption(name, OptionMapping::getAsRole);
-		}
-
-		else if(Channel.class.isAssignableFrom(type)) {
-			return event.getOption(name, OptionMapping::getAsChannel);
-		}
-
-		else if(type.isAssignableFrom(Message.Attachment.class)) {
-			return event.getOption(name, OptionMapping::getAsAttachment);
-		}
-
+		if(type.isAssignableFrom(String.class)) return event.getOption(name, OptionMapping::getAsString);
+		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) return event.getOption(name, OptionMapping::getAsInt);
+		else if(type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) return event.getOption(name, OptionMapping::getAsLong);
+		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) return event.getOption(name, OptionMapping::getAsDouble);
+		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) return event.getOption(name, OptionMapping::getAsBoolean);
+		else if(type.isAssignableFrom(IMentionable.class)) return event.getOption(name, OptionMapping::getAsMentionable);
+		else if(type.isAssignableFrom(Member.class)) return event.getOption(name, OptionMapping::getAsMember);
+		else if(type.isAssignableFrom(User.class)) return event.getOption(name, OptionMapping::getAsUser);
+		else if(type.isAssignableFrom(Role.class)) return event.getOption(name, OptionMapping::getAsRole);
+		else if(Channel.class.isAssignableFrom(type)) return event.getOption(name, OptionMapping::getAsChannel);
+		else if(type.isAssignableFrom(Message.Attachment.class)) return event.getOption(name, OptionMapping::getAsAttachment);
 		else if(type.isAnnotationPresent(CustomOptionType.class)) {
 			for(var m : type.getMethods()) {
 				var creator = m.getAnnotation(CustomOptionCreator.class);
@@ -385,18 +286,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		}
 
 		if(option.getType() == OptionType.STRING) {
-			if(paramInfo.minLength() > -1) {
-				option.setMinLength(paramInfo.minLength());
-			}
-
-			if(paramInfo.maxLength() > -1) {
-				option.setMaxLength(paramInfo.maxLength());
-			}
+			if(paramInfo.minLength() > -1) option.setMinLength(paramInfo.minLength());
+			if(paramInfo.maxLength() > -1) option.setMaxLength(paramInfo.maxLength());
 		}
 
-		if(paramInfo.channelTypes().length > 0) {
-			option.setChannelTypes(paramInfo.channelTypes());
-		}
+		if(paramInfo.channelTypes().length > 0) option.setChannelTypes(paramInfo.channelTypes());
 
 		if(!paramInfo.choices().isEmpty()) {
 			try {

@@ -1,7 +1,7 @@
 package de.mineking.discord.list;
 
-import de.mineking.discord.commands.ICommandPermission;
 import de.mineking.discord.commands.ContextBase;
+import de.mineking.discord.commands.ICommandPermission;
 import de.mineking.discord.commands.inherited.BaseCommand;
 import de.mineking.discord.commands.inherited.Option;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;

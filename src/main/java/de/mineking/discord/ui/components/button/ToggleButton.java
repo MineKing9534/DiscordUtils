@@ -24,7 +24,7 @@ public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
 
 		component = i -> Button.of(
 				color.apply(state.getState()).style,
-				i + ":" +  id,
+				i + ":" + id,
 				label
 		);
 

@@ -34,13 +34,8 @@ public class ModalFrame extends MenuFrame {
 		future.whenComplete((event, e) -> {
 			if(event != null) {
 				menu.handle(event);
-
 				handler.accept(menu, event);
-			}
-
-			else if(e instanceof TimeoutException) {
-				menu.close();
-			}
+			} else if(e instanceof TimeoutException) menu.close();
 		});
 	}
 

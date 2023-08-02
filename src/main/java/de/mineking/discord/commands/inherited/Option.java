@@ -87,40 +87,20 @@ public class Option {
 				.setRequired(required)
 				.setAutoComplete(autocomplete);
 
-		if(!channelTypes.isEmpty()) {
-			option.setChannelTypes(channelTypes);
-		}
+		if(!channelTypes.isEmpty()) option.setChannelTypes(channelTypes);
+		if(!choices.isEmpty()) option.addChoices(choices.stream().map(c -> c.build(command, name, manager)).toList());
 
-		if(!choices.isEmpty()) {
-			option.addChoices(choices.stream().map(c -> c.build(command, name, manager)).toList());
-		}
-
-		if(this.minLength != null) {
-			option.setMinLength(minLength);
-		}
-
-		if(this.maxLength != null) {
-			option.setMinLength(maxLength);
-		}
+		if(this.minLength != null) option.setMinLength(minLength);
+		if(this.maxLength != null) option.setMinLength(maxLength);
 
 		if(this.minValue != null) {
-			if(minValue instanceof Long || minValue instanceof Integer) {
-				option.setMinValue(minValue.longValue());
-			}
-
-			else if(minValue instanceof Double) {
-				option.setMinValue(minValue.doubleValue());
-			}
+			if(minValue instanceof Long || minValue instanceof Integer) option.setMinValue(minValue.longValue());
+			else if(minValue instanceof Double) option.setMinValue(minValue.doubleValue());
 		}
 
 		if(this.maxValue != null) {
-			if(maxValue instanceof Long || maxValue instanceof Integer) {
-				option.setMaxValue(maxValue.longValue());
-			}
-
-			else if(maxValue instanceof Double) {
-				option.setMaxValue(maxValue.doubleValue());
-			}
+			if(maxValue instanceof Long || maxValue instanceof Integer) option.setMaxValue(maxValue.longValue());
+			else if(maxValue instanceof Double) option.setMaxValue(maxValue.doubleValue());
 		}
 
 		return option;

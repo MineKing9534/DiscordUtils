@@ -45,9 +45,11 @@ public abstract class CommandImplementation {
 		return true;
 	}
 
-	public void handle(GenericCommandInteractionEvent event) {}
+	public void handle(GenericCommandInteractionEvent event) {
+	}
 
-	public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {}
+	public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
+	}
 
 	public List<OptionData> getOptions(LocalizationManager localization) {
 		return Collections.emptyList();
@@ -73,9 +75,7 @@ public abstract class CommandImplementation {
 				return Commands.context(info.type, description.defaultValue)
 						.setNameLocalizations(description.values)
 						.setGuildOnly(info.guildOnly);
-			}
-
-			else {
+			} else {
 				var subcommands = children.stream()
 						.filter(c -> c.children.isEmpty())
 						.filter(c -> c.info.type == Command.Type.SLASH)

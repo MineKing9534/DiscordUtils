@@ -37,11 +37,8 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 				menu.handle(event);
 
 				handle(menu, event);
-			}
+			} else if(e instanceof TimeoutException) menu.close();
 
-			else if(e instanceof TimeoutException) {
-				menu.close();
-			}
 		});
 
 		return future;

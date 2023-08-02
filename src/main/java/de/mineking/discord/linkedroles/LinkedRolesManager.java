@@ -48,10 +48,12 @@ public class LinkedRolesManager extends Module {
 		var name = manager.getLocalization().getMetaDataName(key);
 		var description = manager.getLocalization().getMetaDataDescription(key);
 
-		var nameLocalizations = new LocalizationMap(x -> {});
+		var nameLocalizations = new LocalizationMap(x -> {
+		});
 		nameLocalizations.setTranslations(name.values);
 
-		var descriptionLocalizations = new LocalizationMap(x -> {});
+		var descriptionLocalizations = new LocalizationMap(x -> {
+		});
 		descriptionLocalizations.setTranslations(description.values);
 
 		var data = new MetaData(this, type, key, name.defaultValue, nameLocalizations, description.defaultValue, descriptionLocalizations);

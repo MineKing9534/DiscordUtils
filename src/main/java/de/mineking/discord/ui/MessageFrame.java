@@ -48,17 +48,9 @@ public class MessageFrame extends MenuFrame {
 
 		var message = buildMessage();
 
-		if(menu.state.reply.isAcknowledged()) {
-			menu.state.reply.getHook().editOriginal(message).queue();
-		}
-
-		else if(menu.state.reply instanceof IMessageEditCallback edit) {
-			edit.editMessage(message).queue();
-		}
-
-		else {
-			menu.state.reply.reply(MessageCreateData.fromEditData(message)).setEphemeral(true).queue();
-		}
+		if(menu.state.reply.isAcknowledged()) menu.state.reply.getHook().editOriginal(message).queue();
+		else if(menu.state.reply instanceof IMessageEditCallback edit) edit.editMessage(message).queue();
+		else menu.state.reply.reply(MessageCreateData.fromEditData(message)).setEphemeral(true).queue();
 
 		futures.addAll(
 				components.stream()

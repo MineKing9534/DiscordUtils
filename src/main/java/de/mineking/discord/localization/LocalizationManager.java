@@ -36,14 +36,10 @@ public class LocalizationManager {
 
 			if(custom == null) {
 				return localize(new LocalizationInfo(command.getLocalizationPath()));
-			}
-
-			else {
+			} else {
 				return localize(new LocalizationInfo(custom.value()));
 			}
-		}
-
-		else {
+		} else {
 			return LocalizationPackage.constant(command.info.description);
 		}
 	}
@@ -52,14 +48,10 @@ public class LocalizationManager {
 		if(option.description().isEmpty()) {
 			if(custom == null) {
 				return localize(new LocalizationInfo(command + "." + name));
-			}
-
-			else {
+			} else {
 				return localize(new LocalizationInfo(custom.value()));
 			}
-		}
-
-		else {
+		} else {
 			return LocalizationPackage.constant(option.description());
 		}
 	}
@@ -67,13 +59,9 @@ public class LocalizationManager {
 	public LocalizationPackage getOptionDescription(String command, de.mineking.discord.commands.inherited.Option option) {
 		if(option.description.isEmpty()) {
 			return localize(new LocalizationInfo(command + "." + option.name));
-		}
-
-		else if(option.localize) {
+		} else if(option.localize) {
 			return localize(new LocalizationInfo(option.description));
-		}
-
-		else {
+		} else {
 			return LocalizationPackage.constant(option.description);
 		}
 	}
@@ -82,14 +70,10 @@ public class LocalizationManager {
 		if(choice instanceof LocalizedChoice lc) {
 			if(!lc.custom) {
 				return localize(new LocalizationInfo(command + "." + option + "." + choice.name));
-			}
-
-			else {
+			} else {
 				return localize(new LocalizationInfo(choice.name));
 			}
-		}
-
-		else {
+		} else {
 			return LocalizationPackage.constant(choice.name);
 		}
 	}

@@ -36,7 +36,8 @@ public abstract class BaseCommand<C extends ContextBase> {
 		return true;
 	}
 
-	public void performCommand(C context, GenericCommandInteractionEvent event) {}
+	public void performCommand(C context, GenericCommandInteractionEvent event) {
+	}
 
 	protected BaseCommand<C> addOption(Option option) {
 		options.add(option);

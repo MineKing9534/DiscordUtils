@@ -30,5 +30,6 @@ public class Module extends ListenerAdapter {
 	/**
 	 * Shuts down this module and cleans up
 	 */
-	public void cleanup() {}
+	public void cleanup() {
+	}
 }
