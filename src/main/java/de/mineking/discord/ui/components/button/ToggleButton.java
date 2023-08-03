@@ -1,5 +1,6 @@
 package de.mineking.discord.ui.components.button;
 
+import de.mineking.discord.ui.Menu;
 import de.mineking.discord.ui.components.BaseComponent;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -28,10 +29,7 @@ public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
 				label
 		);
 
-		handler = (menu, event) -> {
-			state.setState(!state.getState(), event);
-			menu.update();
-		};
+		initHandler(state);
 	}
 
 	public ToggleButton(String id, ToggleHolder state, Function<Boolean, ButtonColor> color, Emoji label) {
@@ -45,8 +43,17 @@ public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
 				label
 		);
 
+		initHandler(state);
+	}
+
+	private void initHandler(ToggleHolder state) {
 		handler = (menu, event) -> {
-			state.setState(!state.getState(), event);
+			try {
+				state.setState(!state.getState(), event);
+			} catch(Exception e) {
+				Menu.logger.error("ToggleHolder#setState call failed", e);
+			}
+
 			menu.update();
 		};
 	}
