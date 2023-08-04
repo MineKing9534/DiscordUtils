@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -33,9 +34,20 @@ public class Menu implements MenuBase {
 	protected CallbackState state;
 	protected final HashMap<String, MenuFrame> frames = new HashMap<>();
 
+	public final Map<String, Object> data = new HashMap<>();
+
 	protected Menu(UIManager manager, String id) {
 		this.manager = manager;
 		this.id = id;
+	}
+
+	public void putData(String name, Object object) {
+		data.put(name, object);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T get(String name, Class<T> type) {
+		return (T) data.get(name);
 	}
 
 	@Override
