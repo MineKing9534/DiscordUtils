@@ -36,7 +36,11 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 			if(event != null) {
 				menu.handle(event);
 
-				handle(menu, event);
+				try {
+					handle(menu, event);
+				} catch(Exception ex) {
+					Menu.logger.error("Component execution failed", e);
+				}
 			} else if(e instanceof TimeoutException) menu.close();
 
 		});
