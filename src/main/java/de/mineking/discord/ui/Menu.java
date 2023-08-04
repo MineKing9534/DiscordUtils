@@ -41,12 +41,14 @@ public class Menu implements MenuBase {
 		this.id = id;
 	}
 
-	public void putData(String name, Object object) {
+	@Override
+	public <T> void putData(String name, T object) {
 		data.put(name, object);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T get(String name, Class<T> type) {
+	public <T> T getData(String name, Class<T> type) {
 		return (T) data.get(name);
 	}
 
