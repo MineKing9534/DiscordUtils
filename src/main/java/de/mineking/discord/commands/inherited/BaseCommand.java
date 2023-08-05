@@ -119,7 +119,7 @@ public abstract class BaseCommand<C extends ContextBase> {
 
 			@Override
 			public List<OptionData> getOptions(LocalizationManager localization) {
-				return options.stream().map(o -> o.build(getLocalizationPath(), localization)).toList();
+				return options.stream().map(o -> o.build(getPath(), localization)).toList();
 			}
 
 			@Override

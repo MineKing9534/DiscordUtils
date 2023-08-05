@@ -254,7 +254,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Class<?> instanceType, Object instance) {
 		var name = getOptionNameFromParameter(manager, param);
 
-		var localization = manager.getManager().getLocalization().getOptionDescription(getLocalizationPath(), name, paramInfo, custom);
+		var localization = manager.getManager().getLocalization().getOptionDescription(getPath(), name, paramInfo, custom);
 
 		var type = getOptionType(param.getType());
 
@@ -296,7 +296,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 			try {
 				var choices = (Collection<? extends Choice>) instanceType.getField(paramInfo.choices()).get(instance);
 
-				option.addChoices(choices.stream().map(c -> c.build(getLocalizationPath(), name, manager.getManager().getLocalization())).toList());
+				option.addChoices(choices.stream().map(c -> c.build(getPath(), name, manager.getManager().getLocalization())).toList());
 			} catch(IllegalAccessException | ClassCastException e) {
 				throw new RuntimeException(e);
 			} catch(NoSuchFieldException e) {

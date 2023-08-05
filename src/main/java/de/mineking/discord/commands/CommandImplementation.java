@@ -63,10 +63,6 @@ public abstract class CommandImplementation {
 		return (parent == null ? "" : parent.getPath() + " ") + info.name;
 	}
 
-	public String getLocalizationPath() {
-		return getPath();
-	}
-
 	public CommandData build(CommandManager<?> manager) {
 		try {
 			var description = manager.getManager().getLocalization().getCommandDescription(this);

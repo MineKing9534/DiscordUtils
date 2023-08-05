@@ -12,6 +12,10 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class LocalizationManager {
+	public String commandDescriptionFormat = "%path%";
+	public String optionDescriptionFormat = "%command%.%option%";
+	public String choiceFormat = "%option%.%choice%";
+
 	public final BiFunction<LocalizationInfo, DiscordLocale, String> mapper;
 	public final DiscordLocale defaultLocale;
 	public final Collection<DiscordLocale> locales;
@@ -35,7 +39,10 @@ public class LocalizationManager {
 			var custom = command.type.getAnnotation(LocalizationPath.class);
 
 			if(custom == null) {
-				return localize(new LocalizationInfo(command.getLocalizationPath()));
+				return localize(new LocalizationInfo(
+						commandDescriptionFormat
+								.replace("%path%", command.getPath())
+				));
 			} else {
 				return localize(new LocalizationInfo(custom.value()));
 			}
@@ -47,7 +54,14 @@ public class LocalizationManager {
 	public LocalizationPackage getOptionDescription(String command, String name, Option option, LocalizationPath custom) {
 		if(option.description().isEmpty()) {
 			if(custom == null) {
-				return localize(new LocalizationInfo(command + "." + name));
+				return localize(new LocalizationInfo(
+						optionDescriptionFormat
+								.replace("%command%",
+										commandDescriptionFormat
+												.replace("%path%", command)
+								)
+								.replace("%option%", name)
+				));
 			} else {
 				return localize(new LocalizationInfo(custom.value()));
 			}
@@ -58,7 +72,14 @@ public class LocalizationManager {
 
 	public LocalizationPackage getOptionDescription(String command, de.mineking.discord.commands.inherited.Option option) {
 		if(option.description.isEmpty()) {
-			return localize(new LocalizationInfo(command + "." + option.name));
+			return localize(new LocalizationInfo(
+					optionDescriptionFormat
+							.replace("%command%",
+									commandDescriptionFormat
+											.replace("%path%", command)
+							)
+							.replace("%option%", option.name)
+			));
 		} else if(option.localize) {
 			return localize(new LocalizationInfo(option.description));
 		} else {
@@ -69,7 +90,18 @@ public class LocalizationManager {
 	public LocalizationPackage getChoiceDescription(String command, String option, Choice choice) {
 		if(choice instanceof LocalizedChoice lc) {
 			if(!lc.custom) {
-				return localize(new LocalizationInfo(command + "." + option + "." + choice.name));
+				return localize(new LocalizationInfo(
+						choiceFormat
+								.replace("%option%",
+										optionDescriptionFormat
+												.replace("%command%",
+														commandDescriptionFormat
+																.replace("%path%", command)
+												)
+												.replace("%option%", option)
+								)
+								.replace("%choice%", choice.name)
+				));
 			} else {
 				return localize(new LocalizationInfo(choice.name));
 			}
