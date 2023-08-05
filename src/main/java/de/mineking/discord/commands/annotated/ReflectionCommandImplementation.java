@@ -21,10 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -174,6 +171,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	protected OptionType getOptionType(Class<?> type) {
 		if(type.isAssignableFrom(String.class)) return OptionType.STRING;
+		if(type.isEnum()) return OptionType.STRING;
 		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) return OptionType.NUMBER;
 		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class) || type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) return OptionType.INTEGER;
 		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) return OptionType.BOOLEAN;
@@ -221,8 +219,10 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		return null;
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected Object getOption(GenericCommandInteractionEvent event, String name, Class<?> type) {
 		if(type.isAssignableFrom(String.class)) return event.getOption(name, OptionMapping::getAsString);
+		if(type.isEnum()) return event.getOption(name, o -> Enum.valueOf((Class<? extends Enum>) type, o.getAsString()));
 		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) return event.getOption(name, OptionMapping::getAsInt);
 		else if(type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) return event.getOption(name, OptionMapping::getAsLong);
 		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) return event.getOption(name, OptionMapping::getAsDouble);
@@ -292,9 +292,17 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 		if(paramInfo.channelTypes().length > 0) option.setChannelTypes(paramInfo.channelTypes());
 
-		if(!paramInfo.choices().isEmpty()) {
+		if(!paramInfo.choices().isEmpty() || param.getType().isEnum()) {
 			try {
-				var choices = (Collection<? extends Choice>) instanceType.getField(paramInfo.choices()).get(instance);
+				var choices = paramInfo.choices().isEmpty()
+						? new ArrayList<Choice>()
+						: (Collection<Choice>) instanceType.getField(paramInfo.choices()).get(instance);
+
+				if(param.getType().isEnum()) choices.addAll(
+						Arrays.stream(param.getType().getEnumConstants())
+								.map(x -> new Choice(x instanceof OptionEnum o ? o.getName() : x.toString(), x.toString()))
+								.toList()
+				);
 
 				option.addChoices(choices.stream().map(c -> c.build(getPath(), name, manager.getManager().getLocalization())).toList());
 			} catch(IllegalAccessException | ClassCastException e) {
