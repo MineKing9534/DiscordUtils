@@ -1,5 +1,6 @@
 package de.mineking.discord.help;
 
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -8,7 +9,7 @@ public interface HelpTarget {
 
 	MessageCreateData build(IReplyCallback event);
 
-	default String getDisplay() {
+	default String getDisplay(DiscordLocale locale) {
 		return getKey();
 	}
 

@@ -16,7 +16,7 @@ public class HelpCommand {
 				context.manager.getManager().getHelpManager()
 						.findTargets(event.getFocusedOption().getValue())
 						.limit(OptionData.MAX_CHOICES)
-						.map(t -> new Command.Choice(t.getDisplay(), t.getKey()))
+						.map(t -> new Command.Choice(t.getDisplay(event.getUserLocale()), t.getKey()))
 						.toList()
 		).queue();
 	}
