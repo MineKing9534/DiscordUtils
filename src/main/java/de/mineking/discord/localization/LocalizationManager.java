@@ -34,6 +34,21 @@ public class LocalizationManager {
 		);
 	}
 
+	public LocalizationManager setCommandDescriptionFormat(String format) {
+		this.commandDescriptionFormat = format;
+		return this;
+	}
+
+	public LocalizationManager setOptionDescriptionFormat(String format) {
+		this.optionDescriptionFormat = format;
+		return this;
+	}
+
+	public LocalizationManager setChoiceFormat(String format) {
+		this.choiceFormat = format;
+		return this;
+	}
+
 	public LocalizationPackage getCommandDescription(CommandImplementation command) {
 		if(command.info.description.isEmpty()) {
 			var custom = command.type.getAnnotation(LocalizationPath.class);
