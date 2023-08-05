@@ -12,8 +12,10 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class LocalizationManager {
-	public String commandDescriptionFormat = "%path%";
-	public String optionDescriptionFormat = "%command%.%option%";
+	public String commandFormat = "%path%";
+	public String commandDescriptionFormat = "%command%";
+	public String optionFormat = "%command%.%option%";
+	public String optionDescriptionFormat = "%option%";
 	public String choiceFormat = "%option%.%choice%";
 
 	public final BiFunction<LocalizationInfo, DiscordLocale, String> mapper;
@@ -34,8 +36,18 @@ public class LocalizationManager {
 		);
 	}
 
+	public LocalizationManager setCommandFormat(String format) {
+		this.commandFormat = format;
+		return this;
+	}
+
 	public LocalizationManager setCommandDescriptionFormat(String format) {
 		this.commandDescriptionFormat = format;
+		return this;
+	}
+
+	public LocalizationManager setOptionFormat(String format) {
+		this.optionFormat = format;
 		return this;
 	}
 
@@ -56,7 +68,10 @@ public class LocalizationManager {
 			if(custom == null) {
 				return localize(new LocalizationInfo(
 						commandDescriptionFormat
-								.replace("%path%", command.getPath())
+								.replace("%command%",
+										commandFormat
+												.replace("%path%", command.getPath())
+								)
 				));
 			} else {
 				return localize(new LocalizationInfo(custom.value()));
@@ -71,11 +86,14 @@ public class LocalizationManager {
 			if(custom == null) {
 				return localize(new LocalizationInfo(
 						optionDescriptionFormat
-								.replace("%command%",
-										commandDescriptionFormat
-												.replace("%path%", command)
+								.replace("%option%",
+										optionFormat
+												.replace("%command%",
+														commandFormat
+																.replace("%path%", command)
+												)
+												.replace("%option%", name)
 								)
-								.replace("%option%", name)
 				));
 			} else {
 				return localize(new LocalizationInfo(custom.value()));
@@ -89,11 +107,14 @@ public class LocalizationManager {
 		if(option.description.isEmpty()) {
 			return localize(new LocalizationInfo(
 					optionDescriptionFormat
-							.replace("%command%",
-									commandDescriptionFormat
-											.replace("%path%", command)
+							.replace("%option%",
+									optionFormat
+											.replace("%command%",
+													commandFormat
+															.replace("%path%", command)
+											)
+											.replace("%option%", option.name)
 							)
-							.replace("%option%", option.name)
 			));
 		} else if(option.localize) {
 			return localize(new LocalizationInfo(option.description));
@@ -108,9 +129,9 @@ public class LocalizationManager {
 				return localize(new LocalizationInfo(
 						choiceFormat
 								.replace("%option%",
-										optionDescriptionFormat
+										optionFormat
 												.replace("%command%",
-														commandDescriptionFormat
+														commandFormat
 																.replace("%path%", command)
 												)
 												.replace("%option%", option)
