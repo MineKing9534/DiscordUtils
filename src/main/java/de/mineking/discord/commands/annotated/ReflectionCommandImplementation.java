@@ -186,7 +186,9 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	protected Object getDefault(GenericCommandInteractionEvent event, ContextBase context, Object instance, Parameter param) {
-		if(param.isAnnotationPresent(BooleanDefault.class)) return param.getAnnotation(BooleanDefault.class).value();
+		if(param.isAnnotationPresent(EnumDefault.class)) return param.getType().getEnumConstants()[0];
+
+		else if(param.isAnnotationPresent(BooleanDefault.class)) return param.getAnnotation(BooleanDefault.class).value();
 		else if(param.isAnnotationPresent(IntegerDefault.class)) return param.getAnnotation(IntegerDefault.class).value();
 		else if(param.isAnnotationPresent(DoubleDefault.class)) return param.getAnnotation(DoubleDefault.class).value();
 		else if(param.isAnnotationPresent(StringDefault.class)) return param.getAnnotation(StringDefault.class).value();
