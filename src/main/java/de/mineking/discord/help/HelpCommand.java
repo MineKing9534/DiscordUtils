@@ -14,7 +14,7 @@ public class HelpCommand {
 	public void handleAutocomplete(ContextBase context, CommandAutoCompleteInteractionEvent event) {
 		event.replyChoices(
 				context.manager.getManager().getHelpManager()
-						.findTargets(event.getFocusedOption().getValue())
+						.findTargets(event.getFocusedOption().getValue(), event)
 						.limit(OptionData.MAX_CHOICES)
 						.map(t -> new Command.Choice(t.getDisplay(event.getUserLocale()), t.getKey()))
 						.toList()

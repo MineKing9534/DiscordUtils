@@ -4,6 +4,7 @@ import de.mineking.discord.DiscordUtils;
 import de.mineking.discord.Module;
 import de.mineking.discord.commands.CommandFilter;
 import de.mineking.discord.commands.CommandImplementation;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
 import java.util.*;
@@ -52,8 +53,10 @@ public class HelpManager extends Module {
 		return Collections.unmodifiableSet(targets);
 	}
 
-	public Stream<HelpTarget> findTargets(String current) {
-		return targets.stream().filter(t -> t.matches(current));
+	public Stream<HelpTarget> findTargets(String current, GenericInteractionCreateEvent event) {
+		return targets.stream()
+				.filter(t -> t.matches(current))
+				.filter(t -> t.isAvailable(event));
 	}
 
 	public Optional<HelpTarget> getTarget(String key) {
