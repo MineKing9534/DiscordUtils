@@ -1,11 +1,10 @@
 package de.mineking.discord.commands.annotated;
 
 import de.mineking.discord.commands.*;
-import de.mineking.discord.commands.annotated.option.CustomOptionCreator;
-import de.mineking.discord.commands.annotated.option.CustomOptionType;
-import de.mineking.discord.commands.annotated.option.ExternalOption;
-import de.mineking.discord.commands.annotated.option.Option;
+import de.mineking.discord.commands.annotated.option.*;
 import de.mineking.discord.commands.annotated.option.defaultValue.*;
+import de.mineking.discord.commands.choice.Choice;
+import de.mineking.discord.commands.choice.LocalizedChoice;
 import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.exception.ExecutionTermination;
 import de.mineking.discord.localization.LocalizationManager;
@@ -302,7 +301,10 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 				if(param.getType().isEnum()) choices.addAll(
 						Arrays.stream(param.getType().getEnumConstants())
-								.map(x -> new Choice(x instanceof OptionEnum o ? o.getName() : x.toString(), x.toString()))
+								.map(c -> c instanceof LocalizedEnumOption e
+										? LocalizedChoice.localize(e.getKey(), c.toString())
+										: new Choice(c instanceof CustomEnumOption o ? o.getName() : c.toString(), c.toString())
+								)
 								.toList()
 				);
 

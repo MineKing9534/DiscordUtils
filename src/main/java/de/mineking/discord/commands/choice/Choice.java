@@ -1,4 +1,4 @@
-package de.mineking.discord.commands;
+package de.mineking.discord.commands.choice;
 
 import de.mineking.discord.localization.LocalizationManager;
 import net.dv8tion.jda.api.interactions.commands.Command;

@@ -1,6 +1,5 @@
-package de.mineking.discord.commands.inherited;
+package de.mineking.discord.commands.choice;
 
-import de.mineking.discord.commands.Choice;
 import de.mineking.discord.localization.LocalizationManager;
 import net.dv8tion.jda.api.interactions.commands.Command;
 

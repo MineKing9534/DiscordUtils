@@ -1,9 +1,9 @@
 package de.mineking.discord.localization;
 
-import de.mineking.discord.commands.Choice;
+import de.mineking.discord.commands.choice.Choice;
 import de.mineking.discord.commands.CommandImplementation;
 import de.mineking.discord.commands.annotated.option.Option;
-import de.mineking.discord.commands.inherited.LocalizedChoice;
+import de.mineking.discord.commands.choice.LocalizedChoice;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 
 import java.util.Collection;
