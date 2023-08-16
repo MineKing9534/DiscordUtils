@@ -21,6 +21,8 @@ import de.mineking.discord.oauth2.data.OAuth2User;
 import de.mineking.discord.ui.UIManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.requests.RestConfig;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -83,6 +85,20 @@ public class DiscordUtils {
 		this.jda = jda;
 
 		return jda;
+	}
+
+	@NotNull
+	public JDABuilder prepare() {
+		return builder
+				.setRestConfig(restConfig)
+				.addEventListeners(new ListenerAdapter() {
+					@Override
+					public void onReady(@NotNull ReadyEvent event) {
+						DiscordUtils.this.jda = event.getJDA();
+						event.getJDA().removeEventListener(this);
+					}
+				})
+				.addEventListeners(modules.toArray());
 	}
 
 	/**
