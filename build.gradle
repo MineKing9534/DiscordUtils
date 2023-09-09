@@ -16,6 +16,12 @@ java {
     targetCompatibility = 17
 
     withSourcesJar()
+
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
 }
 
 publishing {
