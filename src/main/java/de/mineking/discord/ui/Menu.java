@@ -18,9 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class Menu implements MenuBase {
 	public final static Logger logger = LoggerFactory.getLogger(Menu.class);
@@ -88,6 +86,14 @@ public class Menu implements MenuBase {
 		return this;
 	}
 
+	public Menu addFrame(String name, Function<Menu, ? extends MenuFrame> frame) {
+		return addFrame(name, frame.apply(this));
+	}
+
+	public <T> Menu addFrame(String name, BiFunction<Menu, T, ? extends MenuFrame> frame, T param) {
+		return addFrame(name, frame.apply(this, param));
+	}
+
 	private void showFrame(MenuFrame frame) {
 		if(frame == null) throw new IllegalArgumentException("frame may not be null");
 
@@ -125,9 +131,7 @@ public class Menu implements MenuBase {
 	}
 
 	public void start(CallbackState state, String name) {
-		if(this.state != null) {
-			throw new IllegalStateException();
-		}
+		if(this.state != null) throw new IllegalStateException();
 
 		this.state = state;
 		display(name);
