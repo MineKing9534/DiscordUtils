@@ -12,8 +12,6 @@ public class MessageFrame extends MessageFrameBase {
 	private final Function<Menu, MessageEmbed> message;
 	private final List<ComponentRow> components = new ArrayList<>();
 
-	private final Set<CompletableFuture<?>> futures = new HashSet<>();
-
 	public MessageFrame(Menu menu, Function<Menu, MessageEmbed> message) {
 		super(menu);
 		this.message = message;

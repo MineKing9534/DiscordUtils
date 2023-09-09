@@ -151,4 +151,9 @@ public class Menu implements MenuBase {
 
 		manager.menus.remove(id);
 	}
+
+	@Override
+	public CallbackState getState() {
+		return state;
+	}
 }
