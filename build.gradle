@@ -16,7 +16,6 @@ java {
     targetCompatibility = 17
 
     withSourcesJar()
-    withJavadocJar()
 }
 
 publishing {
