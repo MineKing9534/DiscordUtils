@@ -89,6 +89,8 @@ public class Menu implements MenuBase {
 	}
 
 	private void showFrame(MenuFrame frame) {
+		if(frame == null) throw new IllegalArgumentException("frame may not be null");
+
 		try {
 			if(frame instanceof ModalFrame && !current.isEmpty()) {
 				var last = current.get(current.size() - 1);
@@ -110,18 +112,14 @@ public class Menu implements MenuBase {
 
 	@Override
 	public void update() {
-		if(current.isEmpty()) {
-			throw new IllegalStateException();
-		}
-
+		if(current.isEmpty()) throw new IllegalStateException();
 		showFrame(current.get(0));
 	}
 
 	@Override
 	public void display(String name) {
-		if(state == null) {
-			throw new IllegalStateException();
-		}
+		if(state == null) throw new IllegalStateException();
+		if(!frames.containsKey(name)) throw new IllegalArgumentException("No frame with the name '" + name + "' found");
 
 		showFrame(frames.get(name));
 	}
