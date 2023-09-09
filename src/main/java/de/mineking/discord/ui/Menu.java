@@ -103,7 +103,7 @@ public class Menu implements MenuBase {
 			}
 
 			current.add(0, frame);
-			current.forEach(MenuFrame::show);
+			current.forEach(MenuFrame::render);
 		} catch(Exception e) {
 			logger.error("An error occurred whilst rendering frame", e);
 			close();

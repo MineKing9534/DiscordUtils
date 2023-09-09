@@ -7,7 +7,6 @@ public abstract class MenuFrame {
 		this.menu = menu;
 	}
 
-	public abstract void show();
-
+	public abstract void render();
 	public abstract void cleanup();
 }

@@ -21,7 +21,7 @@ public class ModalFrame extends MenuFrame {
 	}
 
 	@Override
-	public void show() {
+	public void render() {
 		if(menu.state.modal == null) {
 			throw new IllegalStateException();
 		}
