@@ -103,4 +103,10 @@ public class OAuth2User implements UserSnowflake {
 						.toList()
 		);
 	}
+
+	@NotNull
+	@Override
+	public String getDefaultAvatarId() {
+		return "";
+	}
 }
