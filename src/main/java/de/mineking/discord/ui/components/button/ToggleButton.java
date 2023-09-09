@@ -1,85 +1,75 @@
 package de.mineking.discord.ui.components.button;
 
-import de.mineking.discord.ui.Menu;
-import de.mineking.discord.ui.components.BaseComponent;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.function.Function;
 
-public class ToggleButton extends BaseComponent<ButtonInteractionEvent> {
-	public static final Function<Boolean, ButtonColor> grayGreen = state -> state ? ButtonColor.GREEN : ButtonColor.GRAY;
-	public static final Function<Boolean, ButtonColor> blueGreen = state -> state ? ButtonColor.GREEN : ButtonColor.BLUE;
-	public static final Function<Boolean, ButtonColor> redGreen = state -> state ? ButtonColor.GREEN : ButtonColor.RED;
-	public static final Function<Boolean, ButtonColor> grayBlue = state -> state ? ButtonColor.BLUE : ButtonColor.GRAY;
+public class ToggleButton extends ToggleButtonBase {
+	public final static Function<Boolean, ButtonColor> grayGreen = state -> state ? ButtonColor.GREEN : ButtonColor.GRAY;
+	public final static Function<Boolean, ButtonColor> blueGreen = state -> state ? ButtonColor.GREEN : ButtonColor.BLUE;
+	public final static Function<Boolean, ButtonColor> redGreen = state -> state ? ButtonColor.GREEN : ButtonColor.RED;
+	public final static Function<Boolean, ButtonColor> grayBlue = state -> state ? ButtonColor.BLUE : ButtonColor.GRAY;
 
-	public static Function<Boolean, ButtonColor> defaultColor = grayGreen;
+	private final Function<Boolean, ButtonColor> color;
+	private final Function<Boolean, ButtonLabel> label;
 
-	public final ToggleHolder state;
-
-	public ToggleButton(String id, ToggleHolder state, Function<Boolean, ButtonColor> color, String label) {
-		super(ButtonInteractionEvent.class, null);
-
-		this.state = state;
-
-		component = i -> Button.of(
-				color.apply(state.getState()).style,
-				i + ":" + id,
-				label
-		);
-
-		initHandler(state);
+	public ToggleButton(String id, ToggleHolder holder, Function<Boolean, ButtonColor> color, Function<Boolean, ButtonLabel> label) {
+		super(id, holder);
+		this.color = color;
+		this.label = label;
 	}
 
-	public ToggleButton(String id, ToggleHolder state, Function<Boolean, ButtonColor> color, Emoji label) {
-		super(ButtonInteractionEvent.class, null);
-
-		this.state = state;
-
-		component = i -> Button.of(
-				color.apply(state.getState()).style,
-				i + id,
-				label
-		);
-
-		initHandler(state);
+	public ToggleButton(String id, boolean state, Function<Boolean, ButtonColor> color, Function<Boolean, ButtonLabel> label) {
+		this(id, new ToggleHolder.DefaultToggleHolder(state), color, label);
 	}
 
-	private void initHandler(ToggleHolder state) {
-		handler = (menu, event) -> {
-			try {
-				state.setState(!state.getState(), event);
-			} catch(Exception e) {
-				Menu.logger.error("ToggleHolder#setState call failed", e);
-			}
-
-			menu.update();
-		};
+	public ToggleButton(String id, Function<Boolean, ButtonColor> color, Function<Boolean, ButtonLabel> label) {
+		this(id, false, color, label);
 	}
 
-	public ToggleButton(String id, ToggleHolder state, String label) {
-		this(id, state, defaultColor, label);
+	public ToggleButton(String id, ToggleHolder holder, ButtonColor color, Function<Boolean, ButtonLabel> label) {
+		this(id, holder, state -> color, label);
 	}
 
-	public ToggleButton(String id, ToggleHolder state, Emoji label) {
-		this(id, state, defaultColor, label);
+	public ToggleButton(String id, boolean state, ButtonColor color, Function<Boolean, ButtonLabel> label) {
+		this(id, new ToggleHolder.DefaultToggleHolder(state), color, label);
 	}
 
+	public ToggleButton(String id, ButtonColor color, Function<Boolean, ButtonLabel> label) {
+		this(id, false, color, label);
+	}
+
+	public ToggleButton(String id, ToggleHolder holder, Function<Boolean, ButtonColor> color, String label) {
+		this(id, holder, color, state -> new ButtonLabel(label));
+	}
 
 	public ToggleButton(String id, boolean state, Function<Boolean, ButtonColor> color, String label) {
 		this(id, new ToggleHolder.DefaultToggleHolder(state), color, label);
+	}
+
+	public ToggleButton(String id, Function<Boolean, ButtonColor> color, String label) {
+		this(id, false, color, label);
+	}
+
+	public ToggleButton(String id, ToggleHolder holder, Function<Boolean, ButtonColor> color, Emoji label) {
+		this(id, holder, color, state -> new ButtonLabel(label));
 	}
 
 	public ToggleButton(String id, boolean state, Function<Boolean, ButtonColor> color, Emoji label) {
 		this(id, new ToggleHolder.DefaultToggleHolder(state), color, label);
 	}
 
-	public ToggleButton(String id, boolean state, String label) {
-		this(id, state, defaultColor, label);
+	public ToggleButton(String id, Function<Boolean, ButtonColor> color, Emoji label) {
+		this(id, false, color, label);
 	}
 
-	public ToggleButton(String id, boolean state, Emoji label) {
-		this(id, state, defaultColor, label);
+	@Override
+	public ButtonColor getColor(boolean state) {
+		return color.apply(state);
+	}
+
+	@Override
+	public ButtonLabel getLabel(boolean state) {
+		return label.apply(state);
 	}
 }

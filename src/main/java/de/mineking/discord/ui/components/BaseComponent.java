@@ -5,19 +5,13 @@ import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteract
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 
 public abstract class BaseComponent<T extends GenericComponentInteractionCreateEvent> extends Component<T> {
-	public Function<String, ActionComponent> component;
-	public BiConsumer<MenuBase, T> handler;
+	private BooleanSupplier disabled;
 
-	public BooleanSupplier disabled = () -> false;
-
-	public BaseComponent(@NotNull Class<T> type, Function<String, ActionComponent> component) {
-		super(type);
-		this.component = component;
+	public BaseComponent(@NotNull Class<T> type, String id) {
+		super(type, id);
 	}
 
 	public BaseComponent<T> asDisabled(BooleanSupplier state) {
@@ -31,14 +25,16 @@ public abstract class BaseComponent<T extends GenericComponentInteractionCreateE
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void handle(MenuBase menu, GenericComponentInteractionCreateEvent event) {
-		if(handler != null) {
-			handler.accept(menu, (T) event);
-		}
+	public final void handle(MenuBase menu, GenericComponentInteractionCreateEvent event) {
+		handleParsed(menu, (T) event);
 	}
 
+	public abstract void handleParsed(MenuBase menu, T event);
+
 	@Override
-	public ActionComponent buildComponent(MenuBase menu) {
-		return component.apply(menu.getId()).withDisabled(disabled.getAsBoolean());
+	public final ActionComponent buildComponent(MenuBase menu) {
+		return getComponent(menu.getId() + ":" + id, menu).withDisabled(disabled != null && disabled.getAsBoolean());
 	}
+
+	public abstract ActionComponent getComponent(String id, MenuBase menu);
 }
