@@ -22,18 +22,17 @@ public abstract class MessageFrameBase extends MenuFrame {
 	public abstract MessageEmbed getEmbed();
 	public abstract Collection<ComponentRow> getComponents();
 
-	public MessageEditData buildMessage() {
+	public MessageEditBuilder buildMessage() {
 		return new MessageEditBuilder()
 				.setEmbeds(getEmbed())
-				.setComponents(getComponents().stream().map(c -> c.build(menu)).toList())
-				.build();
+				.setComponents(getComponents().stream().map(c -> c.build(menu)).toList());
 	}
 
 	@Override
 	public void render() {
 		if(menu.state.reply == null) throw new IllegalStateException();
 
-		var message = buildMessage();
+		var message = buildMessage().build();
 
 		if(menu.state.reply.isAcknowledged()) menu.state.reply.getHook().editOriginal(message).queue();
 		else if(menu.state.reply instanceof IMessageEditCallback edit) edit.editMessage(message).queue();
