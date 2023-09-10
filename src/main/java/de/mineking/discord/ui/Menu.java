@@ -72,7 +72,7 @@ public class Menu implements MenuBase {
 		return addFrame(name, frame);
 	}
 
-	public Menu addModalFrame(String name, String title, Consumer<Modal.Builder> config, BiConsumer<Menu, ModalInteractionEvent> handler) {
+	public Menu addModalFrame(String name, String title, Consumer<Modal.Builder> config, BiConsumer<MenuBase, ModalInteractionEvent> handler) {
 		var frame = new ModalFrame(this, () -> {
 			var builder = Modal.create(id + ":" + name, title);
 			config.accept(builder);
