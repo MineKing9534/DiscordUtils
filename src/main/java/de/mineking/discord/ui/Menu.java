@@ -135,6 +135,8 @@ public class Menu implements MenuBase {
 		if(this.state != null) throw new IllegalStateException();
 
 		this.state = state;
+		frames.values().forEach(MenuFrame::setup);
+
 		display(name);
 	}
 

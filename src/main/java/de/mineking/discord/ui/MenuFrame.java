@@ -14,4 +14,6 @@ public abstract class MenuFrame {
 
 	public abstract void render();
 	public abstract void cleanup();
+
+	public void setup() {}
 }
