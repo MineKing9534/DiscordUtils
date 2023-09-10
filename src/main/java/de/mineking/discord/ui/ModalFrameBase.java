@@ -13,16 +13,14 @@ public abstract class ModalFrameBase extends MenuFrame {
 		super(menu);
 	}
 
-	public abstract Modal getModal();
+	public abstract Modal getModal(String id);
 	public abstract void handle(MenuBase menu, ModalInteractionEvent event);
 
 	@Override
 	public void render() {
-		if(menu.state.modal == null) {
-			throw new IllegalStateException();
-		}
+		if(menu.state.modal == null) throw new IllegalStateException();
 
-		var modal = getModal();
+		var modal = getModal(menu.getId() + ":" + getName());
 		menu.state.modal.replyModal(modal).queue();
 
 		future = menu.getEventManager().waitForEvent(ModalInteractionEvent.class, event -> event.getModalId().equals(modal.getId()), Menu.timeout);
