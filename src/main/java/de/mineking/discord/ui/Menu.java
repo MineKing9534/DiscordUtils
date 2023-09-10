@@ -99,7 +99,7 @@ public class Menu implements MenuBase {
 		if(frame == null) throw new IllegalArgumentException("frame may not be null");
 
 		try {
-			if(frame instanceof ModalFrame && !current.isEmpty()) {
+			if(frame instanceof ModalFrameBase && !current.isEmpty()) {
 				var last = current.get(current.size() - 1);
 				current.forEach(MenuFrame::cleanup);
 				current.clear();
