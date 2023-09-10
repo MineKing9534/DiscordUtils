@@ -35,8 +35,6 @@ public abstract class MessageFrameBase extends MenuFrame {
 
 		if(menu.state.reply.isAcknowledged()) menu.state.reply.getHook().editOriginalComponents(components).queue();
 		else if(menu.state.reply instanceof IMessageEditCallback edit) edit.editComponents(components).queue();
-
-		render();
 	}
 
 	@Override
