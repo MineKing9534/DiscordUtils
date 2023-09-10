@@ -100,17 +100,14 @@ public class Menu implements MenuBase {
 
 		try {
 			if(frame instanceof ModalFrameBase && !current.isEmpty()) {
-				var last = current.get(current.size() - 1);
-				current.forEach(MenuFrame::cleanup);
-				current.clear();
-				current.add(last);
+				while(current.size() > 1) current.remove(0).cleanup();
 			} else {
 				current.forEach(MenuFrame::cleanup);
 				current.clear();
 			}
 
 			current.add(0, frame);
-			current.forEach(MenuFrame::render);
+			frame.render();
 		} catch(Exception e) {
 			logger.error("An error occurred whilst rendering frame", e);
 			close();
