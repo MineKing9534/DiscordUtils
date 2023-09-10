@@ -13,13 +13,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 public abstract class Component<T extends GenericComponentInteractionCreateEvent> implements ComponentRow {
-	protected final String id;
+	private final String id;
 	public final Class<T> type;
 
 	public Component(@NotNull Class<T> type, String id) {
 		Checks.notNull(type, "type");
 		this.type = type;
 		this.id = id;
+	}
+
+	protected String getComponentId(MenuBase menu) {
+		return menu.getId() + ":" + id;
 	}
 
 	@Override
@@ -32,7 +36,7 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 	public abstract void handle(MenuBase menu, GenericComponentInteractionCreateEvent event);
 
 	public CompletableFuture<T> createHandler(MenuBase menu) {
-		var future = menu.getEventManager().waitForEvent(type, event -> event.getComponentId().equals(id), Menu.timeout);
+		var future = menu.getEventManager().waitForEvent(type, event -> event.getComponentId().equals(getComponentId(menu)), Menu.timeout);
 
 		future.whenComplete((event, e) -> {
 			if(event != null) {

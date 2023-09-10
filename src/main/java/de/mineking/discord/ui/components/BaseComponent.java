@@ -33,7 +33,7 @@ public abstract class BaseComponent<T extends GenericComponentInteractionCreateE
 
 	@Override
 	public final ActionComponent buildComponent(MenuBase menu) {
-		return getComponent(menu.getId() + ":" + id, menu).withDisabled(disabled != null && disabled.getAsBoolean());
+		return getComponent(getComponentId(menu), menu).withDisabled(disabled != null && disabled.getAsBoolean());
 	}
 
 	public abstract ActionComponent getComponent(String id, MenuBase menu);
