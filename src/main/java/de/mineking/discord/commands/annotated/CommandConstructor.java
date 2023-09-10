@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
 
 /**
  * A constructor of the command that will be used for instantiation. The constructor may have parameters of the type {@link CommandManager} or {@link DiscordUtils}.
- * Most of the time you should use {@link WhenFinished} instead as it will be executed when the registration already finished. Only use {@link CommandConstructor} when you really have to!
+ * Most of the time you should use {@link Setup} instead as it will be executed when the registration already finished. Only use {@link CommandConstructor} when you really have to!
  *
  * @apiNote If your class does not have a default constructor you have to annotate a constructor as {@link CommandConstructor}
- * @see WhenFinished
+ * @see Setup
  * @see ApplicationCommand
  */
 @Target(ElementType.CONSTRUCTOR)

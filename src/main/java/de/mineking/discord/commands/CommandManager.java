@@ -167,7 +167,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 		var instance = impl.instance.apply(null);
 
 		for(var m : type.getMethods()) {
-			if(m.isAnnotationPresent(WhenFinished.class)) {
+			if(m.isAnnotationPresent(Setup.class)) {
 				var params = new Object[m.getParameterCount()];
 
 				for(int i = 0; i < m.getParameterCount(); i++) {
