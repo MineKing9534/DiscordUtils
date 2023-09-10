@@ -320,7 +320,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 			}
 		}
 
-		if(children.isEmpty()) logger.warn("Command '" + info.name() + "' has no children and no ApplicationCommandMethod!");
+		if(children.isEmpty() && info.subcommands().length == 0) logger.warn("Command '" + info.name() + "' has no children and no ApplicationCommandMethod!");
 
 		return new ReflectionCommandImplementationBase(parent, children, CommandInfo.ofAnnotation(info), type, ctx -> instance);
 	}
