@@ -37,13 +37,13 @@ public abstract class HandleComponent<T extends GenericComponentInteractionCreat
 		return this;
 	}
 
+	public HandleComponent<T> prependHandler(@NotNull Consumer<MenuBase> handler) {
+		return prependHandler((menu, event) -> handler.accept(menu));
+	}
+
 	public HandleComponent<T> defer() {
 		prependHandler((m, event) -> event.deferEdit().queue());
 		return this;
-	}
-
-	public HandleComponent<T> prependHandler(@NotNull Consumer<MenuBase> handler) {
-		return addHandler((menu, event) -> handler.accept(menu));
 	}
 
 	@Override
