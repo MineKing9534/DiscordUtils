@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public interface ToggleHolder {
 	void setState(boolean state, MenuBase menu, ButtonInteractionEvent event);
 
-	boolean getState();
+	boolean getState(MenuBase menu);
 
 	class DefaultToggleHolder implements ToggleHolder {
 		private boolean state;
@@ -16,7 +16,7 @@ public interface ToggleHolder {
 		}
 
 		@Override
-		public boolean getState() {
+		public boolean getState(MenuBase menu) {
 			return state;
 		}
 

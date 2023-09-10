@@ -26,13 +26,13 @@ public abstract class ToggleButtonBase extends BaseComponent<ButtonInteractionEv
 
 	@Override
 	public final void handleParsed(MenuBase menu, ButtonInteractionEvent event) {
-		state.setState(!state.getState(), menu, event);
+		state.setState(!state.getState(menu), menu, event);
 		menu.update();
 	}
 
 	@Override
 	public final Button getComponent(String id, MenuBase menu) {
-		var state = this.state.getState();
+		var state = this.state.getState(menu);
 		return getLabel(state).build(getColor(state).style, id);
 	}
 }
