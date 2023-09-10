@@ -28,6 +28,19 @@ public abstract class HandleComponent<T extends GenericComponentInteractionCreat
 		return addHandler((menu, event) -> handler.accept(menu));
 	}
 
+	public HandleComponent<T> prependHandler(@NotNull BiConsumer<MenuBase, T> handler) {
+		final var old = this.handler;
+		this.handler = (menu, event) -> {
+			handler.accept(menu, event);
+			if(old != null) old.accept(menu, event);
+		};
+		return this;
+	}
+
+	public HandleComponent<T> prependHandler(@NotNull Consumer<MenuBase> handler) {
+		return addHandler((menu, event) -> handler.accept(menu));
+	}
+
 	@Override
 	public HandleComponent<T> asDisabled(boolean state) {
 		super.asDisabled(state);
