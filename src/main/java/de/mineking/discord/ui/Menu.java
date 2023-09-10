@@ -72,6 +72,12 @@ public class Menu implements MenuBase {
 		return addFrame(name, frame);
 	}
 
+	public Menu addMessageFrame(String name, Function<Menu, MessageEmbed> message, Consumer<MessageFrame> config) {
+		var frame = new MessageFrame(this, message);
+		config.accept(frame);
+		return addFrame(name, frame);
+	}
+
 	public Menu addModalFrame(String name, String title, Consumer<Modal.Builder> config, BiConsumer<MenuBase, ModalInteractionEvent> handler) {
 		var frame = new ModalFrame(this, id -> {
 			var builder = Modal.create(id, title);
