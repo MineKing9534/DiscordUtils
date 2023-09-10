@@ -12,6 +12,8 @@ public abstract class MenuFrame {
 		return name;
 	}
 
+	protected void handleLoadingState() {}
+
 	public abstract void render();
 	public abstract void cleanup();
 

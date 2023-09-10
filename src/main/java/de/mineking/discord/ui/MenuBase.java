@@ -22,6 +22,8 @@ public interface MenuBase {
 
 	void display(String name);
 
+	MenuBase setLoading();
+
 	default void close() {
 		close(true);
 	}

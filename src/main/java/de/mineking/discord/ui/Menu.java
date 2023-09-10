@@ -131,6 +131,12 @@ public class Menu implements MenuBase {
 		showFrame(frames.get(name));
 	}
 
+	@Override
+	public MenuBase setLoading() {
+		current.forEach(MenuFrame::handleLoadingState);
+		return this;
+	}
+
 	public void start(CallbackState state, String name) {
 		if(this.state != null) throw new IllegalStateException();
 

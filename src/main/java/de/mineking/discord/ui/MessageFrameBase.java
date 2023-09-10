@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +25,18 @@ public abstract class MessageFrameBase extends MenuFrame {
 		return new MessageEditBuilder()
 				.setEmbeds(getEmbed())
 				.setComponents(getComponents().stream().map(c -> c.build(menu)).toList());
+	}
+
+	@Override
+	protected void handleLoadingState() {
+		var components = getComponents().stream()
+				.map(c -> c.build(menu).withDisabled(true))
+				.toList();
+
+		if(menu.state.reply.isAcknowledged()) menu.state.reply.getHook().editOriginalComponents(components).queue();
+		else if(menu.state.reply instanceof IMessageEditCallback edit) edit.editComponents(components).queue();
+
+		render();
 	}
 
 	@Override
