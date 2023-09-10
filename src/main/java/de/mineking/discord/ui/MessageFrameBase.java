@@ -38,6 +38,12 @@ public abstract class MessageFrameBase extends MenuFrame {
 	}
 
 	@Override
+	protected void refresh() {
+		cleanup();
+		createHandlers();
+	}
+
+	@Override
 	public void render() {
 		if(menu.state.reply == null) throw new IllegalStateException();
 
@@ -47,6 +53,10 @@ public abstract class MessageFrameBase extends MenuFrame {
 		else if(menu.state.reply instanceof IMessageEditCallback edit) edit.editMessage(message).queue();
 		else menu.state.reply.reply(MessageCreateData.fromEditData(message)).setEphemeral(true).queue();
 
+		createHandlers();
+	}
+
+	protected void createHandlers() {
 		futures.addAll(
 				getComponents().stream()
 						.flatMap(c -> c.getComponents().stream())

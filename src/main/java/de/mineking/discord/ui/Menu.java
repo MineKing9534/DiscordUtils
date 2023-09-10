@@ -101,6 +101,7 @@ public class Menu implements MenuBase {
 		try {
 			if(frame instanceof ModalFrameBase && !current.isEmpty()) {
 				while(current.size() > 1) current.remove(0).cleanup();
+				if(!current.isEmpty()) current.get(0).refresh();
 			} else {
 				current.forEach(MenuFrame::cleanup);
 				current.clear();

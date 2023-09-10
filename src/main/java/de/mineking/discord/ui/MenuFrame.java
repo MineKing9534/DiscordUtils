@@ -13,6 +13,7 @@ public abstract class MenuFrame {
 	}
 
 	protected void handleLoadingState() {}
+	protected void refresh() {}
 
 	public abstract void render();
 	public abstract void cleanup();
