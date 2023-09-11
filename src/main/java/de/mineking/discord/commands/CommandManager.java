@@ -66,11 +66,8 @@ public class CommandManager<C extends ContextBase> extends Module {
 	}
 
 	public Object getExternalOption(Class<?> id) {
-		for(var o : externalOptions) {
-			if(o.getClass().equals(id)) {
-				return o;
-			}
-		}
+		for(var o : externalOptions)
+			if(o.getClass().equals(id)) return o;
 
 		return null;
 	}
@@ -90,11 +87,8 @@ public class CommandManager<C extends ContextBase> extends Module {
 							exceptionHandler.handleException(c, e, event);
 						}
 
-						if(e instanceof CommandExecutionException) {
-							logger.error(e.getMessage(), e.getCause());
-						} else {
-							logger.error("Something went wrong when executing command", e);
-						}
+						if(e instanceof CommandExecutionException) logger.error(e.getMessage(), e.getCause());
+						else logger.error("Something went wrong when executing command", e);
 					}
 				})
 		);
@@ -114,9 +108,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 	}
 
 	public <O> CommandManager<C> registerExternalOption(O instance) {
-		if(!instance.getClass().isAnnotationPresent(Option.class)) {
-			throw new IllegalArgumentException(instance.getClass().getName() + ": " + Stream.of(instance.getClass().getAnnotations()).map(a -> a.getClass().getName()).collect(Collectors.joining("; ")));
-		}
+		if(!instance.getClass().isAnnotationPresent(Option.class)) throw new IllegalArgumentException(instance.getClass().getName() + ": " + Stream.of(instance.getClass().getAnnotations()).map(a -> a.getClass().getName()).collect(Collectors.joining("; ")));
 
 		externalOptions.add(instance);
 
@@ -139,9 +131,7 @@ public class CommandManager<C extends ContextBase> extends Module {
 		var type = command.getClass();
 		var info = type.getAnnotation(ApplicationCommand.class);
 
-		if(info == null) {
-			throw new IllegalArgumentException();
-		}
+		if(info == null) throw new IllegalArgumentException();
 
 		var subcommands = Stream.concat(
 				Stream.of(type.getClasses()),
@@ -150,16 +140,12 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 		var impl = findImplementation(parent, new HashSet<>(), command, type, info);
 
-		if(parent != null) {
-			parent.children.add(impl);
-		}
+		if(parent != null) parent.children.add(impl);
 
 		for(var sub : subcommands) {
 			var subInfo = sub.getAnnotation(ApplicationCommand.class);
 
-			if(subInfo != null) {
-				registerCommand(impl, sub);
-			}
+			if(subInfo != null) registerCommand(impl, sub);
 		}
 
 		commands.put((parent == null || info.type() != Command.Type.SLASH ? "" : (parent.getPath() + " ")) + info.name(), impl);
@@ -173,11 +159,8 @@ public class CommandManager<C extends ContextBase> extends Module {
 				for(int i = 0; i < m.getParameterCount(); i++) {
 					var param = m.getParameters()[i];
 
-					if(param.getType().isAssignableFrom(CommandManager.class)) {
-						params[i] = this;
-					} else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
-						params[i] = manager;
-					}
+					if(param.getType().isAssignableFrom(CommandManager.class)) params[i] = this;
+					else if(param.getType().isAssignableFrom(DiscordUtils.class)) params[i] = manager;
 				}
 
 				try {
@@ -203,13 +186,9 @@ public class CommandManager<C extends ContextBase> extends Module {
 								for(int i = 0; i < m.getParameterCount(); i++) {
 									var param = m.getParameters()[i];
 
-									if(param.getType().isAssignableFrom(CommandManager.class)) {
-										params[i] = this;
-									} else if(param.getType().isAssignableFrom(DiscordUtils.class)) {
-										params[i] = manager;
-									} else if(param.getType().isAssignableFrom(event.getClass())) {
-										params[i] = event;
-									}
+									if(param.getType().isAssignableFrom(CommandManager.class)) params[i] = this;
+									else if(param.getType().isAssignableFrom(DiscordUtils.class)) params[i] = manager;
+									else if(param.getType().isAssignableFrom(event.getClass())) params[i] = event;
 								}
 
 								try {
@@ -245,15 +224,12 @@ public class CommandManager<C extends ContextBase> extends Module {
 	public CommandManager<C> registerCommand(String name, BaseCommand<C> command) {
 		var temp = name.split(" ");
 
-		if(temp.length == 1) {
-			commands.putAll(command.build(this, name));
-		} else {
+		if(temp.length == 1) commands.putAll(command.build(this, name));
+		else {
 			var cmdName = temp[temp.length - 1];
 			var parent = commands.get(name.substring(0, name.length() - cmdName.length() - 1));
 
-			if(parent == null) {
-				throw new IllegalArgumentException("The parent command could not be found! (" + name + ")");
-			}
+			if(parent == null) throw new IllegalArgumentException("The parent command could not be found! (" + name + ")");
 
 			var impl = command.build(this, parent, cmdName);
 			parent.children.add(impl.get(name));
@@ -288,9 +264,8 @@ public class CommandManager<C extends ContextBase> extends Module {
 	protected Object createCommandInstance(Class<?> command) {
 		try {
 			for(var constructor : command.getConstructors()) {
-				if(constructor.getParameterCount() == 0) {
-					return constructor.newInstance();
-				} else if(constructor.isAnnotationPresent(CommandConstructor.class)) {
+				if(constructor.getParameterCount() == 0) return constructor.newInstance();
+				else if(constructor.isAnnotationPresent(CommandConstructor.class)) {
 					var params = new Object[constructor.getParameterCount()];
 
 					for(int i = 0; i < constructor.getParameterCount(); i++) {
@@ -314,13 +289,9 @@ public class CommandManager<C extends ContextBase> extends Module {
 	}
 
 	public CommandImplementation findImplementation(CommandImplementation parent, Set<CommandImplementation> children, Object instance, Class<?> type, ApplicationCommand info) {
-		for(var m : type.getMethods()) {
-			if(m.isAnnotationPresent(ApplicationCommandMethod.class)) {
+		for(var m : type.getMethods())
+			if(m.isAnnotationPresent(ApplicationCommandMethod.class))
 				return new ReflectionCommandImplementation(this, parent, children, CommandInfo.ofAnnotation(info), type, ctx -> instance, m);
-			}
-		}
-
-		if(children.isEmpty() && info.subcommands().length == 0) logger.warn("Command '" + info.name() + "' has no children and no ApplicationCommandMethod!");
 
 		return new ReflectionCommandImplementationBase(parent, children, CommandInfo.ofAnnotation(info), type, ctx -> instance);
 	}
