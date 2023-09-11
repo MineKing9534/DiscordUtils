@@ -48,4 +48,6 @@ public @interface ApplicationCommand {
 	 * A list of additional subcommands
 	 */
 	Class<?>[] subcommands() default {};
+
+	boolean defer() default false;
 }

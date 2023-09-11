@@ -39,6 +39,8 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@Override
 	public void handle(GenericCommandInteractionEvent event) {
+		if(info.defer) event.deferReply(true).queue();
+
 		try {
 			var permission = getEffectivePermission();
 

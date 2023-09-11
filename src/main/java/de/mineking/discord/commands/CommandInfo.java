@@ -9,16 +9,18 @@ public class CommandInfo {
 	public final String feature;
 	public final Command.Type type;
 	public final boolean guildOnly;
+	public final boolean defer;
 
-	public CommandInfo(String name, String description, String feature, Command.Type type, boolean guildOnly) {
+	public CommandInfo(String name, String description, String feature, Command.Type type, boolean guildOnly, boolean defer) {
 		this.name = name;
 		this.description = description;
 		this.feature = feature;
 		this.type = type;
 		this.guildOnly = guildOnly;
+		this.defer = defer;
 	}
 
 	public static CommandInfo ofAnnotation(ApplicationCommand command) {
-		return new CommandInfo(command.name(), command.description(), command.feature(), command.type(), command.guildOnly());
+		return new CommandInfo(command.name(), command.description(), command.feature(), command.type(), command.guildOnly(), command.defer());
 	}
 }

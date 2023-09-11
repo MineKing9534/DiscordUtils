@@ -75,7 +75,7 @@ public abstract class BaseCommand<C extends ContextBase> {
 
 	@SuppressWarnings("unchecked")
 	private CommandImplementation getImplementation(CommandManager<?> manager, CommandImplementation parent, Set<CommandImplementation> children, String name) {
-		return new CommandImplementation(parent, children, new CommandInfo(name, description, feature, type, false), getClass(), ctx -> this) {
+		return new CommandImplementation(parent, children, new CommandInfo(name, description, feature, type, false, false), getClass(), ctx -> this) {
 			@Override
 			public boolean addToGuild(Guild guild) {
 				return BaseCommand.this.addToGuild(guild);
