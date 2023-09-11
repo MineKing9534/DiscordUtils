@@ -1,6 +1,9 @@
 package de.mineking.discord.commands.annotated;
 
-import de.mineking.discord.commands.*;
+import de.mineking.discord.commands.CommandImplementation;
+import de.mineking.discord.commands.CommandInfo;
+import de.mineking.discord.commands.CommandManager;
+import de.mineking.discord.commands.ContextBase;
 import de.mineking.discord.commands.annotated.option.*;
 import de.mineking.discord.commands.annotated.option.defaultValue.*;
 import de.mineking.discord.commands.choice.Choice;
@@ -9,6 +12,7 @@ import de.mineking.discord.commands.exception.CommandExecutionException;
 import de.mineking.discord.commands.exception.ExecutionTermination;
 import de.mineking.discord.localization.LocalizationManager;
 import de.mineking.discord.localization.LocalizationPath;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -17,12 +21,10 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 public class ReflectionCommandImplementation extends ReflectionCommandImplementationBase {
 	public final CommandManager<?> manager;
@@ -56,7 +58,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				if(param.getType().isAssignableFrom(context.getClass())) params[i] = context;
 				else if(param.getType().isAssignableFrom(event.getClass())) params[i] = event;
 				else if(param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class)) {
-					var value = getOption(event, getOptionNameFromParameter(manager, param), param.getType());
+					var value = getOption(context, event, getOptionNameFromParameter(manager, param), param.getType(), method.getGenericParameterTypes()[i]);
 					params[i] = value == null ? getDefault(event, context, instance, param) : value;
 				}
 			}
@@ -146,13 +148,18 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@Override
 	public List<OptionData> getOptions(LocalizationManager localization) {
-		return Stream.of(method.getParameters())
-				.filter(param -> param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class))
-				.map(param -> {
+		var parameters = method.getParameters();
+		var generics = method.getGenericParameterTypes();
+
+		return IntStream.range(0, method.getParameterCount())
+				.filter(i -> parameters[i].isAnnotationPresent(Option.class) || parameters[i].isAnnotationPresent(ExternalOption.class))
+				.mapToObj(i -> {
+					var param = parameters[i];
+
 					if(param.isAnnotationPresent(Option.class)) {
 						var option = param.getAnnotation(Option.class);
 
-						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, type, instance.apply(null));
+						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, generics[i], type, instance.apply(null));
 					} else {
 						var external = param.getAnnotation(ExternalOption.class);
 						var type = external.value();
@@ -162,15 +169,20 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 						if(option == null || instance == null) throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
 
-						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, instance.getClass(), instance);
+						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, generics[i], instance.getClass(), instance);
 					}
 				})
 				.toList();
 	}
 
+	protected OptionType getOptionType(Class<?> type, Type generic) {
+		if(type.equals(Optional.class)) return getOptionType((Class<?>) ((ParameterizedType) generic).getActualTypeArguments()[0]);
+		else return getOptionType(type);
+	}
+
 	protected OptionType getOptionType(Class<?> type) {
 		if(type.isAssignableFrom(String.class)) return OptionType.STRING;
-		if(type.isEnum()) return OptionType.STRING;
+		else if(type.isEnum()) return OptionType.STRING;
 		else if(type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) return OptionType.NUMBER;
 		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class) || type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) return OptionType.INTEGER;
 		else if(type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) return OptionType.BOOLEAN;
@@ -220,8 +232,13 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		return null;
 	}
 
+	protected Object getOption(ContextBase context, GenericCommandInteractionEvent event, String name, Class<?> type, Type generic) {
+		if(type.equals(Optional.class)) return Optional.ofNullable(getOption(context, event, name, (Class<?>) ((ParameterizedType) generic).getActualTypeArguments()[0]));
+		else return getOption(context, event, name, type);
+	}
+
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	protected Object getOption(GenericCommandInteractionEvent event, String name, Class<?> type) {
+	protected Object getOption(ContextBase context, GenericCommandInteractionEvent event, String name, Class<?> type) {
 		if(type.isAssignableFrom(String.class)) return event.getOption(name, OptionMapping::getAsString);
 		if(type.isEnum()) return event.getOption(name, o -> Enum.valueOf((Class<? extends Enum>) type, o.getAsString()));
 		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) return event.getOption(name, OptionMapping::getAsInt);
@@ -240,7 +257,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 				if(creator != null) {
 					try {
-						return m.invoke(null, event, name);
+						return m.invoke(null, context, name);
 					} catch(Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -252,12 +269,12 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	@SuppressWarnings("unchecked")
-	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Class<?> instanceType, Object instance) {
+	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Type generic, Class<?> instanceType, Object instance) {
 		var name = getOptionNameFromParameter(manager, param);
 
 		var localization = manager.getManager().getLocalization().getOptionDescription(getPath(), name, paramInfo, custom);
 
-		var type = getOptionType(param.getType());
+		var type = getOptionType(param.getType(), generic);
 
 		if(type == OptionType.UNKNOWN) {
 			throw new IllegalArgumentException("Option '" + name + "' with type '" + param.getType().getName() + "' could not be parsed");
