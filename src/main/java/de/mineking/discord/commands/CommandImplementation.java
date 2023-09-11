@@ -59,8 +59,12 @@ public abstract class CommandImplementation {
 		return parent != null ? parent.getRoot() : this;
 	}
 
+	public String getPath(String separator) {
+		return (parent == null ? "" : parent.getPath(separator) + separator) + info.name;
+	}
+
 	public String getPath() {
-		return (parent == null ? "" : parent.getPath() + " ") + info.name;
+		return getPath(" ");
 	}
 
 	public CommandData build(CommandManager<?> manager) {

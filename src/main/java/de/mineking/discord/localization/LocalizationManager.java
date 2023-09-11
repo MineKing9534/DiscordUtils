@@ -70,7 +70,7 @@ public class LocalizationManager {
 						commandDescriptionFormat
 								.replace("%command%",
 										commandFormat
-												.replace("%path%", command.getPath())
+												.replace("%path%", command.getPath("."))
 								)
 				));
 			} else {
