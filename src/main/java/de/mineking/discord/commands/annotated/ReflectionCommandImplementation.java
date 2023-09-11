@@ -191,7 +191,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		else if(Channel.class.isAssignableFrom(type)) return OptionType.CHANNEL;
 		else if(type.isAssignableFrom(IMentionable.class)) return OptionType.MENTIONABLE;
 		else if(type.isAssignableFrom(Message.Attachment.class)) return OptionType.ATTACHMENT;
-		else if(type.isAnnotationPresent(CustomOptionType.class)) return type.getAnnotation(CustomOptionType.class).type();
+		else if(type.isAnnotationPresent(CustomOption.class)) return type.getAnnotation(CustomOption.class).type();
 
 		return OptionType.UNKNOWN;
 	}
@@ -233,7 +233,12 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	protected Object getOption(ContextBase context, GenericCommandInteractionEvent event, String name, Class<?> type, Type generic) {
-		if(type.equals(Optional.class)) return Optional.ofNullable(getOption(context, event, name, (Class<?>) ((ParameterizedType) generic).getActualTypeArguments()[0]));
+		if(type.equals(Optional.class)) {
+			var temp = getOption(context, event, name, (Class<?>) ((ParameterizedType) generic).getActualTypeArguments()[0]);
+			return temp != null && temp.getClass().equals(Optional.class)
+					? temp
+					: Optional.ofNullable(temp);
+		}
 		else return getOption(context, event, name, type);
 	}
 
@@ -251,13 +256,17 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 		else if(type.isAssignableFrom(Role.class)) return event.getOption(name, OptionMapping::getAsRole);
 		else if(Channel.class.isAssignableFrom(type)) return event.getOption(name, OptionMapping::getAsChannel);
 		else if(type.isAssignableFrom(Message.Attachment.class)) return event.getOption(name, OptionMapping::getAsAttachment);
-		else if(type.isAnnotationPresent(CustomOptionType.class)) {
+		else if(type.isAnnotationPresent(CustomOption.class)) {
 			for(var m : type.getMethods()) {
 				var creator = m.getAnnotation(CustomOptionCreator.class);
 
 				if(creator != null) {
 					try {
-						return m.invoke(null, context, name);
+						var result = m.invoke(null, context, name);
+
+						return result != null && m.getReturnType().equals(Optional.class) && !type.equals(Optional.class)
+								? ((Optional<?>) result).orElse(null)
+								: result;
 					} catch(Exception e) {
 						throw new RuntimeException(e);
 					}
