@@ -48,7 +48,7 @@ public class ListManager extends Module {
 	}
 
 	public void sendList(IReplyCallback event, int page, Listable<?> listable) {
-		var maxPages = listable.getPageCount();
+		var maxPages = listable.getPageCount(event);
 		var state = new ListState<>(Math.min(page, maxPages), listable);
 
 		event.getHook().editOriginal(state.buildMessage(manager, event))
@@ -73,7 +73,7 @@ public class ListManager extends Module {
 				case "first" -> state.page = 1;
 				case "back" -> state.page--;
 				case "next" -> state.page++;
-				case "last" -> state.page = state.object.getPageCount();
+				case "last" -> state.page = state.object.getPageCount(event);
 				default -> {
 					return;
 				}
