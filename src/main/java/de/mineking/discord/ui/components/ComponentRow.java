@@ -34,15 +34,19 @@ public interface ComponentRow {
 
 		for(var c : components) {
 			if(c.type.equals(ButtonInteractionEvent.class)) {
-				if(temp.size() >= 5) result.add(ComponentRow.of(temp));
-				temp.clear();
+				if(temp.size() >= 5) {
+					result.add(ComponentRow.of(temp));
+					temp.clear();
+				}
 
 				temp.add(c);
 			}
 
 			else {
-				if(!temp.isEmpty()) result.add(ComponentRow.of(temp));
-				temp.clear();
+				if(!temp.isEmpty()) {
+					result.add(ComponentRow.of(temp));
+					temp.clear();
+				}
 
 				result.add(ComponentRow.of(c));
 			}
