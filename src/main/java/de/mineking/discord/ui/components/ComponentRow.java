@@ -2,6 +2,8 @@ package de.mineking.discord.ui.components;
 
 import de.mineking.discord.ui.MenuBase;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.ArrayList;
@@ -38,14 +40,14 @@ public interface ComponentRow {
 
 				if(temp.size() >= 5) {
 					result.add(of(temp));
-					temp.clear();
+					temp = new LinkedList<>();
 				}
 			}
 
-			else {
+			else if(c.type.equals(StringSelectInteractionEvent.class) || c.type.equals(EntitySelectInteractionEvent.class)) {
 				if(!temp.isEmpty()) {
 					result.add(of(temp));
-					temp.clear();
+					temp = new LinkedList<>();
 				}
 
 				result.add(of(c));
