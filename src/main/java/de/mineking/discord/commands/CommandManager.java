@@ -65,9 +65,10 @@ public class CommandManager<C extends ContextBase> extends Module {
 				.collect(Collectors.toSet());
 	}
 
-	public Object getExternalOption(Class<?> id) {
+	@SuppressWarnings("unchecked")
+	public <T> T getExternalOption(Class<T> id) {
 		for(var o : externalOptions)
-			if(o.getClass().equals(id)) return o;
+			if(o.getClass().equals(id)) return (T) o;
 
 		return null;
 	}
