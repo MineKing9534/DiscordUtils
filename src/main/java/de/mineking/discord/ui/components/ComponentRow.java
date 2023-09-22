@@ -34,25 +34,25 @@ public interface ComponentRow {
 
 		for(var c : components) {
 			if(c.type.equals(ButtonInteractionEvent.class)) {
+				temp.add(c);
+
 				if(temp.size() >= 5) {
-					result.add(ComponentRow.of(temp));
+					result.add(of(temp));
 					temp.clear();
 				}
-
-				temp.add(c);
 			}
 
 			else {
 				if(!temp.isEmpty()) {
-					result.add(ComponentRow.of(temp));
+					result.add(of(temp));
 					temp.clear();
 				}
 
-				result.add(ComponentRow.of(c));
+				result.add(of(c));
 			}
 		}
 
-		if(!temp.isEmpty()) result.add(ComponentRow.of(temp));
+		if(!temp.isEmpty()) result.add(of(temp));
 
 		return new ArrayList<>(result);
 	}
