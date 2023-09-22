@@ -1,9 +1,12 @@
 package de.mineking.discord.ui.components;
 
 import de.mineking.discord.ui.MenuBase;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public interface ComponentRow {
@@ -23,5 +26,30 @@ public interface ComponentRow {
 
 	static ComponentRow of(List<? extends Component<?>> components) {
 		return () -> components;
+	}
+
+	static List<ComponentRow> build(List<? extends Component<?>> components) {
+		var result = new LinkedList<ComponentRow>();
+		var temp = new LinkedList<Component<?>>();
+
+		for(var c : components) {
+			if(c.type.equals(ButtonInteractionEvent.class)) {
+				if(temp.size() >= 5) result.add(ComponentRow.of(temp));
+				temp.clear();
+
+				temp.add(c);
+			}
+
+			else {
+				if(!temp.isEmpty()) result.add(ComponentRow.of(temp));
+				temp.clear();
+
+				result.add(ComponentRow.of(c));
+			}
+		}
+
+		if(!temp.isEmpty()) result.add(ComponentRow.of(temp));
+
+		return new ArrayList<>(result);
 	}
 }
