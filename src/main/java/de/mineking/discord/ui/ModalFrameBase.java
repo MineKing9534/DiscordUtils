@@ -32,7 +32,7 @@ public abstract class ModalFrameBase extends MenuFrame {
 				try {
 					handle(menu, event);
 				} catch(Exception ex) {
-					Menu.logger.error("Failed to handle ModalFrame '" + name + "'", e);
+					Menu.logger.error("Failed to handle ModalFrame '" + name + "'", ex);
 				}
 			} else if(e instanceof TimeoutException) menu.close();
 		});
