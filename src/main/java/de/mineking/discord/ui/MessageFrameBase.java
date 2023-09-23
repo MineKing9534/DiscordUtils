@@ -23,6 +23,7 @@ public abstract class MessageFrameBase extends MenuFrame {
 
 	public MessageEditBuilder buildMessage() {
 		return new MessageEditBuilder()
+				.setReplace(true)
 				.setEmbeds(getEmbed())
 				.setComponents(getComponents().stream().map(c -> c.build(menu)).toList());
 	}

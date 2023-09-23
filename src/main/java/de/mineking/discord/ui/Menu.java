@@ -101,13 +101,13 @@ public class Menu implements MenuBase {
 		return addFrame(name, frame.apply(this, param));
 	}
 
-	private void showFrame(MenuFrame frame) {
+	private void renderFrame(MenuFrame frame) {
 		if(frame == null) throw new IllegalArgumentException("frame may not be null");
 
 		try {
 			if(frame instanceof ModalFrameBase && !current.isEmpty()) {
-				while(current.size() > 1) current.remove(0).cleanup();
-				if(!current.isEmpty()) current.get(0).refresh();
+				while(current.size() > 1) current.remove(current.size() - 1).cleanup();
+				current.get(0).refresh();
 			} else {
 				current.forEach(MenuFrame::cleanup);
 				current.clear();
@@ -124,7 +124,7 @@ public class Menu implements MenuBase {
 	@Override
 	public void update() {
 		if(current.isEmpty()) throw new IllegalStateException();
-		showFrame(current.get(0));
+		renderFrame(current.get(0));
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class Menu implements MenuBase {
 		if(state == null) throw new IllegalStateException();
 		if(!frames.containsKey(name)) throw new IllegalArgumentException("No frame with the name '" + name + "' found");
 
-		showFrame(frames.get(name));
+		renderFrame(frames.get(name));
 	}
 
 	@Override

@@ -28,7 +28,12 @@ public abstract class ModalFrameBase extends MenuFrame {
 		future.whenComplete((event, e) -> {
 			if(event != null) {
 				menu.handle(event);
-				handle(menu, event);
+
+				try {
+					handle(menu, event);
+				} catch(Exception ex) {
+					Menu.logger.error("Failed to handle ModalFrame '" + name + "'", e);
+				}
 			} else if(e instanceof TimeoutException) menu.close();
 		});
 	}
