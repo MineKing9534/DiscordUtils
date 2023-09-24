@@ -105,7 +105,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 							var p = m.getParameters()[i];
 
 							if(p.getType().isAssignableFrom(CommandAutoCompleteInteractionEvent.class)) params[i] = event;
-							else if(p.getType().isAssignableFrom(manager.getContext().type)) params[i] = context;
+							else if(p.getType().isAssignableFrom(context.getClass())) params[i] = context;
 						}
 
 						try {
