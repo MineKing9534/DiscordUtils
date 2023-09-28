@@ -37,8 +37,8 @@ public class ListManager extends Module {
 		states.remove(message);
 	}
 
-	public ListState<?> getState(long message) {
-		return states.get(message);
+	public Optional<ListState<?>> getState(long message) {
+		return Optional.ofNullable(states.get(message));
 	}
 
 	@SuppressWarnings("rawtypes")
