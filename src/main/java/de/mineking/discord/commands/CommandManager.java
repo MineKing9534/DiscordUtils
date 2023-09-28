@@ -215,7 +215,16 @@ public class CommandManager<C extends ContextBase> extends Module {
 	}
 
 	public CommandManager<C> registerAllCommands(String commandsPackage, Predicate<ApplicationCommand> filter) {
-		new Reflections(commandsPackage).getTypesAnnotatedWith(ApplicationCommand.class).stream()
+		var temp = new Reflections(commandsPackage).getTypesAnnotatedWith(ApplicationCommand.class).stream()
+				.filter(c -> c.getNestHost().equals(c))
+				.toList();
+
+		var exclude = temp.stream()
+				.flatMap(c -> Arrays.stream(c.getAnnotation(ApplicationCommand.class).subcommands()))
+				.toList();
+
+		temp.stream()
+				.filter(exclude::contains)
 				.filter(c -> filter.test(c.getAnnotation(ApplicationCommand.class)))
 				.forEach(this::registerCommand);
 
