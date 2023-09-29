@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import java.util.ArrayList;
 
 public class ListState<T extends ListEntry> {
-	public final Listable<T> object;
+	public Listable<T> object;
 	public int page;
 
 	public ListState(int page, Listable<T> object) {
