@@ -52,7 +52,7 @@ public interface Listable<T extends ListEntry> {
 	}
 
 	default void applyEntries(EmbedBuilder builder, ListContext<T> context) {
-		if(context.entries.size() > 0) {
+		if(!context.entries.isEmpty()) {
 			for(int i = ((context.page - 1) * entriesPerPage()); i < (context.page * entriesPerPage()) && i < context.entries.size(); i++) {
 				builder.appendDescription(context.entries.get(i).build(i, context) + "\n");
 			}
