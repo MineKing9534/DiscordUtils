@@ -1,10 +1,7 @@
 package de.mineking.discord;
 
 import de.mineking.discord.commandcache.CommandCacheManager;
-import de.mineking.discord.commands.CommandImplementation;
-import de.mineking.discord.commands.CommandManager;
-import de.mineking.discord.commands.ContextBase;
-import de.mineking.discord.commands.ContextCreator;
+import de.mineking.discord.commands.*;
 import de.mineking.discord.customrestaction.CustomRestActionManager;
 import de.mineking.discord.events.EventManager;
 import de.mineking.discord.help.HelpManager;
@@ -216,12 +213,12 @@ public class DiscordUtils {
 		return getModule(LanguageCacheManager.class).orElseThrow(() -> new IllegalStateException("No LanguageCache registered"));
 	}
 
-	public DiscordUtils useHelpManager(boolean helpSubcommands, HelpTarget mainPage, Function<CommandImplementation, HelpTarget> commandTarget, Consumer<HelpManager> config) {
+	public DiscordUtils useHelpManager(boolean helpSubcommands, HelpTarget mainPage, CommandFilter commandFilter, Function<CommandImplementation, HelpTarget> commandTarget, Consumer<HelpManager> config) {
 		if(!hasModule(CommandManager.class)) {
 			throw new IllegalStateException("The HelpManager module requires the CommandManager module");
 		}
 
-		return addModule(new HelpManager(this, helpSubcommands, mainPage, commandTarget), config);
+		return addModule(new HelpManager(this, helpSubcommands, mainPage, commandFilter, commandTarget), config);
 	}
 
 	public HelpManager getHelpManager() {

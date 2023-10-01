@@ -16,7 +16,7 @@ public class HelpManager extends Module {
 
 	private final HelpTarget mainTarget;
 
-	public HelpManager(DiscordUtils manager, boolean helpSubcommands, HelpTarget mainTarget, Function<CommandImplementation, HelpTarget> commandTarget) {
+	public HelpManager(DiscordUtils manager, boolean helpSubcommands, HelpTarget mainTarget, CommandFilter commandFilter, Function<CommandImplementation, HelpTarget> commandTarget) {
 		super(manager);
 
 		this.mainTarget = mainTarget;
@@ -24,7 +24,7 @@ public class HelpManager extends Module {
 		var commandManager = manager.getCommandManager();
 		var targets = new HashMap<CommandImplementation, HelpTarget>();
 
-		commandManager.findCommands(CommandFilter.TOP).forEach(impl -> targets.put(impl, commandTarget.apply(impl)));
+		commandManager.findCommands(commandFilter).forEach(impl -> targets.put(impl, commandTarget.apply(impl)));
 
 		if(helpSubcommands) {
 			commandManager.findCommands(CommandFilter.TOP.and(CommandFilter.HAS_SUBCOMMANDS))
