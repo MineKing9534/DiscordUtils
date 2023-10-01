@@ -17,6 +17,6 @@ public class HelpSubcommand {
 
 	@ApplicationCommandMethod
 	public void performCommand(ContextBase context, SlashCommandInteractionEvent event) {
-		context.manager.getManager().getHelpManager().displayHelp(event, command);
+		context.manager.getManager().getHelpManager().displayHelp(event, command, false);
 	}
 }

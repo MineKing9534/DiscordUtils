@@ -27,7 +27,8 @@ public class HelpCommand {
 
 		help.displayHelp(
 				event,
-				help.getTarget(target).orElse(help.getMainTarget())
+				help.getTarget(target).orElse(help.getMainTarget()),
+				false
 		);
 	}
 }
