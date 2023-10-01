@@ -45,6 +45,7 @@ public class HelpManager extends Module {
 
 	public void displayHelp(IReplyCallback event, HelpTarget target, boolean canEdit) {
 		if(canEdit && event instanceof IMessageEditCallback edit) edit.editMessage(target.build(event)).queue();
+		else if(event.isAcknowledged()) event.getHook().editOriginal(target.build(event)).queue();
 		else event.reply(MessageCreateData.fromEditData(target.build(event))).setEphemeral(true).queue();
 	}
 

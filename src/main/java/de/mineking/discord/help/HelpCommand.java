@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-@ApplicationCommand(name = "help")
+@ApplicationCommand(name = "help", defer = true)
 public class HelpCommand {
 	public void handleAutocomplete(ContextBase context, CommandAutoCompleteInteractionEvent event) {
 		event.replyChoices(

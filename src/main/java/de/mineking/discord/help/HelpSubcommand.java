@@ -7,7 +7,7 @@ import de.mineking.discord.localization.LocalizationPath;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @LocalizationPath("subhelp")
-@ApplicationCommand(name = "help")
+@ApplicationCommand(name = "help", defer = true)
 public class HelpSubcommand {
 	private final HelpTarget command;
 
