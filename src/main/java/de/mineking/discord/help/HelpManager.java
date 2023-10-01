@@ -32,6 +32,7 @@ public class HelpManager extends Module {
 		}
 
 		targets.values().forEach(this::registerTarget);
+		registerTarget(mainTarget);
 
 		commandManager.registerCommand(HelpCommand.class);
 	}
