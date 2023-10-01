@@ -7,7 +7,7 @@ import de.mineking.discord.commands.CommandImplementation;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.*;
 import java.util.function.Function;
@@ -44,8 +44,8 @@ public class HelpManager extends Module {
 	}
 
 	public void displayHelp(IReplyCallback event, HelpTarget target, boolean canEdit) {
-		if(canEdit && event instanceof IMessageEditCallback edit) edit.editMessage(MessageEditData.fromCreateData(target.build(event))).queue();
-		else event.reply(target.build(event)).setEphemeral(true).queue();
+		if(canEdit && event instanceof IMessageEditCallback edit) edit.editMessage(target.build(event)).queue();
+		else event.reply(MessageCreateData.fromEditData(target.build(event))).setEphemeral(true).queue();
 	}
 
 	public HelpManager registerTarget(HelpTarget target) {
