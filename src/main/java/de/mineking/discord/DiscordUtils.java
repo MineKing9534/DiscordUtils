@@ -276,6 +276,7 @@ public class DiscordUtils {
 				b.url(HttpUrl.parse(host).newBuilder()
 						.addPathSegments(temp.header("du-route"))
 						.build()
+						.toString()
 				).removeHeader("du-host").removeHeader("du-route");
 			}
 		});
