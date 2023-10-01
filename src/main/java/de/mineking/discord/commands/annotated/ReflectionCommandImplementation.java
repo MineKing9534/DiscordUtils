@@ -76,10 +76,6 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@Override
 	public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
-		var permission = getEffectivePermission();
-
-		if(permission != null && !permission.isPermitted(manager, event)) return;
-
 		for(var param : method.getParameters()) {
 			if(Objects.equals(getOptionNameFromParameter(manager, param), event.getFocusedOption().getName())) {
 				String resolver;
