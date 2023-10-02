@@ -24,7 +24,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ReflectionCommandImplementation extends ReflectionCommandImplementationBase {
 	public final CommandManager<?> manager;
@@ -153,24 +155,33 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				.filter(i -> parameters[i].isAnnotationPresent(Option.class) || parameters[i].isAnnotationPresent(ExternalOption.class))
 				.mapToObj(i -> {
 					var param = parameters[i];
+					var array = param.getAnnotation(OptionArray.class);
 
-					if(param.isAnnotationPresent(Option.class)) {
-						var option = param.getAnnotation(Option.class);
-
-						return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, generics[i], type, instance.apply(null));
-					} else {
-						var external = param.getAnnotation(ExternalOption.class);
-						var type = external.value();
-						var option = type.getAnnotation(Option.class);
-
-						var instance = manager.getExternalOption(type);
-
-						if(option == null || instance == null) throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
-
-						return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, generics[i], instance.getClass(), instance);
-					}
+					if(array != null)
+						return IntStream.range(0, array.required() + array.optional())
+								.mapToObj(j -> getOption(param, generics[i], String.valueOf(j + 1)).setRequired(j < array.required()));
+					else return Stream.of(getOption(param, generics[i], ""));
 				})
+				.flatMap(x -> x)
 				.toList();
+	}
+
+	private OptionData getOption(Parameter param, Type generic, String suffix) {
+		if(param.isAnnotationPresent(Option.class)) {
+			var option = param.getAnnotation(Option.class);
+
+			return getOptionFromAnnotation(option, param.getAnnotation(LocalizationPath.class), option.required(), param, suffix, generic, type, instance.apply(null));
+		} else {
+			var external = param.getAnnotation(ExternalOption.class);
+			var type = external.value();
+			var option = type.getAnnotation(Option.class);
+
+			var instance = manager.getExternalOption(type);
+
+			if(option == null || instance == null) throw new IllegalStateException("Invalid external option '" + type.getName() + "'");
+
+			return getOptionFromAnnotation(option, type.getAnnotation(LocalizationPath.class), external.required(), param, suffix, generic, instance.getClass(), instance);
+		}
 	}
 
 	protected OptionType getOptionType(Class<?> type, Type generic) {
@@ -237,6 +248,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 					? temp
 					: Optional.ofNullable(temp);
 		}
+		else if(type.isArray())
+			return event.getOptions().stream()
+					.filter(o -> o.getName().matches(Pattern.quote(name) + "\\d+"))
+					.map(o -> getOption(context, event, o.getName(), type.componentType()))
+					.toArray(l -> (Object[]) Array.newInstance(type.getComponentType(), l));
 		else return getOption(context, event, name, type);
 	}
 
@@ -276,38 +292,27 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 	}
 
 	@SuppressWarnings("unchecked")
-	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, Type generic, Class<?> instanceType, Object instance) {
-		var name = getOptionNameFromParameter(manager, param);
+	protected OptionData getOptionFromAnnotation(Option paramInfo, LocalizationPath custom, boolean required, Parameter param, String suffix, Type generic, Class<?> instanceType, Object instance) {
+		var name = getOptionNameFromParameter(manager, param) + suffix;
 
 		var localization = manager.getManager().getLocalization().getOptionDescription(getPath("."), name, paramInfo, custom);
 
-		var type = getOptionType(param.getType(), generic);
+		var pType = param.getType().isArray() ? param.getType().componentType() : param.getType();
+		var type = getOptionType(pType, generic);
 
-		if(type == OptionType.UNKNOWN) {
-			throw new IllegalArgumentException("Option '" + name + "' with type '" + param.getType().getName() + "' could not be parsed");
-		}
+		if(type == OptionType.UNKNOWN) throw new IllegalArgumentException("Option '" + name + "' with type '" + pType + "' could not be parsed");
 
 		var option = new OptionData(type, Objects.requireNonNull(name), localization.defaultValue, required, !paramInfo.autocomplete().isEmpty())
 				.setDescriptionLocalizations(localization.values);
 
 		if(option.getType() == OptionType.NUMBER) {
-			if(paramInfo.minValue() > Double.MIN_VALUE) {
-				option.setMinValue(paramInfo.minValue());
-			}
-
-			if(paramInfo.maxValue() > Double.MIN_VALUE) {
-				option.setMaxValue(paramInfo.maxValue());
-			}
+			if(paramInfo.minValue() > Double.MIN_VALUE) option.setMinValue(paramInfo.minValue());
+			if(paramInfo.maxValue() > Double.MIN_VALUE) option.setMaxValue(paramInfo.maxValue());
 		}
 
 		if(option.getType() == OptionType.INTEGER) {
-			if(paramInfo.minValue() > Double.MIN_VALUE) {
-				option.setMinValue((long) paramInfo.minValue());
-			}
-
-			if(paramInfo.maxValue() > Double.MIN_VALUE) {
-				option.setMaxValue((long) paramInfo.maxValue());
-			}
+			if(paramInfo.minValue() > Double.MIN_VALUE) option.setMinValue((long) paramInfo.minValue());
+			if(paramInfo.maxValue() > Double.MIN_VALUE) option.setMaxValue((long) paramInfo.maxValue());
 		}
 
 		if(option.getType() == OptionType.STRING) {
@@ -317,14 +322,14 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 		if(paramInfo.channelTypes().length > 0) option.setChannelTypes(paramInfo.channelTypes());
 
-		if(!paramInfo.choices().isEmpty() || param.getType().isEnum()) {
+		if(!paramInfo.choices().isEmpty() || pType.isEnum()) {
 			try {
 				var choices = paramInfo.choices().isEmpty()
 						? new ArrayList<Choice>()
 						: (Collection<Choice>) instanceType.getField(paramInfo.choices()).get(instance);
 
-				if(param.getType().isEnum()) choices.addAll(
-						Arrays.stream(param.getType().getEnumConstants())
+				if(pType.isEnum()) choices.addAll(
+						Arrays.stream(pType.getEnumConstants())
 								.map(c -> c instanceof LocalizedEnumOption e
 										? LocalizedChoice.localize(e.getKey(), c.toString())
 										: new Choice(c instanceof CustomEnumOption o ? o.getName() : c.toString(), c.toString())
