@@ -276,7 +276,11 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 				if(creator != null) {
 					try {
-						var result = m.invoke(null, context, getOption(context, event, name, m.getParameters()[1].getType()));
+						var temp = getOption(context, event, name, m.getParameters()[1].getType());
+
+						if(temp == null) return null;
+
+						var result = m.invoke(null, context, temp);
 
 						return result != null && m.getReturnType().equals(Optional.class) && !type.equals(Optional.class)
 								? ((Optional<?>) result).orElse(null)
