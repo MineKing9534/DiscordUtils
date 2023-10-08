@@ -2,6 +2,7 @@ package de.mineking.discord.list;
 
 import de.mineking.discord.DiscordUtils;
 import de.mineking.discord.Module;
+import de.mineking.discord.ui.UIManager;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
@@ -68,18 +69,21 @@ public class ListManager extends Module {
 			return;
 		}
 
-		getState(event.getMessageIdLong(), event).ifPresent(state -> {
-			switch(event.getComponentId().split(":")[1]) {
-				case "first" -> state.page = 1;
-				case "back" -> state.page--;
-				case "next" -> state.page++;
-				case "last" -> state.page = state.object.getPageCount(event);
-				default -> {
-					return;
-				}
-			}
+		getState(event.getMessageIdLong(), event).ifPresentOrElse(
+				state -> {
+					switch(event.getComponentId().split(":")[1]) {
+						case "first" -> state.page = 1;
+						case "back" -> state.page--;
+						case "next" -> state.page++;
+						case "last" -> state.page = state.object.getPageCount(event);
+						default -> {
+							return;
+						}
+					}
 
-			event.editMessage(state.buildMessage(manager, event)).queue();
-		});
+					event.editMessage(state.buildMessage(manager, event)).queue();
+				},
+				() -> manager.getModule(UIManager.class).ifPresent(ui -> ui.sendDefault(event))
+		);
 	}
 }

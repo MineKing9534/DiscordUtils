@@ -5,6 +5,7 @@ import de.mineking.discord.Module;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,7 @@ public class UIManager extends Module {
 	public final static String MENU_ID_PREFIX = "du-menu:";
 	public final static int MENU_ID_LENGTH = 60;
 
-	private Consumer<GenericComponentInteractionCreateEvent> defaultHandler;
+	private Consumer<IReplyCallback> defaultHandler;
 
 	final Map<String, Menu> menus = new HashMap<>();
 
@@ -32,7 +33,7 @@ public class UIManager extends Module {
 		super(manager);
 	}
 
-	public UIManager setDefaultHandler(Consumer<GenericComponentInteractionCreateEvent> handler) {
+	public UIManager setDefaultHandler(Consumer<IReplyCallback> handler) {
 		defaultHandler = handler;
 		return this;
 	}
@@ -87,11 +88,13 @@ public class UIManager extends Module {
 
 	@Override
 	public void onGenericComponentInteractionCreate(@NotNull GenericComponentInteractionCreateEvent event) {
-		if(defaultHandler == null) return;
-
 		if(!event.getComponentId().startsWith(MENU_ID_PREFIX)) return;
 		if(manager.getEventManager().getHandlers().stream().anyMatch(h -> h.accepts(event))) return;
 
-		defaultHandler.accept(event);
+		sendDefault(event);
+	}
+
+	public void sendDefault(IReplyCallback event) {
+		if(defaultHandler != null) defaultHandler.accept(event);
 	}
 }
