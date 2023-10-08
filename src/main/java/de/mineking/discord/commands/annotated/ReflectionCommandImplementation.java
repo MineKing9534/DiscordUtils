@@ -336,7 +336,7 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 						Arrays.stream(pType.getEnumConstants())
 								.filter(c -> !(c instanceof  LocalizedEnumOption e) || e.getKey() != null)
 								.map(c -> c instanceof LocalizedEnumOption e
-										? LocalizedChoice.localize(e.getKey(), c.toString())
+										? LocalizedChoice.withPath(e.getKey(), c.toString())
 										: new Choice(c instanceof CustomEnumOption o ? o.getName() : c.toString(), c.toString())
 								)
 								.toList()
