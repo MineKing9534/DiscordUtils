@@ -2,7 +2,6 @@ package de.mineking.discord.list;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -14,17 +13,17 @@ import java.util.List;
 public interface Listable<T extends ListEntry> {
 	int defaultEntriesPerPage = 20;
 
-	List<T> getEntries(IReplyCallback event);
+	List<T> getEntries(ListContext<T> context);
 
 	default int entriesPerPage() {
 		return defaultEntriesPerPage;
 	}
 
-	default int getPageCount(IReplyCallback event) {
-		return (getEntries(event).size() - 1) / entriesPerPage() + 1;
+	default int getPageCount(ListContext<T> context) {
+		return (getEntries(context).size() - 1) / entriesPerPage() + 1;
 	}
 
-	default MessageEditData buildMessage(int page, ListContext<T> context) {
+	default MessageEditData buildMessage(ListContext<T> context) {
 		var embed = createEmbed(context);
 
 		applyEntries(embed, context);
@@ -36,7 +35,7 @@ public interface Listable<T extends ListEntry> {
 	}
 
 	default List<ActionRow> getComponents(ListContext<T> context) {
-		var pageCount = getPageCount(context.event);
+		var pageCount = getPageCount(context);
 
 		return Collections.singletonList(ActionRow.of(
 				Button.secondary("list:first", Emoji.fromUnicode("⏪")).withDisabled(context.page == 1),

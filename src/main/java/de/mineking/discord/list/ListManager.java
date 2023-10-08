@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -48,9 +49,9 @@ public class ListManager extends Module {
 				.or(() -> Optional.ofNullable(customProvider).flatMap(provider -> provider.apply(message, event)));
 	}
 
-	public void sendList(IReplyCallback event, int page, Listable<?> listable) {
-		var maxPages = listable.getPageCount(event);
-		var state = new ListState<>(Math.min(page, maxPages), listable);
+	public void sendList(IReplyCallback event, int page, Listable<?> listable, Map<String, Object> data) {
+		var maxPages = listable.getPageCount(new ListContext<>(manager, event, -1, data, Collections.emptyList()));
+		var state = new ListState<>(Math.min(page, maxPages), listable, data);
 
 		event.getHook().editOriginal(state.buildMessage(manager, event))
 				.queue(message -> {
@@ -63,7 +64,12 @@ public class ListManager extends Module {
 				});
 	}
 
+	public void sendList(IReplyCallback event, int page, Listable<?> listable) {
+		sendList(event, page, listable, Collections.emptyMap());
+	}
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 		if(!event.getComponentId().startsWith("list:")) {
 			return;
@@ -75,7 +81,7 @@ public class ListManager extends Module {
 						case "first" -> state.page = 1;
 						case "back" -> state.page--;
 						case "next" -> state.page++;
-						case "last" -> state.page = state.object.getPageCount(event);
+						case "last" -> state.page = state.object.getPageCount(state.createContext(manager, event));
 						default -> {
 							return;
 						}
