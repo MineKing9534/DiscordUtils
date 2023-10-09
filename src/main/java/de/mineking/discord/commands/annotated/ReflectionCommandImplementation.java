@@ -335,8 +335,8 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 				if(pType.isEnum()) choices.addAll(
 						Arrays.stream(pType.getEnumConstants())
 								.filter(c -> !(c instanceof  CustomEnumOption e) || e.getName() != null)
-								.map(c -> c.getClass().isAnnotationPresent(LocalizationPath.class)
-										? LocalizedChoice.withPath(c.getClass().getAnnotation(LocalizationPath.class).value() + "." + c, c.toString())
+								.map(c -> pType.isAnnotationPresent(LocalizationPath.class)
+										? LocalizedChoice.withPath(pType.getAnnotation(LocalizationPath.class).value() + "." + c, c.toString())
 										: new Choice(c instanceof CustomEnumOption o ? o.getName() : c.toString(), c.toString())
 								)
 								.toList()

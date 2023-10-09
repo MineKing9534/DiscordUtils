@@ -73,12 +73,8 @@ public class LocalizationManager {
 												.replace("%path%", command.getPath("."))
 								)
 				));
-			} else {
-				return localize(new LocalizationInfo(custom.value()));
-			}
-		} else {
-			return LocalizationPackage.constant(command.info.description);
-		}
+			} else return localize(new LocalizationInfo(custom.value()));
+		} else return LocalizationPackage.constant(command.info.description);
 	}
 
 	public LocalizationPackage getOptionDescription(String command, String name, Option option, LocalizationPath custom) {
@@ -95,12 +91,8 @@ public class LocalizationManager {
 												.replace("%option%", name)
 								)
 				));
-			} else {
-				return localize(new LocalizationInfo(custom.value()));
-			}
-		} else {
-			return LocalizationPackage.constant(option.description());
-		}
+			} else return localize(new LocalizationInfo(custom.value()));
+		} else return LocalizationPackage.constant(option.description());
 	}
 
 	public LocalizationPackage getOptionDescription(String command, de.mineking.discord.commands.inherited.Option option) {
@@ -116,11 +108,9 @@ public class LocalizationManager {
 											.replace("%option%", option.name)
 							)
 			));
-		} else if(option.localize) {
-			return localize(new LocalizationInfo(option.description));
-		} else {
-			return LocalizationPackage.constant(option.description);
 		}
+		else if(option.localize) return localize(new LocalizationInfo(option.description));
+		else return LocalizationPackage.constant(option.description);
 	}
 
 	public LocalizationPackage getChoiceDescription(String command, String option, Choice choice) {
@@ -138,12 +128,8 @@ public class LocalizationManager {
 								)
 								.replace("%choice%", choice.name)
 				));
-			} else {
-				return localize(new LocalizationInfo(choice.name));
-			}
-		} else {
-			return LocalizationPackage.constant(choice.name);
-		}
+			} else return localize(new LocalizationInfo(choice.name));
+		} else return LocalizationPackage.constant(choice.name);
 	}
 
 	public LocalizationPackage getMetaDataName(String key) {
