@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import de.mineking.discord.DiscordUtils;
 import de.mineking.discord.Module;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LanguageCacheManager extends Module {
 	private final Cache<Long, DiscordLocale> cache = Caffeine.newBuilder()
-			.expireAfterWrite(30, TimeUnit.MINUTES)
+			.expireAfterWrite(2, TimeUnit.HOURS)
 			.build();
 
 	private final DiscordLocale defaultLocale;
@@ -22,8 +23,8 @@ public class LanguageCacheManager extends Module {
 		this.defaultLocale = defaultLocale;
 	}
 
-	public DiscordLocale getLocale(long user) {
-		return cache.asMap().getOrDefault(user, defaultLocale);
+	public DiscordLocale getLocale(UserSnowflake user) {
+		return cache.asMap().getOrDefault(user.getIdLong(), defaultLocale);
 	}
 
 	@Override
