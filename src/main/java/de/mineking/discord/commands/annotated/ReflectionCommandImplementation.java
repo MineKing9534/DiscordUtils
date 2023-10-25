@@ -41,6 +41,8 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	@Override
 	public void handle(GenericCommandInteractionEvent event) {
+		System.out.println("Handling annotated implementation");
+
 		if(info.defer) event.deferReply(true).queue();
 
 		try {
@@ -56,17 +58,21 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 			var context = manager.getContext().createContext(manager, event);
 
+			System.out.println("Initializing parameters");
+
 			for(int i = 0; i < method.getParameterCount(); i++) {
 				var param = paramTypes[i];
 
 				if(param.getType().isAssignableFrom(context.getClass())) params[i] = context;
 				else if(param.getType().isAssignableFrom(event.getClass())) params[i] = event;
 				else if(param.isAnnotationPresent(Option.class) || param.isAnnotationPresent(ExternalOption.class)) {
+					System.out.println("Recognized " + param.getName() + " as option");
 					var value = getOption(context, event, getOptionNameFromParameter(manager, param), param.getType(), method.getGenericParameterTypes()[i]);
 					params[i] = value == null ? getDefault(event, context, instance, param) : value;
 				}
 			}
 
+			System.out.println("Invoking command with parameters '" + Arrays.toString(params) + "'");
 			method.invoke(instance.apply(context), params);
 		} catch(IllegalAccessException e) {
 			throw new RuntimeException(e);
@@ -243,21 +249,26 @@ public class ReflectionCommandImplementation extends ReflectionCommandImplementa
 
 	protected Object getOption(ContextBase context, GenericCommandInteractionEvent event, String name, Class<?> type, Type generic) {
 		if(type.equals(Optional.class)) {
+			System.out.println(name + " as Optional");
 			var temp = getOption(context, event, name, (Class<?>) ((ParameterizedType) generic).getActualTypeArguments()[0]);
 			return temp != null && temp.getClass().equals(Optional.class)
 					? temp
 					: Optional.ofNullable(temp);
 		}
-		else if(type.isArray())
+		else if(type.isArray()) {
+			System.out.println(name + " as Array");
 			return event.getOptions().stream()
 					.filter(o -> o.getName().matches(Pattern.quote(name) + "\\d+"))
 					.map(o -> getOption(context, event, o.getName(), type.componentType()))
 					.toArray(l -> (Object[]) Array.newInstance(type.getComponentType(), l));
+		}
 		else return getOption(context, event, name, type);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected Object getOption(ContextBase context, GenericCommandInteractionEvent event, String name, Class<?> type) {
+		System.out.println("Option " + name + " with value " + event.getOption(name));
+
 		if(type.isAssignableFrom(String.class)) return event.getOption(name, OptionMapping::getAsString);
 		if(type.isEnum()) return event.getOption(name, o -> Enum.valueOf((Class<? extends Enum>) type, o.getAsString()));
 		else if(type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) return event.getOption(name, OptionMapping::getAsInt);

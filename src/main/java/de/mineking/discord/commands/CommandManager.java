@@ -79,9 +79,12 @@ public class CommandManager<C extends ContextBase> extends Module {
 
 	@Override
 	public void onGenericCommandInteraction(@NotNull GenericCommandInteractionEvent event) {
+		System.out.println("CommandEvent: '" + event.getFullCommandName() + "'");
+
 		executor.execute(() ->
 				Optional.ofNullable(commands.get(event.getFullCommandName())).ifPresent(c -> {
 					try {
+						System.out.println("Found matching implementation: " + c.getPath("."));
 						c.handle(event);
 					} catch(Exception e) {
 						if(exceptionHandler != null) {
