@@ -26,6 +26,8 @@ dependencies {
 ### Dependencies
 
 DiscordUtils requires [JDA](https://github.com/discord-jda/JDA), so you have to have it in your bot's dependency list as well (You should already have it).
+Some managers might require other dependencies, that you have to add to your project in order for that manager to work.
+These additional dependencies are mentioned in the section of the corresponding manager.
 
 # Basic Usage
 
@@ -53,6 +55,12 @@ public class TestBot {
 
 You can then later access your bot instance from any place where DiscordUtils gives you access to the `DiscordUtils` instance, which helps to avoid static abuse.
 
+# Localization
+You can enable localization by calling the `setLocalizationManager` method on your `DiscordUtils` instance. 
+You can provide a default locale that will be set as default value and a set of locales that you support.
+The third parameter is a `LocalizationFunction` that you can use to provide a localized description for a localization path. 
+You can also change how the paths are generated automatically.
+
 # Managers
 
 The DiscordUtils library is split into multiple Managers to allow you to decide which features you want to use.
@@ -62,6 +70,14 @@ These dedicated methods start with `use`, to use the CommandManager your can use
 To get a previously registered manager by type, you can manually get it via `getManager` that holds the manager if present or `Optional.empty()` otherwise.
 Alternatively you can use the dedicated method, for example `getCommandManager`.
 The dedicated methods throw an `IllegalStateException` if the requested manager is not present.
+
+Available Managers:
+- [CommandManager](#command-manager)
+- [Language cache](#language-cache)
+- [Event Manager](#event-manager)
+- [UI Manager](#ui-manager)
+- [Help Manager](#help-manager)
+- [List Manager](#list-manager)
 
 ## Command Manager
 
@@ -409,9 +425,15 @@ public class TestCommand extends Command<CommandContext> {
 
 To add subcommands, you can use the `addSubcommand` method in the command constructor. You can add both annotated and inherited commands as subcommands.
 
-## Localization
-
 ## Language cache
+The language cache manager can be used to access a user's locale from places, where you don't have access to it from Discord's side.
+The manager listens to all interactions and caches the user locale field. 
+The cached values will expire 4 hours after the last access or write to the user's locale value.
+For caching, the caffeine library is used. 
+If you want to use the language cache manager, you have to add this dependency to your project:
+```groovy
+implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+```
 
 ## Event Manager
 

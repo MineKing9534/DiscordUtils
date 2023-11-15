@@ -5,6 +5,7 @@ import de.mineking.discordutils.commands.context.ContextBase;
 import de.mineking.discordutils.console.DiscordOutputStream;
 import de.mineking.discordutils.console.MirrorPrintStream;
 import de.mineking.discordutils.console.RedirectTarget;
+import de.mineking.discordutils.languagecache.LanguageCacheManager;
 import de.mineking.discordutils.localization.Localization;
 import de.mineking.discordutils.localization.LocalizationFunction;
 import de.mineking.discordutils.localization.LocalizationManager;
@@ -165,5 +166,21 @@ public class DiscordUtils<B> {
 	@SuppressWarnings("unchecked")
 	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> CommandManager<C, A> getCommandManager() {
 		return (CommandManager<C, A>) getManager(CommandManager.class).orElseThrow(IllegalStateException::new);
+	}
+
+	/**
+	 * @return {@code this}
+	 */
+	public DiscordUtils<B> useLanguageCache() {
+		return addManager(LanguageCacheManager::new, null);
+	}
+
+	/**
+	 * @return The {@link LanguageCacheManager} previously registered on this {@link DiscordUtils} instance
+	 * @throws IllegalStateException If no {@link LanguageCacheManager} is registered
+	 */
+	@NotNull
+	public LanguageCacheManager getLanguageCache() {
+		return getManager(LanguageCacheManager.class).orElseThrow(IllegalStateException::new);
 	}
 }
