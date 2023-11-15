@@ -146,10 +146,10 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 	}
 
 	public static <T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> AnnotatedCommand<T, C, A> getFromMethod(@NotNull CommandManager<C, A> manager,
-	                                                                                                                                                                                      @NotNull Class<T> clazz,
-																																														  @NotNull Method method,
-	                                                                                                                                                                                      @NotNull Function<C, Optional<T>> instance,
-	                                                                                                                                                                                      @NotNull Function<A, Optional<T>> autocompleteInstance) {
+	                                                                                                                                                                                       @NotNull Class<T> clazz,
+	                                                                                                                                                                                       @NotNull Method method,
+	                                                                                                                                                                                       @NotNull Function<C, Optional<T>> instance,
+	                                                                                                                                                                                       @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(clazz, "clazz");
 		Checks.notNull(method, "method");

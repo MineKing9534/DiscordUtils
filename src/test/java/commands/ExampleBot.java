@@ -6,7 +6,6 @@ import de.mineking.discordutils.console.RedirectTarget;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +28,7 @@ public class ExampleBot {
 		var methodTestInstance = Optional.of(new MethodCommandTest());
 
 		discordUtils = new DiscordUtils<>(jda, this)
-				.mirrorConsole(RedirectTarget.directMessage(UserSnowflake.fromId(723571803133313055L)))
+				.mirrorConsole(RedirectTarget.directMessage(723571803133313055L))
 				.useCommandManager(
 						CommandContext::new,
 						AutocompleteContext::new,

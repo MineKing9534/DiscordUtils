@@ -25,16 +25,20 @@ public class DiscordOutputStream extends OutputStream {
 
 	private Instant last = Instant.now();
 
-	public DiscordOutputStream(@NotNull Consumer<MessageCreateData> handler) {
+	/**
+	 * @param handler The handler for messages that can be sent
+	 * @param delay   The update delay in seconds
+	 */
+	public DiscordOutputStream(@NotNull Consumer<MessageCreateData> handler, int delay) {
 		Checks.notNull(handler, "handler");
 		this.handler = handler;
 
 		executor.scheduleAtFixedRate(() -> {
 			if(buffer.isEmpty()) return;
-			if(last.plus(Duration.ofSeconds(10)).isAfter(Instant.now())) return;
+			if(last.plus(Duration.ofSeconds(delay)).isAfter(Instant.now())) return;
 
 			send(true);
-		}, 0, 10, TimeUnit.SECONDS);
+		}, 0, delay, TimeUnit.SECONDS);
 	}
 
 	private synchronized void send(boolean sendIncomplete) {

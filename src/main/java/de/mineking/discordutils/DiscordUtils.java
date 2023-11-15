@@ -59,7 +59,7 @@ public class DiscordUtils<B> {
 		if(targets.length == 0) return this;
 
 		var discordStreams = Arrays.stream(targets)
-				.map(t -> new DiscordOutputStream(mes -> t.sendMessage(jda, mes)))
+				.map(t -> new DiscordOutputStream(mes -> t.sendMessage(jda, mes), 10))
 				.toList();
 
 		System.setOut(new MirrorPrintStream(discordStreams, System.out));
@@ -88,7 +88,7 @@ public class DiscordUtils<B> {
 
 	/**
 	 * @param pathSupplier A localization path provider
-	 * @param other A path override. If localization is disabled, this will be returned
+	 * @param other        A path override. If localization is disabled, this will be returned
 	 * @return The localized description
 	 */
 	@NotNull
