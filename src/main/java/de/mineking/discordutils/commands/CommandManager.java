@@ -43,8 +43,8 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 
 	private final ExecutorService executor = Executors.newScheduledThreadPool(1);
 
-	private final Function<GenericCommandInteractionEvent, C> contextCreator;
-	private final Function<CommandAutoCompleteInteractionEvent, A> autocompleteContextCreator;
+	private final Function<GenericCommandInteractionEvent, ? extends C> contextCreator;
+	private final Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator;
 
 	private boolean autoUpdate = false;
 	private final List<IOptionParser> optionParsers = new ArrayList<>();
@@ -52,8 +52,8 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 
 	BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler;
 
-	public CommandManager(@NotNull DiscordUtils<?> manager, @NotNull Function<GenericCommandInteractionEvent, C> contextCreator,
-	                      @NotNull Function<CommandAutoCompleteInteractionEvent, A> autocompleteContextCreator) {
+	public CommandManager(@NotNull DiscordUtils<?> manager, @NotNull Function<GenericCommandInteractionEvent, ? extends C> contextCreator,
+	                      @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator) {
 		super(manager);
 
 		Checks.notNull(contextCreator, "contextCreator");

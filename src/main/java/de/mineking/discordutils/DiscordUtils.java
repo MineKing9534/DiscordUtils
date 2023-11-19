@@ -199,7 +199,8 @@ public class DiscordUtils<B> {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> DiscordUtils<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, C> context, @NotNull Function<CommandAutoCompleteInteractionEvent, A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
+	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> DiscordUtils<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, ? extends C> context,
+	                                                                                                                                                                       @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
 		Checks.notNull(context, "context");
 		Checks.notNull(autocomplete, "autocomplete");
 
