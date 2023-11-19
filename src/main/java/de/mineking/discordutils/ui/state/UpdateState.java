@@ -73,6 +73,13 @@ public class UpdateState extends DataState {
 	}
 
 	/**
+	 * Deletes the menu message
+	 */
+	public void close() {
+		getEvent().ifPresent(event -> event.getHook().deleteOriginal().queue());
+	}
+
+	/**
 	 * @param message The message to reply
 	 */
 	public void sendReply(@NotNull MessageCreateData message) {
