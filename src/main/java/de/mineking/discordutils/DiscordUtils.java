@@ -234,7 +234,7 @@ public class DiscordUtils<B> {
 
 	/**
 	 * @param config A consumer the new {@link EventManager}
-	 * @return {@link this}
+	 * @return {@code this}
 	 */
 	@NotNull
 	public DiscordUtils<B> useEventManager(Consumer<EventManager> config) {
@@ -252,7 +252,7 @@ public class DiscordUtils<B> {
 
 	/**
 	 * @param config A consumer the new {@link UIManager}
-	 * @return {@link this}
+	 * @return {@code this}
 	 */
 	@NotNull
 	public DiscordUtils<B> useUIManager(Consumer<UIManager> config) {
