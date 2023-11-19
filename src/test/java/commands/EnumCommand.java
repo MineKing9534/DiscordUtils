@@ -3,6 +3,7 @@ package commands;
 import de.mineking.discordutils.commands.ApplicationCommand;
 import de.mineking.discordutils.commands.ApplicationCommandMethod;
 import de.mineking.discordutils.commands.option.Option;
+import shared.CommandContext;
 
 @ApplicationCommand(name = "enum")
 public class EnumCommand {
@@ -13,7 +14,7 @@ public class EnumCommand {
 	}
 
 	@ApplicationCommandMethod
-	public void performCommand(ExampleBot.CommandContext context, @Option Test test) {
+	public void performCommand(CommandContext context, @Option Test test) {
 		context.event.reply(test.toString()).queue();
 	}
 }

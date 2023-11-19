@@ -48,11 +48,13 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 	/**
 	 * The options of this command. Only for {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
 	 */
+	@NotNull
 	public final List<OptionData> options = new ArrayList<>();
 
 	/**
 	 * The subcommands of this command. Only for {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
 	 */
+	@NotNull
 	public final Set<Command<C>> subcommands = new HashSet<>();
 
 	/**
@@ -112,9 +114,9 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 	 *
 	 * @param context The {@link C} that holds information about this execution
 	 */
-	public abstract void performCommand(@NotNull C context);
+	public abstract void performCommand(@NotNull C context) throws Exception;
 
-	final void performCommand(@NotNull GenericCommandInteractionEvent event) {
+	final void performCommand(@NotNull GenericCommandInteractionEvent event) throws Exception {
 		var context = manager.createContext(event);
 		if(getCondition().isAllowed(manager, context)) performCommand(context);
 	}

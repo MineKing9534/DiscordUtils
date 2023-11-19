@@ -6,6 +6,8 @@ import de.mineking.discordutils.commands.condition.registration.Scope;
 import de.mineking.discordutils.commands.context.ContextBase;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.commands.option.IOptionParser;
+import de.mineking.discordutils.events.EventManager;
+import de.mineking.discordutils.events.Listener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -26,6 +28,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,6 +49,8 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	private boolean autoUpdate = false;
 	private final List<IOptionParser> optionParsers = new ArrayList<>();
 	private final Map<String, Command<C>> commands = new HashMap<>();
+
+	BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler;
 
 	public CommandManager(@NotNull DiscordUtils<?> manager, @NotNull Function<GenericCommandInteractionEvent, C> contextCreator,
 	                      @NotNull Function<CommandAutoCompleteInteractionEvent, A> autocompleteContextCreator) {
@@ -92,6 +98,16 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	}
 
 	/**
+	 * @param exceptionHandler A consumer that will be called when something goes wrong executing a command
+	 * @return {@link this}
+	 */
+	@NotNull
+	public CommandManager<C, A> setExceptionHandler(BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler) {
+		this.exceptionHandler = exceptionHandler;
+		return this;
+	}
+
+	/**
 	 * Registers a command
 	 *
 	 * @param command The {@link Command} implementation
@@ -132,6 +148,33 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 
 			if(!flag) throw new IllegalArgumentException("Provided type is neither annotated with ApplicationCommand nor does it contain any methods with that annotation");
 		}
+
+		manager.getManager(EventManager.class).ifPresent(eventManager -> {
+			for(var m : type.getMethods()) {
+				var listener = m.getAnnotation(Listener.class);
+				if(listener == null) continue;
+
+				try {
+					eventManager.addEventHandler(manager.createInstance(listener.type(), p -> {
+						if(p.getName().equals("filter")) return listener.filter();
+						else if(p.getName().equals("handler")) return (Consumer<?>) event -> {
+							try {
+								manager.invokeMethod(m, instance.apply(null), mp -> {
+									if(mp.getType().isAssignableFrom(event.getClass())) return event;
+									else if(mp.getType().isAssignableFrom(CommandManager.class)) return this;
+									else return null;
+								});
+							} catch(Exception e) {
+								logger.error("Failed to invoke listener method", e);
+							}
+						};
+						else return null;
+					}));
+				} catch(Exception e) {
+					logger.error("failed to instantiate event handler for listener method");
+				}
+			}
+		});
 
 		return this;
 	}
@@ -244,22 +287,15 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	 * @param type The java type of the command
 	 * @return The resulting command instance. If an error occurs while creating the instance, {@code null} is returned.
 	 */
-	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T> T createCommandInstance(Class<T> type) {
-		var constructor = type.getDeclaredConstructors()[0];
-		var params = new Object[constructor.getParameterCount()];
-
-		for(int i = 0; i < constructor.getParameterCount(); i++) {
-			var p = constructor.getParameters()[i];
-
-			if(p.getType().isAssignableFrom(CommandManager.class)) params[i] = this;
-			else if(p.getType().isAssignableFrom(DiscordUtils.class)) params[i] = manager;
-			else if(p.getType().isAssignableFrom(manager.bot.getClass())) params[i] = manager.bot;
-		}
-
 		try {
-			return (T) constructor.newInstance(params);
+			return manager.createInstance(type, p -> {
+				if(p.getType().isAssignableFrom(CommandManager.class)) return this;
+				else if(p.getType().isAssignableFrom(DiscordUtils.class)) return manager;
+				else if(p.getType().isAssignableFrom(manager.bot.getClass())) return manager.bot;
+				else return null;
+			});
 		} catch(Exception e) {
 			logger.error("Failed to create command instance", e);
 			return null;
@@ -298,6 +334,19 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 		return commands.values().stream()
 				.filter(filter::filter)
 				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * @param type The java clazz of the annotated command to look up
+	 * @return The default command instance for the specified class. If none is found, an exception is thrown
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <T> T getCommand(@NotNull Class<T> type) {
+		Checks.notNull(type, "type");
+		return commands.values().stream()
+				.filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.clazz.equals(type))
+				.findFirst().map(c -> (T) ((AnnotatedCommand<?, ?, ?>) c).instance.apply(null)).orElseThrow();
 	}
 
 	/**
@@ -346,12 +395,14 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 
 	@Override
 	public void onGenericCommandInteraction(@NotNull GenericCommandInteractionEvent event) {
-		if(!commands.containsKey(event.getFullCommandName())) return;
+		var command = commands.get(event.getFullCommandName());
+		if(command == null) return;
 
 		executor.execute(() -> {
 			try {
-				commands.get(event.getFullCommandName()).performCommand(event);
+				command.performCommand(event);
 			} catch(Exception e) {
+				if(exceptionHandler != null) exceptionHandler.accept(event, new CommandException(command, e));
 				logger.error("An error occurred whilst performing command", e);
 			}
 		});

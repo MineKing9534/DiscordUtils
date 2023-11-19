@@ -61,6 +61,13 @@ You can provide a default locale that will be set as default value and a set of 
 The third parameter is a `LocalizationFunction` that you can use to provide a localized description for a localization path. 
 You can also change how the paths are generated automatically.
 
+# Console
+Sometimes, you might want to mirror your bot's console to your admins' direct messages or a text channel. DiscordUtils provides a simple way to archive this.
+```java
+discordUtils.mirrorConsole(RedirectTarget.directMessage(YOUR_USER_ID));
+```
+To send the logs to a text channel, simply use `RedirectTarget.channel(CHANNEL_ID)`. You can also provide multiple RedirectTargets at once.
+
 # Managers
 
 The DiscordUtils library is split into multiple Managers to allow you to decide which features you want to use.
@@ -89,8 +96,8 @@ Example:
 
 ```java
 //An instance of this context that will be created using the context creator function that you provided when creating the CommandManager, will be passed to every command execution. You can customize the context to your needs
-public class CommandContext extends ContextBase<GenericCommandInteractionEent> {
-	public CommandContext(GenericCommandInteractionEvent event) {
+public class shared.CommandContext extends ContextBase<GenericCommandInteractionEent> {
+	public shared.CommandContext(GenericCommandInteractionEvent event) {
 		super(event);
 	}
 
@@ -99,8 +106,8 @@ public class CommandContext extends ContextBase<GenericCommandInteractionEent> {
 	//If you have a moderation bot, you could add methods that give access to the executing users warnings so that you can do context.getWarnings() wherever you need
 }
 
-public class AutocompleteContext extends ContextBase<CommandAutocompleteInteractionEvent> {
-	public AutocompleteContext(CommandAutocompleteInteractionEvent event) {
+public class shared.AutocompleteContext extends ContextBase<CommandAutocompleteInteractionEvent> {
+	public shared.AutocompleteContext(CommandAutocompleteInteractionEvent event) {
 		super(event);
 	}
 }
@@ -119,8 +126,8 @@ public class TestBot {
 
 		discordUtils = new DiscordUtils(jda, this)
 				.useCommandManager(
-						CommandContext::new, //Function to create command context
-						AutocompleteContext::new, //Function to create autocomplete context
+						shared.CommandContext::new, //Function to create command context
+						shared.AutocompleteContext::new, //Function to create autocomplete context
 						cmdMan -> cmdMan.updateCommands() //Consumer to configure the resulting CommandManager. The updateCommands() method schedules an update of all commands for when the bot is successfully logged in
 				);
 	}
@@ -138,7 +145,7 @@ Here is a basic example of an annotated command:
 @ApplicationCommand(name = "echo", description = "sends back the the input") //The @ApplicationCommand annotation specifies basic information about your command. It has to be present!
 public class EchoCommand {
 	@ApplicationCommandMethod //The @ApplicationCommandMethod specifies the method that actually handles the command execution
-	public void performCommand(CommandContext context, //The method can have any name
+	public void performCommand(shared.CommandContext context, //The method can have any name
 	                           @Option(name = "text") String text //All method parameters with the @Option annotation will be added to the command's option list. They will automatically be created and parsed
 	) {
 		context.event.reply(text).setEphemeral(true).queue();
@@ -229,7 +236,7 @@ If you want to dynamically create your choices based on the user input, you can 
 ```java
 public class TestCommand {
 	@Autocomplete("value")
-	public void handleAutocomplete(AutocompleteContext context) {
+	public void handleAutocomplete(shared.AutocompleteContext context) {
 		context.event
 				.replyChoice(context.event.getFocusedOption().getValue() + "!", context.event.getFocusedOption().getValue() + "!") //Suggest adding an exclamation mark at the end of the current input
 				.queue();
@@ -365,12 +372,12 @@ You can also declare multiple commands in one class like this:
 ```java
 public class TestCommands {
 	@ApplicationCommand(name = "a")
-    public void performA(CommandContext context) {
+    public void performA(shared.CommandContext context) {
 		//...
     }
 
 	@ApplicationCommand(name = "b")
-	public void performB(CommandContext context) {
+	public void performB(shared.CommandContext context) {
 		//...
 	}
 }
@@ -383,13 +390,13 @@ annotation and use these instead.
 To create inherited commands, you can create a class that extends `Command`. You then have to create an instance of your command class and register it to the command manager:
 
 ```java
-public class TestCommand extends Command<CommandContext> {
+public class TestCommand extends Command<shared.CommandContext> {
 	public TestCommand() {
 		addOption(new OptionData(OptionType.STRING, "test", "description", true));
 	}
 
 	@Override
-	public void performCommand(CommandContext context) {
+	public void performCommand(shared.CommandContext context) {
 		//You have to access the option like you would normally with context.event.getOption(...)
 	}
 }
@@ -404,11 +411,11 @@ commandManager.registerCommand(new TestCommand());
 For autocomplete, you can use `AutocompleteOption`:
 
 ```java
-public class TestCommand extends Command<CommandContext> {
+public class TestCommand extends Command<shared.CommandContext> {
 	public TestCommand() {
 		addOption(new AutocompleteOption(OptionType.STRING, "test", "description", true) {
 			@Override
-			public void handleAutocomplete(AutocompleteContext context) {
+			public void handleAutocomplete(shared.AutocompleteContext context) {
 				context.event
 						.replyChoice(context.event.getFocusedOption().getValue() + "!", context.event.getFocusedOption().getValue() + "!") //Suggest adding an exclamation mark at the end of the current input
 						.queue();
@@ -417,7 +424,7 @@ public class TestCommand extends Command<CommandContext> {
 	}
 
 	@Override
-	public void performCommand(CommandContext context) {
+	public void performCommand(shared.CommandContext context) {
 		//You have to access the option like you would normally with context.event.getOption(...)
 	}
 }
@@ -436,8 +443,133 @@ implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 ```
 
 ## Event Manager
+The EventManager allows you to register event handlers in a more simple way. You can either write your own `EventHandler` or use one of the ones brought with DiscordUtils:
+- FilteredEventHandler
+- ComponentHandler
+- ButtonHandler
+- StringSelectHandler
+- EntitySelectHandler
+- ModalHandler
+You can register your handlers with like this:
+```java
+public class TestBot {
+	public static void main(String[] args) {
+		new TestBot(args[0]);
+	}
+
+	public final JDA jda;
+	public final DiscordUtils discordUtils;
+
+	public TestBot(String token) {
+		jda = JDABuilder.createDefault(token)
+				.build();
+
+		discordUtils = new DiscordUtils(jda, this)
+                .useEventManager(eventManager -> {
+					eventManager.addEventHandler(
+							new ButtonHandler("test", event -> {
+								/* handle event */
+							})
+					);
+					//...
+                });
+	}
+}
+```
+
+When you enable the EventManager, you can also use `@Listener` in annotated commands:
+```java
+@ApplicationCommand(name = "test")
+public class TestCommand {
+	@ApplicationCommandMethod
+	public void performCommand(shared.CommandContext context) {
+		context.event.replyModal(
+				Modal.create("test:modal", "title", TextInputStyle.SHORT)
+						//...
+						.build()
+		).queue();
+	}
+
+	@Listener(type = ModalHandler.class, filter = "test:modal") //Handle modals with id "test:modal"
+	public void handleModal(ModalInteractionEvent event) {
+		//Handle your modal
+	}
+}
+```
 
 ## UI Manager
+The UIManager allows you to create complex menus without having to manually create event handlers and manage states.
+Before you use `useUIManager` your have to call `useEventManager` because the UIManager used the EventManager internally.
+Example:
+```java
+@ApplicationCommand(name = "test")
+public class TestCommand {
+	public final Menu menu;
+
+	public UITestCommand(DiscordUtils<?> manager) {
+		menu = manager.getUIManager().createMenu(
+				"test",
+				state -> new EmbedBuilder()
+						.setTitle("Test Menu")
+						.addField("Text", state.getState("text"), false)
+						.addField("Last user", state.getEvent().map(e -> e.getUser().toString()).orElse("*none*"), false)
+						.build(),
+				ComponentRow.of(
+						new ButtonComponent("button", ButtonColor.BLUE, "Append !")
+								.appendHandler(state -> {
+									state.setState("text", current -> current + "!");
+									state.update();
+								}),
+						new ToggleComponent("toggle", state -> state ? ButtonColor.GREEN : ButtonColor.RED, "Toggle")
+				)
+		).<Boolean>effect("toggle", value -> System.out.println("Toggle value changed: " + value));
+	}
+
+	@ApplicationCommandMethod
+	public void performCommand(CommandContext context) {
+		menu.createState()
+				.setState("text", "abc")
+				.setState("toggle", true)
+				.display(context.event, false);
+
+	}
+}
+```
+The `state` represents the current state of the menu display. A menu can be displayed multiple times at a time, and all displays are restart-persistent.
+As the example shows, the java instance of `Menu` should only be created once, and you can then display the menu multiple times via that one instance.
+If you don't need to set an initial state like in the above example, you can also call the `display` method directly on the `Menu` instance.
+
+The state is stored as json in the component ids. This means that the storage space in state is very limited, and you should only persist data in there that really have to be stored.
+For example, you should not store large objects but instead an identifier to then load the actual data from a database or something like that:
+```java
+state.getState("xy id", id -> database.getFromId(id));
+```
+
+The `effect` method can be used to detect state changes, much like in the react framework in web development. This may be useful if you want to store the value of a state in the database or something similar.
+
+Available Components:
+- [ButtonComponent](#buttoncomponent)
+- [ToggleComponent](#togglecomponent)
+- [MenuComponent](#menucomponent)
+
+### ButtonComponent
+The button component is the basic component. It represents a button under the message that you can configure.
+The first parameter of all constructors is the name of the component. The name is used internally to identify the component. It has to be unique in one menu to avoid conflicts.
+With the multiple available constructors, you can set the color and label of the button, either constant or dependent on the current state.
+
+You can handle a button click by adding a handler. There are `appendHandler` and `prependHandler`. By choosing `append` or `prepend` you can modify the order of execution.
+Additionally, DiscordUtils supports detecting double clicks. As soon as you register a double click handler, all normal click events are delayed. 
+If another click is executed in the next 3 seconds, a double click is triggered; otherwise a normal click event is fired.
+You can change the 3-seconds delay with `setDoubleclickTimeout`.
+
+### ToggleComponent
+The ToggleComponent is an extension for the button component. It behaves very similarly, but it adds a click handler by default. 
+The handler simply toggles between two states. The current toggle state is stored in a state with the same name as the component.
+You can add additional handlers or listen to state changes with `effect`.
+
+### MenuComponent
+The MenuComponent is another extension for the ButtonComponent. When pressed, it displays a different menu. This mechanic can be used to have a menu with multiple frames.
+By default, the current state is transferred to the new menu. To change this behavior, you can use `setStateCreator`.
 
 ## Help Manager
 

@@ -30,14 +30,20 @@ import java.util.function.Function;
  * @see CommandManager#registerCommand(Class)
  */
 public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> extends Command<C> {
-	private final Function<C, Optional<T>> instance;
-	private final Function<A, Optional<T>> autocompleteInstance;
+	@NotNull
+	public final Class<T> clazz;
+	@NotNull
+	public final Function<C, Optional<T>> instance;
+	@NotNull
+	public final Function<A, Optional<T>> autocompleteInstance;
+
 	private final Method method;
 
 	@SuppressWarnings("unchecked")
-	private AnnotatedCommand(CommandManager<C, ?> manager, ApplicationCommand info, Class<T> clazz, Method method, Function<C, Optional<T>> instance, Function<A, Optional<T>> autocompleteInstance) {
+	private AnnotatedCommand(CommandManager<C, ?> manager, ApplicationCommand info, Class<T> clazz, Method method, @NotNull Function<C, Optional<T>> instance, @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		super(manager, info.type(), info.name(), info.description());
 
+		this.clazz = clazz;
 		this.method = method;
 
 		this.instance = instance;
@@ -46,17 +52,12 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 		for(var m : clazz.getMethods()) {
 			if(!m.isAnnotationPresent(Setup.class)) continue;
 
-			var params = new Object[m.getParameterCount()];
-
-			for(int i = 0; i < m.getParameterCount(); i++) {
-				var p = m.getParameters()[i];
-
-				if(p.getType().isAssignableFrom(AnnotatedCommand.class)) params[i] = this;
-				else if(p.getType().isAssignableFrom(CommandManager.class)) params[i] = manager;
-			}
-
 			try {
-				m.invoke(instance.apply(null), params);
+				manager.manager.invokeMethod(m, null, p -> {
+					if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return this;
+					else if(p.getType().isAssignableFrom(CommandManager.class)) return manager;
+					else return null;
+				});
 			} catch(Exception e) {
 				CommandManager.logger.error("Failed to execute setup method {} on {}", m.getName(), name);
 			}
@@ -163,21 +164,20 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 	}
 
 	@Override
-	public void performCommand(@NotNull C context) {
+	public void performCommand(@NotNull C context) throws Exception {
 		if(method == null) return;
 
-		this.instance.apply(context).ifPresentOrElse(
-				instance -> {
-					try {
-						method.invoke(instance, buildParameters(context));
-					} catch(InvocationTargetException e) {
-						CommandManager.logger.error("Command threw exception", e.getCause());
-					} catch(Exception e) {
-						CommandManager.logger.error("Failed to execute command", e);
-					}
-				},
-				() -> CommandManager.logger.warn("No instance found for '{}' with context {}", name, context)
-		);
+		var instance = this.instance.apply(context);
+
+		if(instance.isEmpty()) CommandManager.logger.warn("No instance found for '{}' with context {}", name, context);
+		else {
+			try {
+				method.invoke(instance.get(), buildParameters(context));
+			} catch(InvocationTargetException e) {
+				CommandManager.logger.error("Command threw exception", e.getCause());
+				if(manager.exceptionHandler != null) manager.exceptionHandler.accept(context.event, new CommandException(this, e.getCause()));
+			}
+		}
 	}
 
 	private String getOptionName(Parameter param) {
@@ -192,20 +192,15 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 		else option = new AutocompleteOption<A>(manager.getOptionType(param.getType(), generic), name, "---", info.required()) {
 			@Override
 			public void handleAutocomplete(@NotNull A context) {
-				var params = new Object[autocomplete.getParameterCount()];
-
-				for(int i = 0; i < autocomplete.getParameterCount(); i++) {
-					var p = autocomplete.getParameters()[i];
-
-					if(p.getType().isAssignableFrom(context.event.getClass())) params[i] = context.event;
-					else if(p.getType().isAssignableFrom(CommandManager.class)) params[i] = manager;
-					else if(p.getType().isAssignableFrom(context.getClass())) params[i] = context;
-					else if(p.getType().isAssignableFrom(AnnotatedCommand.class)) params[i] = AnnotatedCommand.this;
-				}
-
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {
 					try {
-						autocomplete.invoke(instance, params);
+						manager.manager.invokeMethod(autocomplete, instance, p -> {
+							if(p.getType().isAssignableFrom(context.event.getClass())) return context.event;
+							else if(p.getType().isAssignableFrom(CommandManager.class)) return manager;
+							else if(p.getType().isAssignableFrom(context.getClass())) return context;
+							else if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return AnnotatedCommand.this;
+							else return null;
+						});
 					} catch(InvocationTargetException e) {
 						CommandManager.logger.error("autocomplete threw an exception", e.getCause());
 					} catch(Exception e) {

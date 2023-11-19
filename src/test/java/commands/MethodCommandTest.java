@@ -3,25 +3,27 @@ package commands;
 import de.mineking.discordutils.commands.ApplicationCommand;
 import de.mineking.discordutils.commands.option.Autocomplete;
 import de.mineking.discordutils.commands.option.Option;
+import shared.AutocompleteContext;
+import shared.CommandContext;
 
 public class MethodCommandTest {
 	@Autocomplete("text")
-	public void autocompleteTextA(ExampleBot.AutocompleteContext context) {
+	public void autocompleteTextA(AutocompleteContext context) {
 		context.event.replyChoice("a", "a").queue();
 	}
 
 	@ApplicationCommand(name = "methoda")
-	public void a(ExampleBot.CommandContext context, @Option(name = "text") String text) {
+	public void a(CommandContext context, @Option(name = "text") String text) {
 		context.event.reply(text).queue();
 	}
 
 	@Autocomplete("textb")
-	public void autocompleteTextB(ExampleBot.AutocompleteContext context) {
+	public void autocompleteTextB(AutocompleteContext context) {
 		context.event.replyChoice("b", "b").queue();
 	}
 
 	@ApplicationCommand(name = "methodb")
-	public void b(ExampleBot.CommandContext context, @Option(name = "text", id = "textb") String text) {
+	public void b(CommandContext context, @Option(name = "text", id = "textb") String text) {
 		context.event.reply(text).queue();
 	}
 }

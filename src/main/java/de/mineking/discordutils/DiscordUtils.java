@@ -5,10 +5,12 @@ import de.mineking.discordutils.commands.context.ContextBase;
 import de.mineking.discordutils.console.DiscordOutputStream;
 import de.mineking.discordutils.console.MirrorPrintStream;
 import de.mineking.discordutils.console.RedirectTarget;
+import de.mineking.discordutils.events.EventManager;
 import de.mineking.discordutils.languagecache.LanguageCacheManager;
 import de.mineking.discordutils.localization.Localization;
 import de.mineking.discordutils.localization.LocalizationFunction;
 import de.mineking.discordutils.localization.LocalizationManager;
+import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -16,6 +18,10 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -47,6 +53,47 @@ public class DiscordUtils<B> {
 	@NotNull
 	public B getBot() {
 		return bot;
+	}
+
+	/**
+	 * @param type The java type to instantiate
+	 * @param args A function to provide a value for a parameter
+	 * @return The resulting instance
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T createInstance(@NotNull Class<T> type, @NotNull Function<Parameter, Object> args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+		Checks.notNull(type, "type");
+		Checks.notNull(args, "args");
+
+		var constructor = (Constructor<T>) type.getDeclaredConstructors()[0];
+		return constructor.newInstance(createParameters(constructor.getParameters(), args));
+	}
+
+	/**
+	 * @param method   The method to invoke
+	 * @param instance The instance to invoke the method on
+	 * @param args     A function to provide a value for a parameter
+	 * @return The method's return value
+	 */
+	public Object invokeMethod(@NotNull Method method, Object instance, @NotNull Function<Parameter, Object> args) throws InvocationTargetException, IllegalAccessException {
+		Checks.notNull(method, "method");
+		Checks.notNull(args, "args");
+
+		return method.invoke(instance, createParameters(method.getParameters(), args));
+	}
+
+	private Object[] createParameters(Parameter[] params, Function<Parameter, Object> args) {
+		var result = new Object[params.length];
+
+		for(int i = 0; i < params.length; i++) {
+			var p = params[i];
+
+			if(bot != null && p.getType().isAssignableFrom(bot.getClass())) result[i] = bot;
+			else if(p.getType().isAssignableFrom(DiscordUtils.class)) result[i] = this;
+			else result[i] = args.apply(p);
+		}
+
+		return result;
 	}
 
 	/**
@@ -164,13 +211,14 @@ public class DiscordUtils<B> {
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> CommandManager<C, A> getCommandManager() {
+	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> CommandManager<C, A> getCommandManager() throws IllegalStateException {
 		return (CommandManager<C, A>) getManager(CommandManager.class).orElseThrow(IllegalStateException::new);
 	}
 
 	/**
 	 * @return {@code this}
 	 */
+	@NotNull
 	public DiscordUtils<B> useLanguageCache() {
 		return addManager(LanguageCacheManager::new, null);
 	}
@@ -180,7 +228,43 @@ public class DiscordUtils<B> {
 	 * @throws IllegalStateException If no {@link LanguageCacheManager} is registered
 	 */
 	@NotNull
-	public LanguageCacheManager getLanguageCache() {
+	public LanguageCacheManager getLanguageCache() throws IllegalStateException {
 		return getManager(LanguageCacheManager.class).orElseThrow(IllegalStateException::new);
+	}
+
+	/**
+	 * @param config A consumer the new {@link EventManager}
+	 * @return {@link this}
+	 */
+	@NotNull
+	public DiscordUtils<B> useEventManager(Consumer<EventManager> config) {
+		return addManager(EventManager::new, config);
+	}
+
+	/**
+	 * @return The {@link EventManager} previously registered on this {@link DiscordUtils} instance
+	 * @throws IllegalStateException If no {@link EventManager} is registered
+	 */
+	@NotNull
+	public EventManager getEventManager() throws IllegalStateException {
+		return getManager(EventManager.class).orElseThrow(IllegalStateException::new);
+	}
+
+	/**
+	 * @param config A consumer the new {@link UIManager}
+	 * @return {@link this}
+	 */
+	@NotNull
+	public DiscordUtils<B> useUIManager(Consumer<UIManager> config) {
+		return addManager(UIManager::new, config);
+	}
+
+	/**
+	 * @return The {@link UIManager} previously registered on this {@link DiscordUtils} instance
+	 * @throws IllegalStateException If no {@link UIManager} is registered
+	 */
+	@NotNull
+	public UIManager getUIManager() throws IllegalStateException {
+		return getManager(UIManager.class).orElseThrow(IllegalStateException::new);
 	}
 }

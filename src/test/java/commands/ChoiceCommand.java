@@ -5,6 +5,7 @@ import de.mineking.discordutils.commands.ApplicationCommandMethod;
 import de.mineking.discordutils.commands.option.Choice;
 import de.mineking.discordutils.commands.option.Option;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import shared.CommandContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ChoiceCommand {
 	);
 
 	@ApplicationCommandMethod
-	public void performCommand(ExampleBot.CommandContext context, @Option(name = "test") String arg) {
+	public void performCommand(CommandContext context, @Option(name = "test") String arg) {
 		context.event.reply(arg).queue();
 	}
 }
