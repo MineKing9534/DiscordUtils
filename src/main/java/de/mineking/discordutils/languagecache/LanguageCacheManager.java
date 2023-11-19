@@ -14,22 +14,28 @@ import java.time.Duration;
 import java.util.Optional;
 
 public class LanguageCacheManager extends Manager {
+	private final DiscordLocale defaultLocale;
+
 	private final Cache<Long, DiscordLocale> cache = Caffeine.newBuilder()
 			.expireAfterAccess(Duration.ofHours(4))
 			.build();
 
-	public LanguageCacheManager(@NotNull DiscordUtils<?> manager) {
+	public LanguageCacheManager(@NotNull DiscordUtils<?> manager, @NotNull DiscordLocale defaultLocale) {
 		super(manager);
+
+		Checks.notNull(defaultLocale, "defaultLocale");
+
+		this.defaultLocale = defaultLocale;
 	}
 
 	/**
 	 * @param user The user to get the cached locale from
-	 * @return An optional holding the cached locale of the provided user
+	 * @return The cached {@link DiscordLocale} for the specified user or the default locale
 	 */
 	@NotNull
-	public Optional<DiscordLocale> getLocale(@NotNull UserSnowflake user) {
+	public DiscordLocale getLocale(@NotNull UserSnowflake user) {
 		Checks.notNull(user, "user");
-		return Optional.ofNullable(cache.getIfPresent(user.getIdLong()));
+		return Optional.ofNullable(cache.getIfPresent(user.getIdLong())).orElse(defaultLocale);
 	}
 
 	@Override

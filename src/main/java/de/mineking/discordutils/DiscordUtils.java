@@ -14,6 +14,7 @@ import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -219,8 +220,8 @@ public class DiscordUtils<B> {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public DiscordUtils<B> useLanguageCache() {
-		return addManager(LanguageCacheManager::new, null);
+	public DiscordUtils<B> useLanguageCache(@NotNull DiscordLocale defaultLocale) {
+		return addManager(m -> new LanguageCacheManager(m, defaultLocale), null);
 	}
 
 	/**
