@@ -8,11 +8,15 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class DataState extends State {
+	private final Map<String, Object> cache = new HashMap<>();
 	protected final IReplyCallback event;
 
 	DataState(@Nullable IReplyCallback event, @NotNull Menu menu, @NotNull JsonObject data) {
@@ -131,5 +135,49 @@ public class DataState extends State {
 		if(!Objects.equals(newValue, currentValue)) menu.triggerEffect(name, newValue);
 
 		return this;
+	}
+
+	/**
+	 * @param name  The name of the cache value
+	 * @param value The value to cache. The cache is <u>not</u> persisted across re-renders!
+	 * @return {@code this}
+	 */
+	@NotNull
+	public <T> DataState setCache(@NotNull String name, @Nullable T value) {
+		Checks.notNull(name, "name");
+
+		cache.put(name, value);
+		return this;
+	}
+
+	/**
+	 * @param name The name of the cache to get
+	 * @return The cache value or {@code null}
+	 */
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T> T getCache(@NotNull String name) {
+		Checks.notNull(name, "name");
+		return (T) cache.get(name);
+	}
+
+	/**
+	 * @param name     The name of the cache to get
+	 * @param provider A function to provide a value if none is present yet
+	 * @return The value of the cache
+	 */
+	@NotNull
+	public <T> T getCache(@NotNull String name, @NotNull Supplier<T> provider) {
+		Checks.notNull(name, "name");
+
+		var value = this.<T>getCache(name);
+
+		if(value == null) {
+			var temp = provider.get();
+			value = temp;
+			cache.put(name, temp);
+		}
+
+		return value;
 	}
 }

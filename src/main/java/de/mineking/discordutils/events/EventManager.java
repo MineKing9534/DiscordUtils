@@ -1,6 +1,5 @@
 package de.mineking.discordutils.events;
 
-import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
@@ -11,10 +10,6 @@ import java.util.Set;
 public class EventManager extends Manager {
 	@SuppressWarnings("rawtypes")
 	private final Set<IEventHandler> eventHandlers = new HashSet<>();
-
-	public EventManager(@NotNull DiscordUtils<?> manager) {
-		super(manager);
-	}
 
 	/**
 	 * @param handler The {@link IEventHandler} to add

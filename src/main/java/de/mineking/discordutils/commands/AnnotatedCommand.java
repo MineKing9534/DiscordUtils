@@ -53,9 +53,8 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 			if(!m.isAnnotationPresent(Setup.class)) continue;
 
 			try {
-				manager.manager.invokeMethod(m, null, p -> {
+				manager.getManager().invokeMethod(m, null, p -> {
 					if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return this;
-					else if(p.getType().isAssignableFrom(CommandManager.class)) return manager;
 					else return null;
 				});
 			} catch(Exception e) {
@@ -194,9 +193,8 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 			public void handleAutocomplete(@NotNull A context) {
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {
 					try {
-						manager.manager.invokeMethod(autocomplete, instance, p -> {
+						manager.getManager().invokeMethod(autocomplete, instance, p -> {
 							if(p.getType().isAssignableFrom(context.event.getClass())) return context.event;
-							else if(p.getType().isAssignableFrom(CommandManager.class)) return manager;
 							else if(p.getType().isAssignableFrom(context.getClass())) return context;
 							else if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return AnnotatedCommand.this;
 							else return null;
@@ -210,7 +208,7 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 			}
 		};
 
-		var localization = manager.manager.getLocalization(f -> f.getOptionPath(this, option), info.description());
+		var localization = manager.getManager().getLocalization(f -> f.getOptionPath(this, option), info.description());
 		option.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 
 		if(option.getType() == OptionType.STRING) {
@@ -232,7 +230,7 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 									.peek(c -> {
 										c.setName(prefix + c.getName());
 
-										var cLocalization = manager.manager.getLocalization(f -> f.getChoicePath(this, option, c), prefix.isEmpty() ? null : c.getName());
+										var cLocalization = manager.getManager().getLocalization(f -> f.getChoicePath(this, option, c), prefix.isEmpty() ? null : c.getName());
 										c.setNameLocalizations(cLocalization.values());
 									})
 									.toList()

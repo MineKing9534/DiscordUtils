@@ -48,7 +48,9 @@ public class TestBot {
 		jda = JDABuilder.createDefault(token)
 				.build();
 
-		discordUtils = new DiscordUtils(jda, this);
+		discordUtils = DiscordUtils.create(jda)
+                .withBotInstance(this) //Can later be accessed via DiscordUtils#getBot()
+                .build();
 	}
 }
 ```
@@ -64,7 +66,23 @@ You can also change how the paths are generated automatically.
 # Console
 Sometimes, you might want to mirror your bot's console to your admins' direct messages or a text channel. DiscordUtils provides a simple way to archive this.
 ```java
-discordUtils.mirrorConsole(RedirectTarget.directMessage(YOUR_USER_ID));
+public class TestBot {
+	public static void main(String[] args) {
+		new TestBot(args[0]);
+	}
+
+	public final JDA jda;
+	public final DiscordUtils discordUtils;
+
+	public TestBot(String token) {
+		jda = JDABuilder.createDefault(token)
+				.build();
+
+		discordUtils = DiscordUtils.create(jda)
+				.mirrorConsole(RedirectTarget.directMessage(YOUR_USER_ID)) //Mirror the console to you dms
+				.build();
+	}
+}
 ```
 To send the logs to a text channel, simply use `RedirectTarget.channel(CHANNEL_ID)`. You can also provide multiple RedirectTargets at once.
 
@@ -96,8 +114,8 @@ Example:
 
 ```java
 //An instance of this context that will be created using the context creator function that you provided when creating the CommandManager, will be passed to every command execution. You can customize the context to your needs
-public class shared.CommandContext extends ContextBase<GenericCommandInteractionEent> {
-	public shared.CommandContext(GenericCommandInteractionEvent event) {
+public class CommandContext extends ContextBase<GenericCommandInteractionEent> {
+	public CommandContext(GenericCommandInteractionEvent event) {
 		super(event);
 	}
 
@@ -106,8 +124,8 @@ public class shared.CommandContext extends ContextBase<GenericCommandInteraction
 	//If you have a moderation bot, you could add methods that give access to the executing users warnings so that you can do context.getWarnings() wherever you need
 }
 
-public class shared.AutocompleteContext extends ContextBase<CommandAutocompleteInteractionEvent> {
-	public shared.AutocompleteContext(CommandAutocompleteInteractionEvent event) {
+public class AutocompleteContext extends ContextBase<CommandAutocompleteInteractionEvent> {
+	public AutocompleteContext(CommandAutocompleteInteractionEvent event) {
 		super(event);
 	}
 }
@@ -124,12 +142,13 @@ public class TestBot {
 		jda = JDABuilder.createDefault(token)
 				.build();
 
-		discordUtils = new DiscordUtils(jda, this)
+		discordUtils = DiscordUtils.create(jda)
+                .withCommandInstance(this)
 				.useCommandManager(
 						shared.CommandContext::new, //Function to create command context
 						shared.AutocompleteContext::new, //Function to create autocomplete context
 						cmdMan -> cmdMan.updateCommands() //Consumer to configure the resulting CommandManager. The updateCommands() method schedules an update of all commands for when the bot is successfully logged in
-				);
+				).build();
 	}
 }
 ```
@@ -579,3 +598,4 @@ By default, the current state is transferred to the new menu. To change this beh
 ## Help Manager
 
 ## List Manager
+The ListManager can be used to paginate large amounts of data. It uses the [UIManager](#ui-manager) internally.

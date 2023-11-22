@@ -21,8 +21,8 @@ import java.util.function.Consumer;
  * @see AnnotatedCommand
  */
 public abstract class Command<C extends ContextBase<? extends GenericCommandInteractionEvent>> {
-	public final String name;
-	public final String description;
+	protected String name;
+	protected String description;
 
 	public final CommandManager<C, ?> manager;
 	private Command<C> parent;
@@ -124,6 +124,14 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 	void forAll(Consumer<Command<C>> handler) {
 		handler.accept(this);
 		subcommands.forEach(handler);
+	}
+
+	/**
+	 * @return The name of this command
+	 */
+	@NotNull
+	public String getName() {
+		return name;
 	}
 
 	/**

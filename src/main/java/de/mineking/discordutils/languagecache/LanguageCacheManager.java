@@ -2,7 +2,6 @@ package de.mineking.discordutils.languagecache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
@@ -20,11 +19,8 @@ public class LanguageCacheManager extends Manager {
 			.expireAfterAccess(Duration.ofHours(4))
 			.build();
 
-	public LanguageCacheManager(@NotNull DiscordUtils<?> manager, @NotNull DiscordLocale defaultLocale) {
-		super(manager);
-
+	public LanguageCacheManager(@NotNull DiscordLocale defaultLocale) {
 		Checks.notNull(defaultLocale, "defaultLocale");
-
 		this.defaultLocale = defaultLocale;
 	}
 

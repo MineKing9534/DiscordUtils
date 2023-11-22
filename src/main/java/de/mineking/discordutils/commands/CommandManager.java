@@ -52,10 +52,8 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 
 	BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler;
 
-	public CommandManager(@NotNull DiscordUtils<?> manager, @NotNull Function<GenericCommandInteractionEvent, ? extends C> contextCreator,
+	public CommandManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull Function<GenericCommandInteractionEvent, ? extends C> contextCreator,
 	                      @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator) {
-		super(manager);
-
 		Checks.notNull(contextCreator, "contextCreator");
 		Checks.notNull(autocompleteContextCreator, "autocompleteContextCreator");
 
@@ -149,19 +147,18 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 			if(!flag) throw new IllegalArgumentException("Provided type is neither annotated with ApplicationCommand nor does it contain any methods with that annotation");
 		}
 
-		manager.getManager(EventManager.class).ifPresent(eventManager -> {
+		getManager().getManager(EventManager.class).ifPresent(eventManager -> {
 			for(var m : type.getMethods()) {
 				var listener = m.getAnnotation(Listener.class);
 				if(listener == null) continue;
 
 				try {
-					eventManager.addEventHandler(manager.createInstance(listener.type(), p -> {
+					eventManager.addEventHandler(getManager().createInstance(listener.type(), p -> {
 						if(p.getName().equals("filter")) return listener.filter();
 						else if(p.getName().equals("handler")) return (Consumer<?>) event -> {
 							try {
-								manager.invokeMethod(m, instance.apply(null), mp -> {
+								getManager().invokeMethod(m, instance.apply(null), mp -> {
 									if(mp.getType().isAssignableFrom(event.getClass())) return event;
-									else if(mp.getType().isAssignableFrom(CommandManager.class)) return this;
 									else return null;
 								});
 							} catch(Exception e) {
@@ -290,12 +287,7 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	@Nullable
 	public <T> T createCommandInstance(Class<T> type) {
 		try {
-			return manager.createInstance(type, p -> {
-				if(p.getType().isAssignableFrom(CommandManager.class)) return this;
-				else if(p.getType().isAssignableFrom(DiscordUtils.class)) return manager;
-				else if(p.getType().isAssignableFrom(manager.bot.getClass())) return manager.bot;
-				else return null;
-			});
+			return getManager().createInstance(type, p -> null);
 		} catch(Exception e) {
 			logger.error("Failed to create command instance", e);
 			return null;
@@ -309,9 +301,9 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	 */
 	public CommandManager<C, A> updateCommands() {
 		autoUpdate = true;
-		if(manager.jda.getStatus() == JDA.Status.CONNECTED) {
+		if(getManager().jda.getStatus() == JDA.Status.CONNECTED) {
 			updateGlobalCommands().queue();
-			manager.jda.getGuilds().forEach(g -> updateGuildCommands(g).queue());
+			getManager().jda.getGuilds().forEach(g -> updateGuildCommands(g).queue());
 		}
 
 		return this;
@@ -356,7 +348,7 @@ public class CommandManager<C extends ContextBase<? extends GenericCommandIntera
 	 */
 	@NotNull
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGlobalCommands() {
-		return manager.jda.updateCommands()
+		return getManager().jda.updateCommands()
 				.addCommands(
 						findCommands(CommandFilter.all(
 								CommandFilter.top(),

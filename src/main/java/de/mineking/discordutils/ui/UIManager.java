@@ -17,9 +17,8 @@ public class UIManager extends Manager {
 
 	private final Map<String, Menu> menus = new HashMap<>();
 
-	public UIManager(@NotNull DiscordUtils<?> manager) {
-		super(manager);
-		eventManager = manager.getEventManager();
+	public UIManager(@NotNull DiscordUtils.Builder<?> manager) {
+		eventManager = manager.getManager(EventManager.class);
 	}
 
 	/**
@@ -33,6 +32,8 @@ public class UIManager extends Manager {
 	}
 
 	/**
+	 * Creates a new menu with the provided id. If a menu with that identifier already exists, the current menu is returned.
+	 *
 	 * @param identifier The identifier of this menu, used to make menus persistent over restarts
 	 * @param embed      The {@link MessageEmbed} to display
 	 * @param components The {@link ComponentRow}s
@@ -45,7 +46,7 @@ public class UIManager extends Manager {
 		Checks.notNull(components, "components");
 
 		if(identifier.contains(":")) throw new IllegalArgumentException("Id may not contain ':'");
-		if(menus.containsKey(identifier)) throw new IllegalStateException("Menu with provided id already registered");
+		if(menus.containsKey(identifier)) return menus.get(identifier);
 
 		var menu = new Menu(this, identifier, embed, components);
 
