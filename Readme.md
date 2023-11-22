@@ -48,8 +48,7 @@ public class TestBot {
 		jda = JDABuilder.createDefault(token)
 				.build();
 
-		discordUtils = DiscordUtils.create(jda)
-                .withBotInstance(this) //Can later be accessed via DiscordUtils#getBot()
+		discordUtils = DiscordUtils.create(jda, this)
                 .build();
 	}
 }
@@ -78,7 +77,7 @@ public class TestBot {
 		jda = JDABuilder.createDefault(token)
 				.build();
 
-		discordUtils = DiscordUtils.create(jda)
+		discordUtils = DiscordUtils.create(jda, this)
 				.mirrorConsole(RedirectTarget.directMessage(YOUR_USER_ID)) //Mirror the console to you dms
 				.build();
 	}
@@ -142,8 +141,7 @@ public class TestBot {
 		jda = JDABuilder.createDefault(token)
 				.build();
 
-		discordUtils = DiscordUtils.create(jda)
-                .withCommandInstance(this)
+		discordUtils = DiscordUtils.create(jda, this)
 				.useCommandManager(
 						shared.CommandContext::new, //Function to create command context
 						shared.AutocompleteContext::new, //Function to create autocomplete context

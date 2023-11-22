@@ -330,7 +330,7 @@ public interface IOptionParser {
 			option.addChoices(
 					choices.stream()
 							.peek(c -> {
-								var localization = command.manager.manager.getLocalization(f -> f.getChoicePath(command, option, c), null);
+								var localization = command.manager.getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
 								c.setNameLocalizations(localization.values());
 							})
 							.toList()

@@ -271,7 +271,7 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 					var gd = new SubcommandGroupData(group.name, "---")
 							.addSubcommands(group.buildSubcommands("", guild));
 
-					var localization = manager.manager.getLocalization(f -> f.getCommandPath(group), group.description);
+					var localization = manager.getManager().getLocalization(f -> f.getCommandPath(group), group.description);
 					gd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 
 					sc.addSubcommandGroups(gd);
@@ -281,7 +281,7 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 			cmd = sc;
 		}
 
-		var localization = manager.manager.getLocalization(f -> f.getCommandPath(this), description);
+		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
 		if(cmd instanceof SlashCommandData sc) sc.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 		else cmd.setNameLocalizations(localization.values());
 
@@ -292,7 +292,7 @@ public abstract class Command<C extends ContextBase<? extends GenericCommandInte
 		var cmd = new SubcommandData(prefix + name, "---")
 				.addOptions(options);
 
-		var localization = manager.manager.getLocalization(f -> f.getCommandPath(this), description);
+		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
 		cmd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 
 		return cmd;

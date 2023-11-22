@@ -25,7 +25,7 @@ public class ExampleBot {
 
 		var methodTestInstance = Optional.of(new MethodCommandTest());
 
-		discordUtils = new DiscordUtils<>(jda, this)
+		discordUtils = DiscordUtils.create(jda, this)
 				.mirrorConsole(RedirectTarget.directMessage(723571803133313055L))
 				.useCommandManager(
 						CommandContext::new,
@@ -38,7 +38,7 @@ public class ExampleBot {
 								.registerCommand(SubcommandTest.class)
 								.registerCommand(MethodCommandTest.class, c -> methodTestInstance, c -> methodTestInstance)
 								.updateCommands()
-				);
+				).build();
 	}
 
 }

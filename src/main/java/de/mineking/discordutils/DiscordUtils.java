@@ -39,11 +39,12 @@ public class DiscordUtils<B> extends ListenerAdapter {
 
 	/**
 	 * @param jda Your {@link JDA} instance
+	 * @param bot Your bot instance
 	 * @return A builder to create a {@link DiscordUtils} instance
 	 */
-	public static <B> Builder<B> create(@NotNull JDA jda) {
+	public static <B> Builder<B> create(@NotNull JDA jda, @Nullable B bot) {
 		Checks.notNull(jda, "jda");
-		return new Builder<>(jda);
+		return new Builder<>(jda, bot);
 	}
 
 	DiscordUtils(JDA jda, B bot, LocalizationManager localization, Set<Manager> managers) {
@@ -206,10 +207,11 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		private LocalizationManager localization;
 
 		private final JDA jda;
-		private B bot;
+		private final B bot;
 
-		Builder(JDA jda) {
+		Builder(JDA jda, B bot) {
 			this.jda = jda;
+			this.bot = bot;
 		}
 
 		/**
@@ -223,16 +225,6 @@ public class DiscordUtils<B> extends ListenerAdapter {
 			return managers.stream()
 					.filter(m -> m.getClass().equals(type))
 					.findFirst().map(m -> (T) m).orElseThrow();
-		}
-
-		/**
-		 * @param bot Your bot instance
-		 * @return {@code this}
-		 */
-		@NotNull
-		public Builder<B> withBotInstance(@NotNull B bot) {
-			this.bot = bot;
-			return this;
 		}
 
 		/**
