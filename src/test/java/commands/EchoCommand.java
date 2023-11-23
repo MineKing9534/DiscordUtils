@@ -13,14 +13,14 @@ import java.util.Optional;
 public class EchoCommand {
 	@Autocomplete("text")
 	public void autocomplete(AutocompleteContext context) {
-		context.event.replyChoice(context.event.getFocusedOption().getValue() + "!", context.event.getFocusedOption().getValue() + "!").queue();
+		context.getEvent().replyChoice(context.getEvent().getFocusedOption().getValue() + "!", context.getEvent().getFocusedOption().getValue() + "!").queue();
 	}
 
 	@ApplicationCommandMethod
 	public void performCommand(CommandContext context, @Option(name = "text", required = false) Optional<String> text) {
 		text.ifPresentOrElse(
-				x -> context.event.reply(x).queue(),
-				() -> context.event.reply("*nothing*").queue()
+				x -> context.getEvent().reply(x).queue(),
+				() -> context.getEvent().reply("*nothing*").queue()
 		);
 	}
 }

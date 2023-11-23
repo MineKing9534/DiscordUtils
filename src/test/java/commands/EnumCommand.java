@@ -15,6 +15,6 @@ public class EnumCommand {
 
 	@ApplicationCommandMethod
 	public void performCommand(CommandContext context, @Option Test test) {
-		context.event.reply(test.toString()).queue();
+		context.getEvent().reply(test.toString()).queue();
 	}
 }

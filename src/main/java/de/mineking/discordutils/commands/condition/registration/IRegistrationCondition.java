@@ -1,9 +1,8 @@
 package de.mineking.discordutils.commands.condition.registration;
 
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiPredicate;
 
-public interface IRegistrationCondition<C extends ContextBase<? extends GenericCommandInteractionEvent>> {
+public interface IRegistrationCondition<C extends ICommandContext> {
 	/**
 	 * @param manager The responsible {@link CommandManager}
 	 * @param guild   The {@link Guild} to check or {@code null} if this is a global command
@@ -67,7 +66,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 * @return A {@link IRegistrationCondition} that always registers the command
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> always() {
+	static <C extends ICommandContext> IRegistrationCondition<C> always() {
 		return (m, g) -> true;
 	}
 
@@ -75,7 +74,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 * @return A {@link IRegistrationCondition} that never registers the command
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> never() {
+	static <C extends ICommandContext> IRegistrationCondition<C> never() {
 		return (m, g) -> false;
 	}
 
@@ -84,7 +83,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> any(@NotNull IRegistrationCondition<C> condition, @NotNull IRegistrationCondition<C>... conditions) {
+	static <C extends ICommandContext> IRegistrationCondition<C> any(@NotNull IRegistrationCondition<C> condition, @NotNull IRegistrationCondition<C>... conditions) {
 		Checks.notNull(condition, "condition");
 		Checks.notNull(conditions, "conditions");
 
@@ -97,7 +96,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> all(@NotNull IRegistrationCondition<C> condition, @NotNull IRegistrationCondition<C>... conditions) {
+	static <C extends ICommandContext> IRegistrationCondition<C> all(@NotNull IRegistrationCondition<C> condition, @NotNull IRegistrationCondition<C>... conditions) {
 		Checks.notNull(condition, "condition");
 		Checks.notNull(conditions, "conditions");
 
@@ -109,7 +108,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 * @return A {@link IRegistrationCondition} that registers the command in the specified {@link Scope}
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> scope(@NotNull Scope scope) {
+	static <C extends ICommandContext> IRegistrationCondition<C> scope(@NotNull Scope scope) {
 		Checks.notNull(scope, "scope");
 
 		return new PropertyRegistrationCondition<>(scope, null);
@@ -119,13 +118,13 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 	 * @return A {@link IRegistrationCondition} that is only visible for the specified {@link DefaultMemberPermissions}
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IRegistrationCondition<C> permission(@NotNull DefaultMemberPermissions permission) {
+	static <C extends ICommandContext> IRegistrationCondition<C> permission(@NotNull DefaultMemberPermissions permission) {
 		Checks.notNull(permission, "permission");
 
 		return new PropertyRegistrationCondition<>(null, permission);
 	}
 
-	class PropertyRegistrationCondition<C extends ContextBase<? extends GenericCommandInteractionEvent>> implements IRegistrationCondition<C> {
+	class PropertyRegistrationCondition<C extends ICommandContext> implements IRegistrationCondition<C> {
 		private final DefaultMemberPermissions permission;
 		private final Scope scope;
 
@@ -152,7 +151,7 @@ public interface IRegistrationCondition<C extends ContextBase<? extends GenericC
 		}
 	}
 
-	class CombineRegistrationCondition<C extends ContextBase<? extends GenericCommandInteractionEvent>> implements IRegistrationCondition<C> {
+	class CombineRegistrationCondition<C extends ICommandContext> implements IRegistrationCondition<C> {
 		private final IRegistrationCondition<C> a;
 		private final IRegistrationCondition<C> b;
 

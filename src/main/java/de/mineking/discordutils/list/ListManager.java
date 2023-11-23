@@ -3,7 +3,7 @@ package de.mineking.discordutils.list;
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
@@ -12,7 +12,6 @@ import de.mineking.discordutils.ui.components.types.ComponentRow;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -23,7 +22,7 @@ import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ListManager<C extends ContextBase<? extends GenericCommandInteractionEvent>> extends Manager {
+public class ListManager<C extends ICommandContext> extends Manager {
 	private final UIManager uiManager;
 	private final CommandManager<C, ?> commandManager;
 

@@ -1,7 +1,8 @@
 package de.mineking.discordutils;
 
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.IAutocompleteContext;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.console.DiscordOutputStream;
 import de.mineking.discordutils.console.MirrorPrintStream;
 import de.mineking.discordutils.console.RedirectTarget;
@@ -159,7 +160,7 @@ public class DiscordUtils<B> extends ListenerAdapter {
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> CommandManager<C, A> getCommandManager() throws IllegalStateException {
+	public <C extends ICommandContext, A extends IAutocompleteContext> CommandManager<C, A> getCommandManager() throws IllegalStateException {
 		return (CommandManager<C, A>) getManager(CommandManager.class).orElseThrow(IllegalStateException::new);
 	}
 
@@ -196,7 +197,7 @@ public class DiscordUtils<B> extends ListenerAdapter {
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public <C extends ContextBase<? extends GenericCommandInteractionEvent>> ListManager<C> getListManager() {
+	public <C extends ICommandContext> ListManager<C> getListManager() {
 		return (ListManager<C>) getManager(ListManager.class).orElseThrow(IllegalStateException::new);
 	}
 
@@ -281,8 +282,8 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		 * @return {@code this}
 		 */
 		@NotNull
-		public <C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> Builder<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, ? extends C> context,
-		                                                                                                                                                                       @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
+		public <C extends ICommandContext, A extends IAutocompleteContext> Builder<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, ? extends C> context,
+		                                                                                                @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
 			Checks.notNull(context, "context");
 			Checks.notNull(autocomplete, "autocomplete");
 
@@ -321,7 +322,7 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		 * @return {@code this}
 		 */
 		@NotNull
-		public <C extends ContextBase<? extends GenericCommandInteractionEvent>> Builder<B> useListManager(Consumer<ListManager<C>> config) {
+		public <C extends ICommandContext> Builder<B> useListManager(Consumer<ListManager<C>> config) {
 			return addManager(new ListManager<>(this), config);
 		}
 

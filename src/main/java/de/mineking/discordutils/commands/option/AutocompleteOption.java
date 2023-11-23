@@ -1,7 +1,6 @@
 package de.mineking.discordutils.commands.option;
 
-import de.mineking.discordutils.commands.context.ContextBase;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A {@link OptionData} implementation that supports autocomplete
  */
-public abstract class AutocompleteOption<A extends ContextBase<CommandAutoCompleteInteractionEvent>> extends OptionData {
+public abstract class AutocompleteOption<A extends IAutocompleteContext> extends OptionData {
 	/**
 	 * Creates a new {@link AutocompleteOption}
 	 *

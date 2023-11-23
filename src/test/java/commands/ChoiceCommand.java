@@ -21,6 +21,6 @@ public class ChoiceCommand {
 
 	@ApplicationCommandMethod
 	public void performCommand(CommandContext context, @Option(name = "test") String arg) {
-		context.event.reply(arg).queue();
+		context.getEvent().reply(arg).queue();
 	}
 }

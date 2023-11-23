@@ -10,6 +10,6 @@ import shared.CommandContext;
 public class ArrayCommand {
 	@ApplicationCommandMethod
 	public void performCommand(CommandContext context, @OptionArray(minCount = 2, maxCount = 5) @Option(name = "param") String... args) {
-		context.event.reply(String.join(", ", args)).queue();
+		context.getEvent().reply(String.join(", ", args)).queue();
 	}
 }

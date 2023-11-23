@@ -1,26 +1,25 @@
 package de.mineking.discordutils.commands;
 
 import de.mineking.discordutils.commands.condition.registration.Scope;
-import de.mineking.discordutils.commands.context.ContextBase;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
-public interface CommandFilter<C extends ContextBase<? extends GenericCommandInteractionEvent>> {
+public interface CommandFilter<C extends ICommandContext> {
 	/**
 	 * @param name The required name for the command
 	 * @return A {@link CommandFilter} that only accepts commands with the specified name
 	 */
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> name(String name) {
+	static <C extends ICommandContext> CommandFilter<C> name(String name) {
 		return command -> command.name.equals(name);
 	}
 
 	/**
 	 * @return A {@link CommandFilter} that only accepts commands without a parent
 	 */
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> top() {
+	static <C extends ICommandContext> CommandFilter<C> top() {
 		return command -> command.getParent() == null;
 	}
 
@@ -28,11 +27,11 @@ public interface CommandFilter<C extends ContextBase<? extends GenericCommandInt
 	 * @param scope The required {@link Scope} for the command
 	 * @return A {@link CommandFilter} that only accepts commands with the provided scope
 	 */
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> scope(Scope scope) {
+	static <C extends ICommandContext> CommandFilter<C> scope(Scope scope) {
 		return command -> command.getRegistration().getScope() == scope;
 	}
 
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> of(Predicate<Command<C>> filter) {
+	static <C extends ICommandContext> CommandFilter<C> of(Predicate<Command<C>> filter) {
 		return filter::test;
 	}
 
@@ -73,7 +72,7 @@ public interface CommandFilter<C extends ContextBase<? extends GenericCommandInt
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> any(@NotNull CommandFilter<C> filter, @NotNull CommandFilter<C>... filters) {
+	static <C extends ICommandContext> CommandFilter<C> any(@NotNull CommandFilter<C> filter, @NotNull CommandFilter<C>... filters) {
 		Checks.notNull(filter, "filter");
 		Checks.notNull(filters, "filters");
 
@@ -86,7 +85,7 @@ public interface CommandFilter<C extends ContextBase<? extends GenericCommandInt
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> CommandFilter<C> all(@NotNull CommandFilter<C> filter, @NotNull CommandFilter<C>... filters) {
+	static <C extends ICommandContext> CommandFilter<C> all(@NotNull CommandFilter<C> filter, @NotNull CommandFilter<C>... filters) {
 		Checks.notNull(filter, "filter");
 		Checks.notNull(filters, "filters");
 

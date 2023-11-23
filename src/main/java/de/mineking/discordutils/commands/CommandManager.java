@@ -3,7 +3,8 @@ package de.mineking.discordutils.commands;
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.condition.registration.Scope;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.IAutocompleteContext;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.commands.option.IOptionParser;
 import de.mineking.discordutils.events.EventManager;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
  * @see #registerCommand(Command)
  * @see #registerOptionParser(IOptionParser)
  */
-public class CommandManager<C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> extends Manager {
+public class CommandManager<C extends ICommandContext, A extends IAutocompleteContext> extends Manager {
 	public final static Logger logger = LoggerFactory.getLogger(CommandManager.class);
 
 	private final ExecutorService executor = Executors.newScheduledThreadPool(1);

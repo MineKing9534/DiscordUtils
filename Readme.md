@@ -113,9 +113,15 @@ Example:
 
 ```java
 //An instance of this context that will be created using the context creator function that you provided when creating the CommandManager, will be passed to every command execution. You can customize the context to your needs
-public class CommandContext extends ContextBase<GenericCommandInteractionEent> {
+public class CommandContext implements ICommandContext {
+	private final GenericCommandInteractionEvent event;
+
 	public CommandContext(GenericCommandInteractionEvent event) {
-		super(event);
+		this.event = event;
+	}
+
+	public GenericCommandInteractionEvent getEvent() {
+		return event;
 	}
 
 	//Add methods like 'reply' that use your bot's localization system
@@ -123,9 +129,15 @@ public class CommandContext extends ContextBase<GenericCommandInteractionEent> {
 	//If you have a moderation bot, you could add methods that give access to the executing users warnings so that you can do context.getWarnings() wherever you need
 }
 
-public class AutocompleteContext extends ContextBase<CommandAutocompleteInteractionEvent> {
+public class AutocompleteContext implements IAutocompleteContext {
+	private final CommandAutocompleteEvent event;
+
 	public AutocompleteContext(CommandAutocompleteInteractionEvent event) {
-		super(event);
+		this.event = event;
+	}
+
+	public CommandAutocompleteEvent getEvent() {
+		return event;
 	}
 }
 

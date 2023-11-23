@@ -3,7 +3,7 @@ package de.mineking.discordutils.commands;
 import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.registration.IRegistrationCondition;
 import de.mineking.discordutils.commands.condition.registration.Scope;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.*;
@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 /**
  * A java representation of Discord's application commands that combines building and execution.
  *
- * @see #performCommand(ContextBase)
+ * @see #performCommand(ICommandContext)
  * @see AnnotatedCommand
  */
-public abstract class Command<C extends ContextBase<? extends GenericCommandInteractionEvent>> {
+public abstract class Command<C extends ICommandContext> {
 	protected String name;
 	protected String description;
 

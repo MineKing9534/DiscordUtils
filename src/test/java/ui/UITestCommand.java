@@ -39,7 +39,7 @@ public class UITestCommand {
 		menu.createState()
 				.setState("text", "abc")
 				.setState("toggle", true)
-				.display(context.event, false);
+				.display(context.getEvent(), false);
 
 	}
 }

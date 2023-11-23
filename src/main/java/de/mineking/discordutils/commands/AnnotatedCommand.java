@@ -2,13 +2,12 @@ package de.mineking.discordutils.commands;
 
 import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.registration.IRegistrationCondition;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.IAutocompleteContext;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.Autocomplete;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.commands.option.Choice;
 import de.mineking.discordutils.commands.option.Option;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -29,7 +28,7 @@ import java.util.function.Function;
  * @see ApplicationCommandMethod
  * @see CommandManager#registerCommand(Class)
  */
-public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> extends Command<C> {
+public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompleteContext> extends Command<C> {
 	@NotNull
 	public final Class<T> clazz;
 	@NotNull
@@ -100,14 +99,13 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 			if(!t.isAnnotationPresent(ApplicationCommand.class)) continue;
 
 			var i = t.getAnnotation(ApplicationCommand.class);
-			if(i != null) addSubcommand(createCommand(t, i, manager));
+			if(i != null) addSubcommand(createCommand(t, manager));
 		}
 
 		if(getSubcommands().isEmpty() && method == null) CommandManager.logger.warn("Command '{}' has neither subcommands nor a method", name);
 	}
 
-	private static <T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> AnnotatedCommand<T, C, A> createCommand(Class<T> type, ApplicationCommand info,
-	                                                                                                                                                                                        CommandManager<C, A> manager) {
+	private static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> createCommand(Class<T> type, CommandManager<C, A> manager) {
 		var instance = manager.createCommandInstance(type);
 		return getFromClass(manager, type, x -> Optional.ofNullable(instance), x -> Optional.ofNullable(instance));
 	}
@@ -121,10 +119,10 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 	 * @param autocompleteInstance A function to provide the instance from {@link A}
 	 * @return The resulting {@link Command} instance
 	 */
-	public static <T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> AnnotatedCommand<T, C, A> getFromClass(@NotNull CommandManager<C, A> manager,
-	                                                                                                                                                                                      @NotNull Class<T> clazz,
-	                                                                                                                                                                                      @NotNull Function<C, Optional<T>> instance,
-	                                                                                                                                                                                      @NotNull Function<A, Optional<T>> autocompleteInstance) {
+	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromClass(@NotNull CommandManager<C, A> manager,
+	                                                                                                                    @NotNull Class<T> clazz,
+	                                                                                                                    @NotNull Function<C, Optional<T>> instance,
+	                                                                                                                    @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(clazz, "clazz");
 		Checks.notNull(instance, "instance");
@@ -145,11 +143,11 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 		return new AnnotatedCommand<>(manager, info, clazz, method, instance, autocompleteInstance);
 	}
 
-	public static <T, C extends ContextBase<? extends GenericCommandInteractionEvent>, A extends ContextBase<CommandAutoCompleteInteractionEvent>> AnnotatedCommand<T, C, A> getFromMethod(@NotNull CommandManager<C, A> manager,
-	                                                                                                                                                                                       @NotNull Class<T> clazz,
-	                                                                                                                                                                                       @NotNull Method method,
-	                                                                                                                                                                                       @NotNull Function<C, Optional<T>> instance,
-	                                                                                                                                                                                       @NotNull Function<A, Optional<T>> autocompleteInstance) {
+	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromMethod(@NotNull CommandManager<C, A> manager,
+	                                                                                                                     @NotNull Class<T> clazz,
+	                                                                                                                     @NotNull Method method,
+	                                                                                                                     @NotNull Function<C, Optional<T>> instance,
+	                                                                                                                     @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(clazz, "clazz");
 		Checks.notNull(method, "method");
@@ -174,7 +172,7 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 				method.invoke(instance.get(), buildParameters(context));
 			} catch(InvocationTargetException e) {
 				CommandManager.logger.error("Command threw exception", e.getCause());
-				if(manager.exceptionHandler != null) manager.exceptionHandler.accept(context.event, new CommandException(this, e.getCause()));
+				if(manager.exceptionHandler != null) manager.exceptionHandler.accept(context.getEvent(), new CommandException(this, e.getCause()));
 			}
 		}
 	}
@@ -194,7 +192,7 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {
 					try {
 						manager.getManager().invokeMethod(autocomplete, instance, p -> {
-							if(p.getType().isAssignableFrom(context.event.getClass())) return context.event;
+							if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
 							else if(p.getType().isAssignableFrom(context.getClass())) return context;
 							else if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return AnnotatedCommand.this;
 							else return null;
@@ -252,9 +250,9 @@ public class AnnotatedCommand<T, C extends ContextBase<? extends GenericCommandI
 		for(int i = 0; i < method.getParameterCount(); i++) {
 			var p = method.getParameters()[i];
 
-			if(p.getType().isAssignableFrom(context.event.getClass())) parameters[i] = context.event;
+			if(p.getType().isAssignableFrom(context.getEvent().getClass())) parameters[i] = context.getEvent();
 			else if(p.getType().isAssignableFrom(context.getClass())) parameters[i] = context;
-			else if(p.isAnnotationPresent(Option.class)) parameters[i] = manager.parseOption(context.event, getOptionName(p), p, p.getType(), method.getGenericParameterTypes()[i]);
+			else if(p.isAnnotationPresent(Option.class)) parameters[i] = manager.parseOption(context.getEvent(), getOptionName(p), p, p.getType(), method.getGenericParameterTypes()[i]);
 		}
 
 		return parameters;

@@ -21,7 +21,7 @@ public class ExampleBot {
 				.setStatus(OnlineStatus.ONLINE)
 				.build();
 
-		discordUtils = new DiscordUtils<>(jda, this)
+		discordUtils = DiscordUtils.create(jda, this)
 				.mirrorConsole(RedirectTarget.channel(1174751088575000666L))
 				.useEventManager(null)
 				.useUIManager(null)
@@ -31,6 +31,6 @@ public class ExampleBot {
 						config -> config
 								.registerCommand(UITestCommand.class)
 								.updateCommands()
-				);
+				).build();
 	}
 }

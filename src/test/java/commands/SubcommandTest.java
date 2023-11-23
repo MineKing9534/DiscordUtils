@@ -14,7 +14,7 @@ public class SubcommandTest {
 			public static class AAA {
 				@ApplicationCommandMethod
 				public void performCommand(CommandContext context) {
-					context.event.reply("test aaa").queue();
+					context.getEvent().reply("test aaa").queue();
 				}
 			}
 
@@ -22,7 +22,7 @@ public class SubcommandTest {
 			public static class AAB {
 				@ApplicationCommandMethod
 				public void performCommand(CommandContext context) {
-					context.event.reply("test").queue();
+					context.getEvent().reply("test").queue();
 				}
 			}
 		}
@@ -33,7 +33,7 @@ public class SubcommandTest {
 			public static class ABA {
 				@ApplicationCommandMethod
 				public void performCommand(CommandContext context) {
-					context.event.reply("test").queue();
+					context.getEvent().reply("test").queue();
 				}
 			}
 
@@ -41,7 +41,7 @@ public class SubcommandTest {
 			public static class ABB {
 				@ApplicationCommandMethod
 				public void performCommand(CommandContext context) {
-					context.event.reply("test").queue();
+					context.getEvent().reply("test").queue();
 				}
 			}
 		}
@@ -53,7 +53,7 @@ public class SubcommandTest {
 		public static class BA {
 			@ApplicationCommandMethod
 			public void performCommand(CommandContext context) {
-				context.event.reply("test").queue();
+				context.getEvent().reply("test").queue();
 			}
 		}
 
@@ -61,7 +61,7 @@ public class SubcommandTest {
 		public static class BB {
 			@ApplicationCommandMethod
 			public void performCommand(CommandContext context) {
-				context.event.reply("test").queue();
+				context.getEvent().reply("test").queue();
 			}
 		}
 	}

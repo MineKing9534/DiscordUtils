@@ -1,15 +1,14 @@
 package de.mineking.discordutils.commands.condition.execution;
 
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.context.ContextBase;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiPredicate;
 
-public interface IExecutionCondition<C extends ContextBase<? extends GenericCommandInteractionEvent>> {
+public interface IExecutionCondition<C extends ICommandContext> {
 	/**
 	 * @param manager The responsible {@link CommandManager}
 	 * @param context The {@link C} holding information about this execution
@@ -27,7 +26,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	}
 
 	/**
-	 * @return A {@link IExecutionCondition} that only permits execution if both this and the other condition return {@code true} in {@link IExecutionCondition#isAllowed(CommandManager, ContextBase)}
+	 * @return A {@link IExecutionCondition} that only permits execution if both this and the other condition return {@code true} in {@link IExecutionCondition#isAllowed(CommandManager, ICommandContext)}
 	 */
 	@NotNull
 	default IExecutionCondition<C> and(@NotNull IExecutionCondition<C> other) {
@@ -35,7 +34,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	}
 
 	/**
-	 * @return A {@link IExecutionCondition} that permits execution if this or the other condition return {@code true} in {@link IExecutionCondition#isAllowed(CommandManager, ContextBase)}
+	 * @return A {@link IExecutionCondition} that permits execution if this or the other condition return {@code true} in {@link IExecutionCondition#isAllowed(CommandManager, ICommandContext)}
 	 */
 	@NotNull
 	default IExecutionCondition<C> or(@NotNull IExecutionCondition<C> other) {
@@ -46,7 +45,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	 * @return A {@link IExecutionCondition} that always permits execution
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IExecutionCondition<C> always() {
+	static <C extends ICommandContext> IExecutionCondition<C> always() {
 		return (m, c) -> true;
 	}
 
@@ -54,7 +53,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	 * @return A {@link IExecutionCondition} that never permits execution
 	 */
 	@NotNull
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IExecutionCondition<C> never() {
+	static <C extends ICommandContext> IExecutionCondition<C> never() {
 		return (m, c) -> false;
 	}
 
@@ -63,7 +62,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IExecutionCondition<C> any(@NotNull IExecutionCondition<C> condition, @NotNull IExecutionCondition<C>... conditions) {
+	static <C extends ICommandContext> IExecutionCondition<C> any(@NotNull IExecutionCondition<C> condition, @NotNull IExecutionCondition<C>... conditions) {
 		Checks.notNull(condition, "condition");
 		Checks.notNull(conditions, "conditions");
 
@@ -76,7 +75,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 	 */
 	@NotNull
 	@SafeVarargs
-	static <C extends ContextBase<? extends GenericCommandInteractionEvent>> IExecutionCondition<C> all(@NotNull IExecutionCondition<C> condition, @NotNull IExecutionCondition<C>... conditions) {
+	static <C extends ICommandContext> IExecutionCondition<C> all(@NotNull IExecutionCondition<C> condition, @NotNull IExecutionCondition<C>... conditions) {
 		Checks.notNull(condition, "condition");
 		Checks.notNull(conditions, "conditions");
 
@@ -84,7 +83,7 @@ public interface IExecutionCondition<C extends ContextBase<? extends GenericComm
 		return condition;
 	}
 
-	class CombineExecutionCondition<C extends ContextBase<? extends GenericCommandInteractionEvent>> implements IExecutionCondition<C> {
+	class CombineExecutionCondition<C extends ICommandContext> implements IExecutionCondition<C> {
 		private final IExecutionCondition<C> a;
 		private final IExecutionCondition<C> b;
 

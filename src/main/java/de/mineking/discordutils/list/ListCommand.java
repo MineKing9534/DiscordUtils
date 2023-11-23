@@ -3,10 +3,9 @@ package de.mineking.discordutils.list;
 import de.mineking.discordutils.commands.Command;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
-import de.mineking.discordutils.commands.context.ContextBase;
+import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.state.SendState;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ListCommand<C extends ContextBase<? extends GenericCommandInteractionEvent>> extends Command<C> {
+public class ListCommand<C extends ICommandContext> extends Command<C> {
 	private final Function<String, Menu> menu;
 	private final BiConsumer<C, SendState> state;
 
@@ -36,10 +35,10 @@ public class ListCommand<C extends ContextBase<? extends GenericCommandInteracti
 	public void performCommand(@NotNull C context) throws Exception {
 		var state = menu.apply(getPath(".")).createState();
 
-		state.setState("page", context.event.getOption(pageName, 1, OptionMapping::getAsInt));
+		state.setState("page", context.getEvent().getOption(pageName, 1, OptionMapping::getAsInt));
 
 		this.state.accept(context, state);
-		state.display(context.event);
+		state.display(context.getEvent());
 	}
 
 	/**

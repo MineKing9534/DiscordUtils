@@ -9,21 +9,21 @@ import shared.CommandContext;
 public class MethodCommandTest {
 	@Autocomplete("text")
 	public void autocompleteTextA(AutocompleteContext context) {
-		context.event.replyChoice("a", "a").queue();
+		context.getEvent().replyChoice("a", "a").queue();
 	}
 
 	@ApplicationCommand(name = "methoda")
 	public void a(CommandContext context, @Option(name = "text") String text) {
-		context.event.reply(text).queue();
+		context.getEvent().reply(text).queue();
 	}
 
 	@Autocomplete("textb")
 	public void autocompleteTextB(AutocompleteContext context) {
-		context.event.replyChoice("b", "b").queue();
+		context.getEvent().replyChoice("b", "b").queue();
 	}
 
 	@ApplicationCommand(name = "methodb")
 	public void b(CommandContext context, @Option(name = "text", id = "textb") String text) {
-		context.event.reply(text).queue();
+		context.getEvent().reply(text).queue();
 	}
 }
