@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class DataState extends State {
 	private final Map<String, Object> cache = new HashMap<>();
-	protected final IReplyCallback event;
+	public final IReplyCallback event;
 
 	DataState(@Nullable IReplyCallback event, @NotNull Menu menu, @NotNull JsonObject data) {
 		super(menu, data);
