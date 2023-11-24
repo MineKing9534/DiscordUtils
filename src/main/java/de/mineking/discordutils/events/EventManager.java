@@ -21,7 +21,7 @@ public class EventManager extends Manager {
 	/**
 	 * @param handler The {@link IEventHandler} to remove
 	 */
-	public void removeEventHAndler(IEventHandler<?> handler) {
+	public void removeEventHandler(IEventHandler<?> handler) {
 		eventHandlers.remove(handler);
 	}
 
