@@ -257,14 +257,17 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 * @param param   The java method parameter
 	 * @param type    The java type of the parameter
 	 * @param generic the parameter's generic type information
+	 * @return The resulting {@link OptionData}
 	 */
-	public void configureOption(@NotNull Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+	public OptionData configureOption(@NotNull Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
 		Checks.notNull(option, "option");
 		Checks.notNull(param, "param");
 		Checks.notNull(type, "type");
 		Checks.notNull(generic, "generic");
 
-		getParser(param).ifPresent(p -> p.configure(command, option, param, type, generic));
+		return getParser(param)
+				.map(p -> p.configure(command, option, param, type, generic))
+				.orElse(option);
 	}
 
 	/**

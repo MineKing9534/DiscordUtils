@@ -70,8 +70,11 @@ public interface IOptionParser {
 	 * @param param   The java method parameter
 	 * @param type    The java type of the parameter
 	 * @param generic The generic type information
+	 * @return The resulting {@link OptionData}
 	 */
-	default void configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {}
+	default OptionData configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+		return option;
+	}
 
 	/**
 	 * Can be used to configure the option registration
@@ -324,12 +327,12 @@ public interface IOptionParser {
 		}
 
 		@Override
-		public void configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionData configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
 			var choices = Arrays.stream((Enum<?>[]) type.getEnumConstants())
 					.map(c -> new Command.Choice(c.toString(), c.name()))
 					.toList();
 
-			option.addChoices(
+			return option.addChoices(
 					choices.stream()
 							.peek(c -> {
 								var localization = command.manager.getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);

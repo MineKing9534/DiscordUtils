@@ -239,9 +239,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			});
 		}
 
-		manager.configureOption(this, option, param, param.getType(), generic);
-
-		return option;
+		return manager.configureOption(this, option, param, param.getType(), generic);
 	}
 
 	private Object[] buildParameters(C context) {
