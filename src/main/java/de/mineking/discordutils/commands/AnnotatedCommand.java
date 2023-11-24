@@ -91,7 +91,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 
 				var name = getOptionName(p);
 
-				manager.getParser(p.getType()).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
+				manager.getParser(p).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
 			}
 		}
 
@@ -185,8 +185,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	private OptionData buildOption(Option info, Parameter param, Type generic, String name, Method autocomplete, Field choiceInfo) {
 		OptionData option;
 
-		if(autocomplete == null) option = new OptionData(manager.getOptionType(param.getType(), generic), name, "---", info.required());
-		else option = new AutocompleteOption<A>(manager.getOptionType(param.getType(), generic), name, "---", info.required()) {
+		if(autocomplete == null) option = new OptionData(manager.getOptionType(param.getType(), generic, param), name, "---", info.required());
+		else option = new AutocompleteOption<A>(manager.getOptionType(param.getType(), generic, param), name, "---", info.required()) {
 			@Override
 			public void handleAutocomplete(@NotNull A context) {
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {

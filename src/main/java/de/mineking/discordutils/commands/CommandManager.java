@@ -211,16 +211,17 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 *
 	 * @param type    The java type of the parameter
 	 * @param generic The parameter's generic type information
+	 * @param param   The java method parameter
 	 * @return The {@link OptionType} that should be used. If no matching {@link IOptionParser} was found, {@link OptionType#UNKNOWN} will be returned.
 	 */
 	@NotNull
-	public OptionType getOptionType(@NotNull Class<?> type, @NotNull Type generic) {
+	public OptionType getOptionType(@NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 		Checks.notNull(type, "type");
 		Checks.notNull(generic, "generic");
 
 		return optionParsers.stream()
-				.filter(p -> p.accepts(type))
-				.map(p -> p.getType(this, type, generic))
+				.filter(p -> p.accepts(type, param))
+				.map(p -> p.getType(this, type, generic, param))
 				.findFirst().orElse(OptionType.UNKNOWN);
 	}
 
@@ -243,7 +244,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		Checks.notNull(generic, "generic");
 
 		return optionParsers.stream()
-				.filter(p -> p.accepts(type))
+				.filter(p -> p.accepts(type, param))
 				.map(p -> Optional.ofNullable(p.parse(this, event, name, param, type, generic)))
 				.findFirst().flatMap(o -> o).orElse(null);
 	}
@@ -263,19 +264,19 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		Checks.notNull(type, "type");
 		Checks.notNull(generic, "generic");
 
-		getParser(type).ifPresent(p -> p.configure(command, option, param, type, generic));
+		getParser(param).ifPresent(p -> p.configure(command, option, param, type, generic));
 	}
 
 	/**
-	 * @param type The type to get the {@link IOptionParser} for
-	 * @return An {@link Optional} containing the {@link IOptionParser} responsible for the specified type if any is present.
+	 * @param param The java method parameter
+	 * @return An {@link Optional} containing the {@link IOptionParser} responsible for the specified {@link Parameter} if any is present.
 	 */
 	@NotNull
-	public Optional<IOptionParser> getParser(@NotNull Class<?> type) {
-		Checks.notNull(type, "type");
+	public Optional<IOptionParser> getParser(@NotNull Parameter param) {
+		Checks.notNull(param, "param");
 
 		return optionParsers.stream()
-				.filter(p -> p.accepts(type))
+				.filter(p -> p.accepts(param.getType(), param))
 				.findFirst();
 	}
 

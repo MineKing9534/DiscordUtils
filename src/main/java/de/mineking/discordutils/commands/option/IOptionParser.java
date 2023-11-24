@@ -30,20 +30,22 @@ import java.util.regex.Matcher;
  */
 public interface IOptionParser {
 	/**
-	 * @param type The java type of the parameter
+	 * @param type  The java type of the parameter
+	 * @param param The java method parameter. <b>Do not use {@link Parameter#getType()}! Use the 'type' parameter instead</b>
 	 * @return Whether this option parser is responsible for the specified type
 	 */
-	boolean accepts(@NotNull Class<?> type);
+	boolean accepts(@NotNull Class<?> type, @NotNull Parameter param);
 
 	/**
 	 * @param manager The responsible {@link CommandManager}
 	 * @param type    The java type
 	 * @param generic The generic type information
+	 * @param param The java method parameter
 	 * @return The {@link OptionType} that this option should use
-	 * @see CommandManager#getOptionType(Class, Type)
+	 * @see CommandManager#getOptionType(Class, Type, Parameter)
 	 */
 	@NotNull
-	OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic);
+	OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param);
 
 	/**
 	 * Parses an option
@@ -84,13 +86,13 @@ public interface IOptionParser {
 
 	IOptionParser INTEGER = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return int.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.INTEGER;
 		}
 
@@ -103,13 +105,13 @@ public interface IOptionParser {
 
 	IOptionParser LONG = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return long.class.isAssignableFrom(type) || Long.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.INTEGER;
 		}
 
@@ -122,13 +124,13 @@ public interface IOptionParser {
 
 	IOptionParser NUMBER = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return double.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.NUMBER;
 		}
 
@@ -141,13 +143,13 @@ public interface IOptionParser {
 
 	IOptionParser BOOLEAN = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return boolean.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.BOOLEAN;
 		}
 
@@ -160,13 +162,13 @@ public interface IOptionParser {
 
 	IOptionParser ROLE = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return Role.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.ROLE;
 		}
 
@@ -179,13 +181,13 @@ public interface IOptionParser {
 
 	IOptionParser USER = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return User.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.USER;
 		}
 
@@ -198,13 +200,13 @@ public interface IOptionParser {
 
 	IOptionParser CHANNEL = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return Channel.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.CHANNEL;
 		}
 
@@ -217,13 +219,13 @@ public interface IOptionParser {
 
 	IOptionParser MENTIONABLE = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return IMentionable.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.MENTIONABLE;
 		}
 
@@ -236,13 +238,13 @@ public interface IOptionParser {
 
 	IOptionParser ATTACHMENT = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return Message.Attachment.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.ATTACHMENT;
 		}
 
@@ -255,13 +257,13 @@ public interface IOptionParser {
 
 	IOptionParser STRING = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return String.class.isAssignableFrom(type);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.STRING;
 		}
 
@@ -274,15 +276,15 @@ public interface IOptionParser {
 
 	IOptionParser OPTIONAL = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return type.equals(Optional.class);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			var p = ((ParameterizedType) generic).getActualTypeArguments()[0];
-			return manager.getOptionType((Class<?>) p, p);
+			return manager.getOptionType((Class<?>) p, p, param);
 		}
 
 		@Override
@@ -294,13 +296,13 @@ public interface IOptionParser {
 
 	IOptionParser ENUM = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return type.isEnum();
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 			return OptionType.STRING;
 		}
 
@@ -340,17 +342,17 @@ public interface IOptionParser {
 
 	IOptionParser ARRAY = new IOptionParser() {
 		@Override
-		public boolean accepts(@NotNull Class<?> type) {
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 			return type.isArray() || type.isAssignableFrom(List.class);
 		}
 
 		@NotNull
 		@Override
-		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
-			if(type.isArray()) return manager.getOptionType(type.getComponentType(), generic);
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
+			if(type.isArray()) return manager.getOptionType(type.getComponentType(), generic, param);
 			else {
 				var p = ((ParameterizedType) generic).getActualTypeArguments()[0];
-				return manager.getOptionType((Class<?>) p, p);
+				return manager.getOptionType((Class<?>) p, p, param);
 			}
 		}
 

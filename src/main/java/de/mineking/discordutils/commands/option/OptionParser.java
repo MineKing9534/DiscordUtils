@@ -4,6 +4,7 @@ import de.mineking.discordutils.commands.CommandManager;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 /**
@@ -23,13 +24,13 @@ public abstract class OptionParser implements IOptionParser {
 	}
 
 	@Override
-	public boolean accepts(@NotNull Class<?> type) {
+	public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
 		return type.isAssignableFrom(clazz);
 	}
 
 	@NotNull
 	@Override
-	public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic) {
+	public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
 		return this.type;
 	}
 }
