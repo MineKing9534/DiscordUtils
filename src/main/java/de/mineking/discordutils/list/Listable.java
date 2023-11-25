@@ -9,11 +9,12 @@ import java.util.List;
 
 public interface Listable<T extends ListEntry> {
 	/**
-	 * @param state The {@link DataState} holding information about the current state of the list ui
+	 * @param state   The {@link DataState} holding information about the current state of the list ui
+	 * @param context The {@link ListContext}
 	 * @return All entries
 	 */
 	@NotNull
-	List<T> getEntries(@NotNull DataState state);
+	List<T> getEntries(@NotNull DataState state, @NotNull ListContext context);
 
 	/**
 	 * @return The number of entries to display on a single page
@@ -23,23 +24,25 @@ public interface Listable<T extends ListEntry> {
 	}
 
 	/**
-	 * @param state The {@link DataState} holding information about the current state of the list ui
+	 * @param state   The {@link DataState} holding information about the current state of the list ui
+	 * @param context The {@link ListContext}
 	 * @return An {@link EmbedBuilder}
 	 */
 	@NotNull
-	default EmbedBuilder createEmbed(@NotNull DataState state) {
+	default EmbedBuilder createEmbed(@NotNull DataState state, @NotNull ListContext context) {
 		return new EmbedBuilder();
 	}
 
 	/**
-	 * @param state The {@link DataState} holding information about the current state of the list ui
+	 * @param state   The {@link DataState} holding information about the current state of the list ui
+	 * @param context The {@link ListContext}
 	 * @return The {@link MessageEmbed} to display
 	 */
 	@NotNull
-	default MessageEmbed buildEmbed(@NotNull DataState state) {
-		var embed = createEmbed(state);
+	default MessageEmbed buildEmbed(@NotNull DataState state, @NotNull ListContext context) {
+		var embed = createEmbed(state, context);
 
-		var entries = getEntries(state);
+		var entries = getEntries(state, context);
 
 		state.setCache("size", entries.size());
 		state.setCache("maxpage", (entries.size() - 1) / entriesPerPage() + 1);
