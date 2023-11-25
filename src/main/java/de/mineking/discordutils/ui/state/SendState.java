@@ -82,7 +82,7 @@ public class SendState extends State {
 
 	@NotNull
 	@Override
-	public SendState putStates(@NotNull Map<String, Object> states) {
+	public SendState putStates(@NotNull Map<String, ?> states) {
 		return (SendState) super.putStates(states);
 	}
 }

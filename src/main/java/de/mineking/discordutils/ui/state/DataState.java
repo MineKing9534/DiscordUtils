@@ -139,7 +139,7 @@ public class DataState extends State {
 
 	@NotNull
 	@Override
-	public DataState putStates(@NotNull Map<String, Object> states) {
+	public DataState putStates(@NotNull Map<String, ?> states) {
 		return (DataState) super.putStates(states);
 	}
 

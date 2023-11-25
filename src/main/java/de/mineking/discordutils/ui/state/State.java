@@ -50,7 +50,7 @@ public abstract class State {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public State putStates(@NotNull Map<String, Object> states) {
+	public State putStates(@NotNull Map<String, ?> states) {
 		Checks.notNull(states, "states");
 		states.forEach(this::setState);
 		return this;
