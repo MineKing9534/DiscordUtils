@@ -5,28 +5,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-public interface ComponentRow extends Iterable<Component<?>> {
+public interface ComponentRow {
 	/**
 	 * @return The components of this {@link ComponentRow}
 	 */
 	@NotNull
-	List<Component<?>> getComponents();
-
-	@NotNull
-	@Override
-	default Iterator<Component<?>> iterator() {
-		return getComponents().iterator();
-	}
+	List<? extends Component<?>> getComponents();
 
 	/**
 	 * @param components The components to use
 	 * @return A {@link ComponentRow} holding the provided components
 	 */
 	@NotNull
-	static ComponentRow of(@NotNull List<Component<?>> components) {
+	static ComponentRow of(@NotNull List<? extends Component<?>> components) {
 		Checks.notNull(components, "components");
 
 		return () -> components;
@@ -46,7 +39,7 @@ public interface ComponentRow extends Iterable<Component<?>> {
 	 * @return A list of {@link ComponentRow}s holding teh provided components
 	 */
 	@NotNull
-	static List<ComponentRow> ofMany(@NotNull List<Component<?>> components) {
+	static List<ComponentRow> ofMany(@NotNull List<? extends Component<?>> components) {
 		var result = new ArrayList<ComponentRow>();
 		var temp = new ArrayList<Component<?>>();
 
