@@ -50,6 +50,11 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 		this.label = label;
 	}
 
+	@Override
+	public int requiredSpace() {
+		return 1;
+	}
+
 	/**
 	 * @param name  The name of this component. Has to be unique on a menu
 	 * @param color A function to get the {@link ButtonColor} for the current {@link DataState}

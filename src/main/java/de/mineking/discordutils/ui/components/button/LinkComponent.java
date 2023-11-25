@@ -37,6 +37,11 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 		this.label = label;
 	}
 
+	@Override
+	public int requiredSpace() {
+		return 1;
+	}
+
 	/**
 	 * @param url   The url
 	 * @param label The label

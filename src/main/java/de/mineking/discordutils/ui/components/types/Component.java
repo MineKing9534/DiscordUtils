@@ -23,6 +23,11 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 	}
 
 	/**
+	 * @return The space in a component row that this component requires
+	 */
+	public abstract int requiredSpace();
+
+	/**
 	 * Called once a new state is created. Can be used to create a state required for this component.
 	 *
 	 * @param state The state
