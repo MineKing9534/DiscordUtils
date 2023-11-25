@@ -85,7 +85,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage")),
 				new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩"))
 						.appendHandler(s -> {
-							s.setState("page", 0);
+							s.setState("page", s.getCache("maxpage"));
 							s.update();
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage"))
 		));

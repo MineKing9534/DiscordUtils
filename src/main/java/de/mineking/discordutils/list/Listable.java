@@ -45,9 +45,11 @@ public interface Listable<T extends ListEntry> {
 		var entries = getEntries(state, context);
 
 		state.setCache("size", entries.size());
-		state.setCache("maxpage", (entries.size() - 1) / entriesPerPage() + 1);
 
-		int page = state.getState("page");
+		var maxPage = (entries.size() - 1) / entriesPerPage() + 1;
+		state.setCache("maxpage", maxPage);
+
+		int page = Math.max(Math.min(state.<Integer>getOptionalState("page").orElse(1), 1), maxPage);
 
 		if(!entries.isEmpty()) {
 			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < entries.size(); i++) {
