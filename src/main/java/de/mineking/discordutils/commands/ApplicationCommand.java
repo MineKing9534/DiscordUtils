@@ -30,4 +30,9 @@ public @interface ApplicationCommand {
 	 * The {@link Command.Type} of this command
 	 */
 	Command.Type type() default Command.Type.SLASH;
+
+	/**
+	 * Whether to automatically defer this interaction
+	 */
+	boolean defer() default false;
 }

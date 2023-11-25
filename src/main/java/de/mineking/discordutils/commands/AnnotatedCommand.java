@@ -32,6 +32,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	@NotNull
 	public final Class<T> clazz;
 	@NotNull
+	public final ApplicationCommand info;
+	@NotNull
 	public final Function<C, Optional<T>> instance;
 	@NotNull
 	public final Function<A, Optional<T>> autocompleteInstance;
@@ -44,6 +46,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 
 		this.clazz = clazz;
 		this.method = method;
+		this.info = info;
 
 		this.instance = instance;
 		this.autocompleteInstance = autocompleteInstance;
@@ -163,6 +166,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	@Override
 	public void performCommand(@NotNull C context) throws Exception {
 		if(method == null) return;
+
+		if(info.defer()) context.getEvent().deferReply(true).queue();
 
 		var instance = this.instance.apply(context);
 
