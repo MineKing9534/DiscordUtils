@@ -51,7 +51,7 @@ public interface Listable<T extends ListEntry> {
 
 		if(!entries.isEmpty()) {
 			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < entries.size(); i++) {
-				embed.appendDescription(entries.get(i).build(i) + "\n");
+				embed.appendDescription(entries.get(i).build(i, context) + "\n");
 			}
 		}
 
