@@ -10,6 +10,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -77,5 +78,11 @@ public class SendState extends State {
 		if(!Objects.equals(newValue, currentValue)) menu.triggerEffect(name, newValue);
 
 		return this;
+	}
+
+	@NotNull
+	@Override
+	public SendState putStates(@NotNull Map<String, Object> states) {
+		return (SendState) super.putStates(states);
 	}
 }

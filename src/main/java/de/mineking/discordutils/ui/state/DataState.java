@@ -137,6 +137,12 @@ public class DataState extends State {
 		return this;
 	}
 
+	@NotNull
+	@Override
+	public DataState putStates(@NotNull Map<String, Object> states) {
+		return (DataState) super.putStates(states);
+	}
+
 	/**
 	 * @param name  The name of the cache value
 	 * @param value The value to cache. The cache is <u>not</u> persisted across re-renders!

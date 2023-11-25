@@ -7,6 +7,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.function.Function;
 
 public abstract class State {
@@ -43,4 +44,15 @@ public abstract class State {
 	 */
 	@NotNull
 	public abstract <T> State setState(@NotNull String name, @NotNull Function<T, T> value);
+
+	/**
+	 * @param states A {@link Map} of states to set
+	 * @return {@code this}
+	 */
+	@NotNull
+	public State putStates(@NotNull Map<String, Object> states) {
+		Checks.notNull(states, "states");
+		states.forEach(this::setState);
+		return this;
+	}
 }
