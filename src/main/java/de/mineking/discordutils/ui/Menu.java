@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -37,6 +37,7 @@ public class Menu {
 
 	@SuppressWarnings("rawtypes")
 	private final Map<String, Consumer> effect = new HashMap<>();
+	private final Set<BiConsumer<String, Object>> genericEffect = new HashSet<>();
 
 	Menu(@NotNull UIManager manager, @NotNull String id, @NotNull Function<DataState, MessageEmbed> embed, @NotNull List<ComponentRow> components) {
 		this.manager = manager;
@@ -86,15 +87,37 @@ public class Menu {
 		return temp;
 	}
 
+	/**
+	 * <i>Internal method</i>
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> void triggerEffect(@NotNull String name, @Nullable T value) {
-		if(!effect.containsKey(name)) return;
-		effect.get(name).accept(value);
+		if(effect.containsKey(name)) effect.get(name).accept(value);
+		genericEffect.forEach(h -> h.accept(name, value));
 	}
 
+	/**
+	 * @param name The name of the state to listen to
+	 * @param handler A handler function that is called every time the provided state changes
+	 * @return {@code this}
+	 */
 	@NotNull
 	public <T> Menu effect(@NotNull String name, @NotNull Consumer<T> handler) {
+		Checks.notNull(name, "name");
+		Checks.notNull(handler, "handler");
+
 		effect.put(name, handler);
+		return this;
+	}
+
+	/**
+	 * @param handler A handler function that is called every time a state changes
+	 * @return {@code this}
+	 */
+	@NotNull
+	public Menu effect(@NotNull BiConsumer<String, Object> handler) {
+		Checks.notNull(handler, "handler");
+		genericEffect.add(handler);
 		return this;
 	}
 
