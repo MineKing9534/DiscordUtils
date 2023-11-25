@@ -66,6 +66,15 @@ public class DiscordUtils<B> extends ListenerAdapter {
 	}
 
 	/**
+	 * @return Your bot instance
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <T> T getBot(Class<T> type) {
+		return (T) getBot();
+	}
+
+	/**
 	 * @param type The java type to instantiate
 	 * @param args A function to provide a value for a parameter
 	 * @return The resulting instance
