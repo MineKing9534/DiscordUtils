@@ -4,6 +4,7 @@ import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
+import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
@@ -46,16 +47,17 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	}
 
 	/**
-	 * @param state                A consumer to configure the initial {@link SendState}
+	 * @param path                 The command path
 	 * @param object               A function to provide the {@link Listable} for the current {@link DataState}
 	 * @param additionalComponents Additional {@link ComponentRow}s to add to the menu
-	 * @return The resulting {@link ListCommand}
+	 * @return The resulting menu
 	 */
 	@NotNull
-	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull BiConsumer<C, SendState> state, @NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
-		Checks.notNull(state, "state");
+	public <T extends ListEntry> Menu createListMenu(@NotNull String path, @NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
+		Checks.notNull(path, "path");
 		Checks.notNull(object, "object");
 		Checks.notNull(additionalComponents, "additionalComponents");
+
 
 		var components = new ArrayList<ComponentRow>();
 
@@ -89,12 +91,27 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		));
 		components.addAll(Arrays.asList(additionalComponents));
 
+		return uiManager.createMenu(
+				"list." + path,
+				s -> object.apply(s).buildEmbed(s, new ListContext(this, s.event)),
+				components
+		);
+	}
+
+	/**
+	 * @param state                A consumer to configure the initial {@link SendState}
+	 * @param object               A function to provide the {@link Listable} for the current {@link DataState}
+	 * @param additionalComponents Additional {@link ComponentRow}s to add to the menu
+	 * @return The resulting {@link ListCommand}
+	 */
+	@NotNull
+	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull BiConsumer<C, SendState> state, @NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
+		Checks.notNull(state, "state");
+		Checks.notNull(object, "object");
+		Checks.notNull(additionalComponents, "additionalComponents");
+
 		return new ListCommand<>(
-				path -> uiManager.createMenu(
-						"list." + path,
-						s -> object.apply(s).buildEmbed(s, new ListContext(this, s.event)),
-						components
-				),
+				path -> createListMenu(path, object, additionalComponents),
 				state,
 				commandManager,
 				pageOption
