@@ -1,6 +1,7 @@
 package de.mineking.discordutils.ui.state;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.mineking.discordutils.ui.Menu;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -54,5 +55,10 @@ public abstract class State {
 		Checks.notNull(states, "states");
 		states.forEach(this::setState);
 		return this;
+	}
+
+	@NotNull
+	public Map<String, JsonElement> asMap() {
+		return data.asMap();
 	}
 }
