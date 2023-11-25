@@ -328,12 +328,16 @@ public interface IOptionParser {
 
 		@Override
 		public OptionData configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
-			var choices = Arrays.stream((Enum<?>[]) type.getEnumConstants())
-					.map(c -> new Command.Choice(c.toString(), c.name()))
-					.toList();
-
 			return option.addChoices(
-					choices.stream()
+					Arrays.stream((Enum<?>[]) type.getEnumConstants())
+							.filter(e -> {
+								try {
+									return !type.getField(e.name()).isAnnotationPresent(IgnoreEnumConstant.class);
+								} catch(NoSuchFieldException ex) {
+									throw new RuntimeException(ex);
+								}
+							})
+							.map(c -> new Command.Choice(c.toString(), c.name()))
 							.peek(c -> {
 								var localization = command.manager.getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
 								c.setNameLocalizations(localization.values());
