@@ -31,7 +31,7 @@ public class UITestCommand {
 								}),
 						new ToggleComponent("toggle", state -> state ? ButtonColor.GREEN : ButtonColor.RED, "Toggle")
 				)
-		).<Boolean>effect("toggle", value -> System.out.println("Toggle value changed: " + value));
+		).<Boolean>effect("toggle", (state, name, old, value) -> System.out.println("Toggle value changed: " + value));
 	}
 
 	@ApplicationCommandMethod

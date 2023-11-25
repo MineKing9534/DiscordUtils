@@ -75,7 +75,7 @@ public class SendState extends State {
 		if(newValue != null) data.add(name, gson.toJsonTree(newValue));
 		else data.remove(name);
 
-		if(!Objects.equals(newValue, currentValue)) menu.triggerEffect(name, newValue);
+		if(!Objects.equals(newValue, currentValue)) menu.triggerEffect(this, name, currentValue, newValue);
 
 		return this;
 	}

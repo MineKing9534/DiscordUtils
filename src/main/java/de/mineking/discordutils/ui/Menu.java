@@ -18,8 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Menu {
@@ -36,8 +34,9 @@ public class Menu {
 	public final List<ComponentRow> components;
 
 	@SuppressWarnings("rawtypes")
-	private final Map<String, Consumer> effect = new HashMap<>();
-	private final Set<BiConsumer<String, Object>> genericEffect = new HashSet<>();
+	private final Map<String, EffectHandler> effect = new HashMap<>();
+	@SuppressWarnings("rawtypes")
+	private final Set<EffectHandler> genericEffect = new HashSet<>();
 
 	Menu(@NotNull UIManager manager, @NotNull String id, @NotNull Function<DataState, MessageEmbed> embed, @NotNull List<ComponentRow> components) {
 		this.manager = manager;
@@ -91,18 +90,18 @@ public class Menu {
 	 * <i>Internal method</i>
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void triggerEffect(@NotNull String name, @Nullable T value) {
-		if(effect.containsKey(name)) effect.get(name).accept(value);
-		genericEffect.forEach(h -> h.accept(name, value));
+	public <T> void triggerEffect(@NotNull State state, @NotNull String name, @Nullable T oldValue, @Nullable T newValue) {
+		if(effect.containsKey(name)) effect.get(name).handle(state, name, oldValue, newValue);
+		genericEffect.forEach(h -> h.handle(state, name, oldValue, newValue));
 	}
 
 	/**
 	 * @param name The name of the state to listen to
-	 * @param handler A handler function that is called every time the provided state changes
+	 * @param handler An {@link EffectHandler} that is called every time the provided state changes
 	 * @return {@code this}
 	 */
 	@NotNull
-	public <T> Menu effect(@NotNull String name, @NotNull Consumer<T> handler) {
+	public <T> Menu effect(@NotNull String name, @NotNull EffectHandler<T> handler) {
 		Checks.notNull(name, "name");
 		Checks.notNull(handler, "handler");
 
@@ -111,11 +110,11 @@ public class Menu {
 	}
 
 	/**
-	 * @param handler A handler function that is called every time a state changes
+	 * @param handler An {@link EffectHandler} that is called every time a state changes
 	 * @return {@code this}
 	 */
 	@NotNull
-	public Menu effect(@NotNull BiConsumer<String, Object> handler) {
+	public Menu effect(@NotNull EffectHandler<?> handler) {
 		Checks.notNull(handler, "handler");
 		genericEffect.add(handler);
 		return this;
