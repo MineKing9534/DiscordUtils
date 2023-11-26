@@ -3,7 +3,7 @@ package de.mineking.discordutils.commands;
 import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.IRegistrationCondition;
 import de.mineking.discordutils.commands.condition.Scope;
-import de.mineking.discordutils.commands.condition.implementation.ICommandPermission;
+import de.mineking.discordutils.commands.condition.ICommandPermission;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -264,10 +264,11 @@ public abstract class Command<C extends ICommandContext> {
 	 * Builds this command for registration in discord
 	 *
 	 * @param guild The current guild or {@code null} if this is registered globally
+	 * @param data  The {@link Cache} to provide to {@link IRegistrationCondition}s
 	 * @return The resulting {@link CommandData}
 	 */
 	@NotNull
-	public CommandData buildCommand(@Nullable Guild guild) {
+	public CommandData buildCommand(@Nullable Guild guild, @NotNull Cache data) {
 		CommandData cmd;
 
 		if(type != net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) {
@@ -281,12 +282,12 @@ public abstract class Command<C extends ICommandContext> {
 					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 
 			subcommands.forEach(group -> {
-				if(!group.getRegistration().shouldRegister(manager, guild)) return;
+				if(!group.getRegistration().shouldRegister(manager, guild, data)) return;
 
 				if(group.subcommands.isEmpty()) sc.addSubcommands(group.buildSubcommand(""));
 				else {
 					var gd = new SubcommandGroupData(group.name, "---")
-							.addSubcommands(group.buildSubcommands("", guild));
+							.addSubcommands(group.buildSubcommands("", guild, data));
 
 					var localization = manager.getManager().getLocalization(f -> f.getCommandPath(group), group.description);
 					gd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
@@ -315,14 +316,14 @@ public abstract class Command<C extends ICommandContext> {
 		return cmd;
 	}
 
-	private List<SubcommandData> buildSubcommands(String prefix, Guild guild) {
+	private List<SubcommandData> buildSubcommands(String prefix, Guild guild, Cache data) {
 		var result = new ArrayList<SubcommandData>();
 
 		subcommands.forEach(cmd -> {
-			if(!cmd.getRegistration().shouldRegister(manager, guild)) return;
+			if(!cmd.getRegistration().shouldRegister(manager, guild, data)) return;
 
 			if(cmd.subcommands.isEmpty()) result.add(cmd.buildSubcommand(prefix));
-			else result.addAll(cmd.buildSubcommands(prefix + cmd.name + "_", guild));
+			else result.addAll(cmd.buildSubcommands(prefix + cmd.name + "_", guild, data));
 		});
 
 		return result;

@@ -48,6 +48,8 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	private final Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator;
 
 	private boolean autoUpdate = false;
+	private Cache data;
+
 	private final List<IOptionParser> optionParsers = new ArrayList<>();
 	private final Map<String, Command<C>> commands = new HashMap<>();
 
@@ -302,16 +304,28 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	/**
 	 * Automatically updates all commands. If the {@link JDA} is not yet ready, the update is scheduled, otherwise the update will be done immediately
 	 *
+	 * @param cache A {@link Cache} that is provided to all {@link #updateGuildCommands(Guild, Cache)} calls
 	 * @return {@code this}
 	 */
-	public CommandManager<C, A> updateCommands() {
+	public CommandManager<C, A> updateCommands(@Nullable Cache cache) {
 		autoUpdate = true;
+		this.data = cache;
+
 		if(getManager().jda.getStatus() == JDA.Status.CONNECTED) {
 			updateGlobalCommands().queue();
 			getManager().jda.getGuilds().forEach(g -> updateGuildCommands(g).queue());
 		}
 
 		return this;
+	}
+
+	/**
+	 * Automatically updates all commands. If the {@link JDA} is not yet ready, the update is scheduled, otherwise the update will be done immediately
+	 *
+	 * @return {@code this}
+	 */
+	public CommandManager<C, A> updateCommands() {
+		return updateCommands(null);
 	}
 
 	/**
@@ -351,16 +365,16 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 *
 	 * @return The resulting {@link RestAction}
 	 */
+	@SuppressWarnings("unchecked")
 	@NotNull
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGlobalCommands() {
 		return getManager().jda.updateCommands()
 				.addCommands(
 						findCommands(CommandFilter.all(
 								CommandFilter.top(),
-								CommandFilter.scope(Scope.GUILD),
-								c -> c.getRegistration().shouldRegister(this, null)
+								(CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert()
 						)).stream()
-								.map(c -> c.buildCommand(null))
+								.map(c -> c.buildCommand(null, new Cache()))
 								.toList()
 				)
 				.onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(0, c.getIdLong()))));
@@ -370,24 +384,37 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 * Builds a {@link RestAction}that contains an update of the commands of the provided {@link Guild}
 	 *
 	 * @param guild The guild to update the commands in
+	 * @param data  A {@link Cache} holding information shared with all {@link de.mineking.discordutils.commands.condition.IRegistrationCondition}s
 	 * @return The resulting {@link RestAction}
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
-	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGuildCommands(@NotNull Guild guild) {
+	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGuildCommands(@NotNull Guild guild, @NotNull Cache data) {
 		Checks.notNull(guild, "guild");
+
+		data.putAll(this.data.asMap());
 
 		return guild.updateCommands()
 				.addCommands(
 						findCommands(CommandFilter.all(
 								CommandFilter.top(),
-								(CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert(),
-								c -> c.getRegistration().shouldRegister(this, guild)
+								CommandFilter.scope(Scope.GUILD),
+								c -> c.getRegistration().shouldRegister(this, guild, data)
 						)).stream()
-								.map(c -> c.buildCommand(guild))
+								.map(c -> c.buildCommand(guild, data))
 								.toList()
 				)
 				.onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(guild.getIdLong(), c.getIdLong()))));
+	}
+
+	/**
+	 * Builds a {@link RestAction}that contains an update of the commands of the provided {@link Guild}
+	 *
+	 * @param guild The guild to update the commands in
+	 * @return The resulting {@link RestAction}
+	 */
+	@NotNull
+	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGuildCommands(@NotNull Guild guild) {
+		return updateGuildCommands(guild, new Cache());
 	}
 
 	@Override

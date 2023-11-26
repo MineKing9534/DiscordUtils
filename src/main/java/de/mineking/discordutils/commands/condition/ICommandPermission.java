@@ -1,7 +1,6 @@
-package de.mineking.discordutils.commands.condition.implementation;
+package de.mineking.discordutils.commands.condition;
 
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;

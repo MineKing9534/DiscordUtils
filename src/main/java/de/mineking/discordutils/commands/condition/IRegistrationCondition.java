@@ -1,5 +1,6 @@
 package de.mineking.discordutils.commands.condition;
 
+import de.mineking.discordutils.commands.Cache;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,9 +17,10 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	/**
 	 * @param manager The responsible {@link CommandManager}
 	 * @param guild   The {@link Guild} to check or {@code null} if this is a global command
+	 * @param data    Shared information across all checks (Not persisted over multiple updates)
 	 * @return Whether the command should be registered
 	 */
-	boolean shouldRegister(@NotNull CommandManager<C, ?> manager, @Nullable Guild guild);
+	boolean shouldRegister(@NotNull CommandManager<C, ?> manager, @Nullable Guild guild, @NotNull Cache data);
 
 	/**
 	 * @param locale The {@link DiscordLocale} for localization
@@ -30,7 +32,7 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	}
 
 	/**
-	 * @return A {@link IRegistrationCondition} that only registers the command if both this and the other condition return {@code true} in {@link #shouldRegister(CommandManager, Guild)}
+	 * @return A {@link IRegistrationCondition} that only registers the command if both this and the other condition return {@code true} in {@link #shouldRegister(CommandManager, Guild, Cache)}
 	 */
 	@NotNull
 	default IRegistrationCondition<C> and(@NotNull IRegistrationCondition<C> other) {
@@ -38,7 +40,7 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	}
 
 	/**
-	 * @return A {@link IRegistrationCondition} that registers the command if this or the other condition return {@code true} in {@link #shouldRegister(CommandManager, Guild)}
+	 * @return A {@link IRegistrationCondition} that registers the command if this or the other condition return {@code true} in {@link #shouldRegister(CommandManager, Guild, Cache)}
 	 */
 	@NotNull
 	default IRegistrationCondition<C> or(@NotNull IRegistrationCondition<C> other) {
@@ -58,7 +60,7 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	static <C extends ICommandContext> IRegistrationCondition<C> always() {
-		return (m, g) -> true;
+		return (m, g, data) -> true;
 	}
 
 	/**
@@ -66,7 +68,7 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	static <C extends ICommandContext> IRegistrationCondition<C> never() {
-		return (m, g) -> false;
+		return (m, g, data) -> false;
 	}
 
 	/**
@@ -115,8 +117,8 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 		}
 
 		@Override
-		public boolean shouldRegister(@NotNull CommandManager<C, ?> manager, @Nullable Guild guild) {
-			return condition.test(a.shouldRegister(manager, guild), b.shouldRegister(manager, guild));
+		public boolean shouldRegister(@NotNull CommandManager<C, ?> manager, @Nullable Guild guild, @NotNull Cache data) {
+			return condition.test(a.shouldRegister(manager, guild, data), b.shouldRegister(manager, guild, data));
 		}
 
 		@NotNull

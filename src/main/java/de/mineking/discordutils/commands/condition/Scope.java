@@ -7,7 +7,7 @@ public enum Scope {
 	/**
 	 * Registered per guild. You are able to control on which guild this command is registered
 	 *
-	 * @see IRegistrationCondition#shouldRegister(CommandManager, Guild)
+	 * @see IRegistrationCondition#shouldRegister(CommandManager, Guild, de.mineking.discordutils.commands.Cache)
 	 */
 	GUILD,
 	/**
