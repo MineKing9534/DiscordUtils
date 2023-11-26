@@ -22,7 +22,7 @@ public interface ICommandPermission<C extends ICommandContext> extends IExecutio
 	/**
 	 * @param manager The {@link CommandManager}
 	 * @param context The {@link C}
-	 * @param member The {@link Member} who tried to execute the command
+	 * @param member  The {@link Member} who tried to execute the command
 	 * @return Whether this execution is permitted
 	 */
 	default boolean isPermitted(@NotNull CommandManager<C, ?> manager, @NotNull C context, @Nullable Member member) {

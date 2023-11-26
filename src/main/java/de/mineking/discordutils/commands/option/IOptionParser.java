@@ -40,7 +40,7 @@ public interface IOptionParser {
 	 * @param manager The responsible {@link CommandManager}
 	 * @param type    The java type
 	 * @param generic The generic type information
-	 * @param param The java method parameter
+	 * @param param   The java method parameter
 	 * @return The {@link OptionType} that this option should use
 	 * @see CommandManager#getOptionType(Class, Type, Parameter)
 	 */

@@ -96,7 +96,7 @@ public class Menu {
 	}
 
 	/**
-	 * @param name The name of the state to listen to
+	 * @param name    The name of the state to listen to
 	 * @param handler An {@link EffectHandler} that is called every time the provided state changes
 	 * @return {@code this}
 	 */

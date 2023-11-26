@@ -15,6 +15,7 @@ public @interface Cooldown {
 
 	/**
 	 * The number of allowed uses in the specified time interval.
+	 *
 	 * @apiNote THIS IS NOT SUPPORTED YET!
 	 */
 	int uses() default 1;

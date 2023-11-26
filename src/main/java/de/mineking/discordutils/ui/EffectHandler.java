@@ -1,6 +1,5 @@
 package de.mineking.discordutils.ui;
 
-import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.State;
 
 public interface EffectHandler<T> {
