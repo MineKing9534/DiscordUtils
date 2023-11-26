@@ -1,6 +1,9 @@
 package de.mineking.discordutils.ui.components.button;
 
 import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
+import de.mineking.discordutils.ui.components.button.label.LabelProvider;
+import de.mineking.discordutils.ui.components.button.label.TextLabel;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -35,12 +38,7 @@ public class MenuComponent extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public MenuComponent(@NotNull Menu menu, @NotNull Function<DataState, ButtonColor> color, @NotNull String label) {
-		this(menu, color, new LabelProvider() {
-			@Override
-			public String getText(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(menu, color, (TextLabel) state -> label);
 	}
 
 	/**
@@ -49,12 +47,7 @@ public class MenuComponent extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public MenuComponent(@NotNull Menu menu, @NotNull Function<DataState, ButtonColor> color, @NotNull Emoji label) {
-		this(menu, color, new LabelProvider() {
-			@Override
-			public Emoji getEmoji(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(menu, color, (EmojiLabel) state -> label);
 	}
 
 	/**
@@ -72,12 +65,7 @@ public class MenuComponent extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public MenuComponent(@NotNull Menu menu, @NotNull ButtonColor color, @NotNull String label) {
-		this(menu, state -> color, new LabelProvider() {
-			@Override
-			public String getText(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(menu, state -> color, (TextLabel) state -> label);
 	}
 
 	/**
@@ -86,12 +74,7 @@ public class MenuComponent extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public MenuComponent(@NotNull Menu menu, @NotNull ButtonColor color, @NotNull Emoji label) {
-		this(menu, state -> color, new LabelProvider() {
-			@Override
-			public Emoji getEmoji(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(menu, state -> color, (EmojiLabel) state -> label);
 	}
 
 	/**

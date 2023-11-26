@@ -2,6 +2,9 @@ package de.mineking.discordutils.ui.components.button;
 
 import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
+import de.mineking.discordutils.ui.components.button.label.LabelProvider;
+import de.mineking.discordutils.ui.components.button.label.TextLabel;
 import de.mineking.discordutils.ui.components.types.Component;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -47,12 +50,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param label The label
 	 */
 	public LinkComponent(@NotNull Function<DataState, String> url, @NotNull String label) {
-		this(url, new LabelProvider() {
-			@Override
-			public String getText(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(url, (TextLabel) state -> label);
 	}
 
 	/**
@@ -60,12 +58,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param label The label
 	 */
 	public LinkComponent(@NotNull Function<DataState, String> url, @NotNull Emoji label) {
-		this(url, new LabelProvider() {
-			@Override
-			public Emoji getEmoji(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(url, (EmojiLabel) state -> label);
 	}
 
 	/**
@@ -81,12 +74,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param label The label
 	 */
 	public LinkComponent(@NotNull String url, @NotNull String label) {
-		this(url, new LabelProvider() {
-			@Override
-			public String getText(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(url, (TextLabel) state -> label);
 	}
 
 	/**
@@ -94,12 +82,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param label The label
 	 */
 	public LinkComponent(@NotNull String url, @NotNull Emoji label) {
-		this(url, new LabelProvider() {
-			@Override
-			public Emoji getEmoji(@NotNull DataState state) {
-				return label;
-			}
-		});
+		this(url, (EmojiLabel) state -> label);
 	}
 
 	/**

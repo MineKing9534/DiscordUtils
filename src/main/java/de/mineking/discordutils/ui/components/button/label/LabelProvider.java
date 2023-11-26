@@ -1,4 +1,4 @@
-package de.mineking.discordutils.ui.components.button;
+package de.mineking.discordutils.ui.components.button.label;
 
 import de.mineking.discordutils.ui.state.DataState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;

@@ -8,7 +8,7 @@ import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
-import de.mineking.discordutils.ui.components.button.LabelProvider;
+import de.mineking.discordutils.ui.components.button.label.TextLabel;
 import de.mineking.discordutils.ui.components.types.ComponentRow;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
@@ -72,12 +72,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 							s.<Integer>setState("page", p -> p - 1);
 							s.update();
 						}).asDisabled(s -> s.<Integer>getState("page") == 1),
-				new ButtonComponent("page", ButtonColor.GRAY, new LabelProvider() {
-					@Override
-					public String getText(@NotNull DataState state) {
-						return "\uD83D\uDCD6 " + state.getState("page") + "/" + state.getCache("maxpage");
-					}
-				}).asDisabled(true),
+				new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page") + "/" + state.getCache("maxpage")).asDisabled(true),
 				new ButtonComponent("next", ButtonColor.GRAY, Emoji.fromUnicode("➡"))
 						.appendHandler(s -> {
 							s.<Integer>setState("page", p -> p + 1);
