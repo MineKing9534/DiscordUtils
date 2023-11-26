@@ -1,4 +1,4 @@
-package de.mineking.discordutils.commands.condition.registration;
+package de.mineking.discordutils.commands.condition;
 
 import de.mineking.discordutils.commands.CommandManager;
 import net.dv8tion.jda.api.entities.Guild;

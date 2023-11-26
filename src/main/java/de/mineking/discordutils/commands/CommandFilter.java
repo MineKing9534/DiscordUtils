@@ -1,6 +1,6 @@
 package de.mineking.discordutils.commands;
 
-import de.mineking.discordutils.commands.condition.registration.Scope;
+import de.mineking.discordutils.commands.condition.Scope;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Predicate;
 
 public interface CommandFilter<C extends ICommandContext> {
+	static <C extends ICommandContext> CommandFilter<C> all() {
+		return c -> true;
+	}
+
+	static <C extends ICommandContext> CommandFilter<C> none() {
+		return c -> false;
+	}
+
 	/**
 	 * @param name The required name for the command
 	 * @return A {@link CommandFilter} that only accepts commands with the specified name
@@ -28,7 +36,7 @@ public interface CommandFilter<C extends ICommandContext> {
 	 * @return A {@link CommandFilter} that only accepts commands with the provided scope
 	 */
 	static <C extends ICommandContext> CommandFilter<C> scope(Scope scope) {
-		return command -> command.getRegistration().getScope() == scope;
+		return command -> command.scope == scope;
 	}
 
 	static <C extends ICommandContext> CommandFilter<C> of(Predicate<Command<C>> filter) {

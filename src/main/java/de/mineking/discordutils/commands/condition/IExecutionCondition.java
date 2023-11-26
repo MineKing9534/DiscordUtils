@@ -1,4 +1,4 @@
-package de.mineking.discordutils.commands.condition.execution;
+package de.mineking.discordutils.commands.condition;
 
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
@@ -6,7 +6,9 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 
 public interface IExecutionCondition<C extends ICommandContext> {
 	/**
@@ -39,6 +41,14 @@ public interface IExecutionCondition<C extends ICommandContext> {
 	@NotNull
 	default IExecutionCondition<C> or(@NotNull IExecutionCondition<C> other) {
 		return new CombineExecutionCondition<>(this, other, (a, b) -> a || b, " / ");
+	}
+
+	/**
+	 * @return All {@link IExecutionCondition}s
+	 */
+	@NotNull
+	default List<IExecutionCondition<C>> all() {
+		return List.of(this);
 	}
 
 	/**
@@ -113,6 +123,12 @@ public interface IExecutionCondition<C extends ICommandContext> {
 			return (a instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + a.format(locale) + ")" : a.format(locale)) +
 					delimiter +
 					(b instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + b.format(locale) + ")" : b.format(locale));
+		}
+
+		@NotNull
+		@Override
+		public List<IExecutionCondition<C>> all() {
+			return Stream.concat(a.all().stream(), b.all().stream()).toList();
 		}
 	}
 }

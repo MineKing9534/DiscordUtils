@@ -2,7 +2,7 @@ package de.mineking.discordutils.commands;
 
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
-import de.mineking.discordutils.commands.condition.registration.Scope;
+import de.mineking.discordutils.commands.condition.Scope;
 import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.AutocompleteOption;

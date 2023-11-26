@@ -1,8 +1,9 @@
 package de.mineking.discordutils.commands;
 
-import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
-import de.mineking.discordutils.commands.condition.registration.IRegistrationCondition;
-import de.mineking.discordutils.commands.condition.registration.Scope;
+import de.mineking.discordutils.commands.condition.IExecutionCondition;
+import de.mineking.discordutils.commands.condition.IRegistrationCondition;
+import de.mineking.discordutils.commands.condition.Scope;
+import de.mineking.discordutils.commands.condition.implementation.ICommandPermission;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -21,8 +22,13 @@ import java.util.function.Consumer;
  * @see AnnotatedCommand
  */
 public abstract class Command<C extends ICommandContext> {
+	@NotNull
 	protected String name;
+	@NotNull
 	protected String description;
+
+	@NotNull
+	protected Scope scope = Scope.GLOBAL;
 
 	public final CommandManager<C, ?> manager;
 	private Command<C> parent;
@@ -39,8 +45,6 @@ public abstract class Command<C extends ICommandContext> {
 
 	/**
 	 * The {@link IRegistrationCondition} of this command. You can chain multiple conditions using {@link IRegistrationCondition#and(IRegistrationCondition)} and {@link IRegistrationCondition#or(IRegistrationCondition)}
-	 *
-	 * @see IRegistrationCondition#scope(Scope)
 	 */
 	@Nullable
 	protected IRegistrationCondition<C> registration = null;
@@ -155,7 +159,7 @@ public abstract class Command<C extends ICommandContext> {
 	 */
 	@Nullable
 	public Long getId(@NotNull Long guild) {
-		return getRegistration().getScope() == Scope.GUILD
+		return scope == Scope.GUILD
 				? id.get(guild)
 				: id.get(0);
 	}
@@ -174,6 +178,19 @@ public abstract class Command<C extends ICommandContext> {
 	@NotNull
 	public IRegistrationCondition<C> getRegistration() {
 		return registration != null ? registration : (parent != null ? parent.getRegistration() : IRegistrationCondition.always());
+	}
+
+	@NotNull
+	public ICommandPermission<C> getPermission() {
+		return getCondition().all().stream()
+				.filter(e -> e instanceof ICommandPermission<C>)
+				.map(e -> (ICommandPermission<C>) e)
+				.findFirst().orElse(new ICommandPermission<>() {
+					@Override
+					public boolean isAllowed(@NotNull CommandManager<C, ?> manager, @NotNull C context) {
+						return true;
+					}
+				});
 	}
 
 	/**
@@ -255,13 +272,13 @@ public abstract class Command<C extends ICommandContext> {
 
 		if(type != net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) {
 			cmd = Commands.context(type, name)
-					.setDefaultPermissions(getRegistration().getPermission())
-					.setGuildOnly(getRegistration().getScope() == Scope.GUILD_GLOBAL);
+					.setDefaultPermissions(getPermission().requiredPermissions())
+					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 		} else {
 			var sc = Commands.slash(name, "---")
 					.addOptions(options)
-					.setDefaultPermissions(getRegistration().getPermission())
-					.setGuildOnly(getRegistration().getScope() == Scope.GUILD_GLOBAL);
+					.setDefaultPermissions(getPermission().requiredPermissions())
+					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 
 			subcommands.forEach(group -> {
 				if(!group.getRegistration().shouldRegister(manager, guild)) return;

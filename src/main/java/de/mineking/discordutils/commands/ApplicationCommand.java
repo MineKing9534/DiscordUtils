@@ -1,5 +1,6 @@
 package de.mineking.discordutils.commands;
 
+import de.mineking.discordutils.commands.condition.Scope;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
 import java.lang.annotation.ElementType;
@@ -30,6 +31,11 @@ public @interface ApplicationCommand {
 	 * The {@link Command.Type} of this command
 	 */
 	Command.Type type() default Command.Type.SLASH;
+
+	/**
+	 * @return The {@link Scope}
+	 */
+	Scope scope() default Scope.GLOBAL;
 
 	/**
 	 * Whether to automatically defer this interaction

@@ -1,7 +1,9 @@
 package de.mineking.discordutils.commands;
 
-import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
-import de.mineking.discordutils.commands.condition.registration.IRegistrationCondition;
+import de.mineking.discordutils.commands.condition.IExecutionCondition;
+import de.mineking.discordutils.commands.condition.IRegistrationCondition;
+import de.mineking.discordutils.commands.condition.cooldown.Cooldown;
+import de.mineking.discordutils.commands.condition.cooldown.CooldownImpl;
 import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.Autocomplete;
@@ -14,6 +16,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.*;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
@@ -51,6 +54,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		this.instance = instance;
 		this.autocompleteInstance = autocompleteInstance;
 
+		this.scope = info.scope();
+
 		for(var m : clazz.getMethods()) {
 			if(!m.isAnnotationPresent(Setup.class)) continue;
 
@@ -78,10 +83,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			for(var f : clazz.getFields()) {
 				try {
 					if(f.isAnnotationPresent(Choice.class)) choices.put(f.getAnnotation(Choice.class).value(), f);
-					else if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = (IExecutionCondition<C>) f.get(null);
-					else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = (IRegistrationCondition<C>) f.get(null);
 				} catch(Exception e) {
-					CommandManager.logger.error("Failed to read field", e);
+					CommandManager.logger.error("Failed to read choice field", e);
 				}
 			}
 
@@ -95,6 +98,37 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				var name = getOptionName(p);
 
 				manager.getParser(p).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
+			}
+
+			for(var f : clazz.getFields()) {
+				try {
+					if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = (IExecutionCondition<C>) f.get(null);
+					else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = (IRegistrationCondition<C>) f.get(null);
+				} catch(Exception e) {
+					CommandManager.logger.error("Failed to read condition field", e);
+				}
+			}
+
+			for(var m : clazz.getMethods()) {
+				var cooldown = m.getAnnotation(Cooldown.class);
+
+				if(cooldown != null) {
+					//TODO use Cooldown#uses()
+					condition = getCondition().and(new CooldownImpl<>(Duration.ofSeconds(cooldown.interval()), (man, context) ->
+							instance.apply(context).ifPresent(i -> {
+								try {
+									manager.getManager().invokeMethod(m, i, p -> {
+										if(p.getType().isAssignableFrom(context.getClass())) return context;
+										else return null;
+									});
+								} catch(InvocationTargetException | IllegalAccessException e) {
+									CommandManager.logger.error("Failed to execute cooldown error method", e);
+								}
+							})
+					));
+
+					break;
+				}
 			}
 		}
 

@@ -2,7 +2,7 @@ package de.mineking.discordutils.list;
 
 import de.mineking.discordutils.commands.Command;
 import de.mineking.discordutils.commands.CommandManager;
-import de.mineking.discordutils.commands.condition.execution.IExecutionCondition;
+import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.state.SendState;

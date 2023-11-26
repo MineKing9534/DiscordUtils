@@ -1,7 +1,9 @@
-package de.mineking.discordutils.commands.condition.execution;
+package de.mineking.discordutils.commands.condition.cooldown;
 
 import de.mineking.discordutils.commands.CommandManager;
+import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.context.ICommandContext;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -10,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class Cooldown<C extends ICommandContext> implements IExecutionCondition<C> {
+public class CooldownImpl<C extends ICommandContext> implements IExecutionCondition<C> {
 	private final Map<Long, Instant> cooldown = new HashMap<>();
 	private final Duration duration;
 
@@ -20,7 +22,7 @@ public class Cooldown<C extends ICommandContext> implements IExecutionCondition<
 	 * @param duration The cooldown duration
 	 * @param handler  A handler that is executed if an execution is blocked due to the user being on cooldown. You should send an error message here.
 	 */
-	public Cooldown(Duration duration, BiConsumer<CommandManager<C, ?>, C> handler) {
+	public CooldownImpl(Duration duration, BiConsumer<CommandManager<C, ?>, C> handler) {
 		this.duration = duration;
 		this.handler = handler;
 	}
@@ -38,5 +40,11 @@ public class Cooldown<C extends ICommandContext> implements IExecutionCondition<
 		cooldown.put(user, Instant.now().plus(duration));
 
 		return true;
+	}
+
+	@NotNull
+	@Override
+	public String format(@NotNull DiscordLocale locale) {
+		return "Cooldown " + duration.toString();
 	}
 }
