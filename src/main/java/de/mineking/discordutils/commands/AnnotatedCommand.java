@@ -132,11 +132,14 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			}
 		}
 
-		for(var t : clazz.getClasses()) {
-			if(!t.isAnnotationPresent(ApplicationCommand.class)) continue;
+		if(info.type() == net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) {
+			for(var t : clazz.getClasses()) {
+				var i = t.getAnnotation(ApplicationCommand.class);
 
-			var i = t.getAnnotation(ApplicationCommand.class);
-			if(i != null) addSubcommand(createCommand(t, manager));
+				if(i == null || i.type() != net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) continue;
+
+				addSubcommand(createCommand(t, manager));
+			}
 		}
 
 		if(getSubcommands().isEmpty() && method == null) CommandManager.logger.warn("Command '{}' has neither subcommands nor a method", name);
