@@ -48,7 +48,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	private final Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator;
 
 	private boolean autoUpdate = false;
-	private Cache data;
+	private Function<Guild, Cache> data;
 
 	private final List<IOptionParser> optionParsers = new ArrayList<>();
 	private final Map<String, Command<C>> commands = new HashMap<>();
@@ -307,7 +307,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 * @param cache A {@link Cache} that is provided to all {@link #updateGuildCommands(Guild, Cache)} calls
 	 * @return {@code this}
 	 */
-	public CommandManager<C, A> updateCommands(@Nullable Cache cache) {
+	public CommandManager<C, A> updateCommands(@Nullable Function<Guild, Cache> cache) {
 		autoUpdate = true;
 		this.data = cache;
 
@@ -391,7 +391,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGuildCommands(@NotNull Guild guild, @NotNull Cache data) {
 		Checks.notNull(guild, "guild");
 
-		data.putAll(this.data.asMap());
+		data.putAll(this.data.apply(guild).asMap());
 
 		return guild.updateCommands()
 				.addCommands(
