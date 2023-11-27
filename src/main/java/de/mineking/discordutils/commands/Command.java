@@ -300,7 +300,7 @@ public abstract class Command<C extends ICommandContext> {
 		}
 
 		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
-		if(cmd instanceof SlashCommandData sc) sc.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
+		if(cmd instanceof SlashCommandData sc && cmd.getType() == net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) sc.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 		else cmd.setNameLocalizations(localization.values());
 
 		return cmd;
