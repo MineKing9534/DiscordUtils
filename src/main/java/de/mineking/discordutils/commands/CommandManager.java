@@ -69,6 +69,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		registerOptionParser(IOptionParser.BOOLEAN);
 		registerOptionParser(IOptionParser.ROLE);
 		registerOptionParser(IOptionParser.USER);
+		registerOptionParser(IOptionParser.MEMBER);
 		registerOptionParser(IOptionParser.CHANNEL);
 		registerOptionParser(IOptionParser.MENTIONABLE);
 		registerOptionParser(IOptionParser.ATTACHMENT);

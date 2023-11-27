@@ -2,10 +2,7 @@ package de.mineking.discordutils.commands.option;
 
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.option.defaultValue.*;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -198,6 +195,26 @@ public interface IOptionParser {
 		@Override
 		public Object parse(@NotNull CommandManager<?, ?> manager, @NotNull GenericCommandInteractionEvent event, @NotNull String name, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
 			return event.getOption(name, OptionMapping::getAsUser);
+		}
+	};
+
+
+	IOptionParser MEMBER = new IOptionParser() {
+		@Override
+		public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
+			return Member.class.isAssignableFrom(type);
+		}
+
+		@NotNull
+		@Override
+		public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
+			return OptionType.USER;
+		}
+
+		@Nullable
+		@Override
+		public Object parse(@NotNull CommandManager<?, ?> manager, @NotNull GenericCommandInteractionEvent event, @NotNull String name, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+			return event.getOption(name, OptionMapping::getAsMember);
 		}
 	};
 
