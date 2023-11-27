@@ -391,7 +391,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGuildCommands(@NotNull Guild guild, @NotNull Cache data) {
 		Checks.notNull(guild, "guild");
 
-		data.putAll(this.data.apply(guild).asMap());
+		if(this.data != null) data.putAll(this.data.apply(guild).asMap());
 
 		return guild.updateCommands()
 				.addCommands(
