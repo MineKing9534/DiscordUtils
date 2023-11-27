@@ -2,6 +2,7 @@ package de.mineking.discordutils.ui.components.types;
 
 import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import de.mineking.discordutils.ui.state.UpdateState;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
@@ -45,11 +46,11 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 
 	/**
 	 * @param id    The id that the component should have
-	 * @param state The {@link UpdateState}
+	 * @param state The {@link DataState}
 	 * @return The {@link ActionComponent} to display on Discord
 	 */
 	@NotNull
-	public abstract ActionComponent build(@NotNull String id, @NotNull UpdateState state);
+	public abstract ActionComponent build(@NotNull String id, @NotNull DataState state);
 
 	@NotNull
 	@Override
