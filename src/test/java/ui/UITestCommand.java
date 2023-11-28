@@ -3,7 +3,7 @@ package ui;
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.commands.ApplicationCommand;
 import de.mineking.discordutils.commands.ApplicationCommandMethod;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
 import de.mineking.discordutils.ui.components.button.ToggleComponent;
@@ -13,7 +13,7 @@ import shared.CommandContext;
 
 @ApplicationCommand(name = "test")
 public class UITestCommand {
-	public final Menu menu;
+	public final MessageMenu menu;
 
 	public UITestCommand(DiscordUtils<?> manager) {
 		menu = manager.getUIManager().createMenu(

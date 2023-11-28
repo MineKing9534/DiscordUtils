@@ -2,7 +2,7 @@ package de.mineking.discordutils.ui.components.select;
 
 import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.events.handlers.FilteredEventHandler;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.types.Component;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -20,15 +20,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class StringSelectComponent extends Component<StringSelectInteractionEvent> {
-	private final Function<DataState, List<SelectOption>> options;
-	private Function<DataState, String> placeholder = state -> null;
-	private Function<DataState, Integer> minValues = state -> null;
-	private Function<DataState, Integer> maxValues = state -> null;
-	private Predicate<DataState> disabled = state -> false;
+	private final Function<DataState<MessageMenu>, List<SelectOption>> options;
+	private Function<DataState<MessageMenu>, String> placeholder = state -> null;
+	private Function<DataState<MessageMenu>, Integer> minValues = state -> null;
+	private Function<DataState<MessageMenu>, Integer> maxValues = state -> null;
+	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
 	private BiConsumer<UpdateState, List<SelectOption>> handler = (state, options) -> {};
 
-	public StringSelectComponent(@NotNull String name, @NotNull Function<DataState, List<SelectOption>> options) {
+	public StringSelectComponent(@NotNull String name, @NotNull Function<DataState<MessageMenu>, List<SelectOption>> options) {
 		super(name);
 
 		Checks.notNull(options, "options");
@@ -84,7 +84,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public StringSelectComponent asDisabled(@NotNull Predicate<DataState> disabled) {
+	public StringSelectComponent asDisabled(@NotNull Predicate<DataState<MessageMenu>> disabled) {
 		Checks.notNull(disabled, "disabled");
 		this.disabled = disabled;
 		return this;
@@ -104,7 +104,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public StringSelectComponent setPlaceholder(@NotNull Function<DataState, String> placeholder) {
+	public StringSelectComponent setPlaceholder(@NotNull Function<DataState<MessageMenu>, String> placeholder) {
 		Checks.notNull(placeholder, "placeholder");
 		this.placeholder = placeholder;
 		return this;
@@ -124,7 +124,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public StringSelectComponent setMinValues(@NotNull Function<DataState, Integer> minValues) {
+	public StringSelectComponent setMinValues(@NotNull Function<DataState<MessageMenu>, Integer> minValues) {
 		Checks.notNull(minValues, "minValues");
 		this.minValues = minValues;
 		return this;
@@ -144,7 +144,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public StringSelectComponent setMaxValues(@NotNull Function<DataState, Integer> maxValues) {
+	public StringSelectComponent setMaxValues(@NotNull Function<DataState<MessageMenu>, Integer> maxValues) {
 		Checks.notNull(maxValues, "maxValues");
 		this.maxValues = maxValues;
 		return this;
@@ -161,7 +161,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 
 	@Nullable
 	@Override
-	public IEventHandler<StringSelectInteractionEvent> createHandler(@NotNull Menu menu, @NotNull Predicate<StringSelectInteractionEvent> filter) {
+	public IEventHandler<StringSelectInteractionEvent> createHandler(@NotNull MessageMenu menu, @NotNull Predicate<StringSelectInteractionEvent> filter) {
 		return new FilteredEventHandler<>(StringSelectInteractionEvent.class, filter) {
 			@Override
 			public synchronized void handleEvent(StringSelectInteractionEvent event) {
@@ -172,7 +172,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 
 	@NotNull
 	@Override
-	public ActionComponent build(@NotNull String id, @NotNull UpdateState state) {
+	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
 		var temp = StringSelectMenu.create(id)
 				.addOptions(options.apply(state))
 				.setPlaceholder(placeholder.apply(state))

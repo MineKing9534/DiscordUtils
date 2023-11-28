@@ -4,18 +4,23 @@ import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.events.EventManager;
 import de.mineking.discordutils.ui.components.types.ComponentRow;
+import de.mineking.discordutils.ui.modal.ModalMenu;
+import de.mineking.discordutils.ui.modal.ModalResponse;
+import de.mineking.discordutils.ui.modal.TextComponent;
 import de.mineking.discordutils.ui.state.DataState;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class UIManager extends Manager {
 	private final EventManager eventManager;
 
-	private final Map<String, Menu> menus = new HashMap<>();
+	private final Map<String, MessageMenu> menus = new HashMap<>();
+	private final Map<String, ModalMenu> modals = new HashMap<>();
 
 	public UIManager(@NotNull DiscordUtils.Builder<?> manager) {
 		eventManager = manager.getManager(EventManager.class);
@@ -23,12 +28,22 @@ public class UIManager extends Manager {
 
 	/**
 	 * @param name The id of the menu
-	 * @return The menu with the provided id
+	 * @return The {@link MessageMenu} with the provided id
 	 */
 	@NotNull
-	public Menu getMenu(@NotNull String name) {
+	public MessageMenu getMenu(@NotNull String name) {
 		Checks.notNull(name, "name");
 		return Optional.ofNullable(menus.get(name)).orElseThrow();
+	}
+
+	/**
+	 * @param name The id of the modal
+	 * @return The {@link ModalMenu} with the provided id
+	 */
+	@NotNull
+	public ModalMenu getModal(@NotNull String name) {
+		Checks.notNull(name, "name");
+		return Optional.ofNullable(modals.get(name)).orElseThrow();
 	}
 
 	/**
@@ -37,10 +52,10 @@ public class UIManager extends Manager {
 	 * @param identifier The identifier of this menu, used to make menus persistent over restarts
 	 * @param embed      The {@link MessageEmbed} to display
 	 * @param components The {@link ComponentRow}s
-	 * @return The resulting {@link Menu}
+	 * @return The resulting {@link MessageMenu}
 	 */
 	@NotNull
-	public Menu createMenu(@NotNull String identifier, @NotNull Function<DataState, MessageEmbed> embed, @NotNull List<ComponentRow> components) {
+	public MessageMenu createMenu(@NotNull String identifier, @NotNull Function<DataState<MessageMenu>, MessageEmbed> embed, @NotNull List<ComponentRow> components) {
 		Checks.notNull(identifier, "identifier");
 		Checks.notNull(embed, "embed");
 		Checks.notNull(components, "components");
@@ -48,7 +63,7 @@ public class UIManager extends Manager {
 		if(identifier.contains(":")) throw new IllegalArgumentException("Id may not contain ':'");
 		if(menus.containsKey(identifier)) return menus.get(identifier);
 
-		var menu = new Menu(this, identifier, embed, components);
+		var menu = new MessageMenu(this, identifier, embed, components);
 
 		components.stream()
 				.flatMap(c -> c.getComponents().stream())
@@ -68,10 +83,35 @@ public class UIManager extends Manager {
 	 * @param identifier The identifier of this menu, used to make menus persistent over restarts
 	 * @param embed      The {@link MessageEmbed} to display
 	 * @param components The {@link ComponentRow}s
-	 * @return The resulting {@link Menu}
+	 * @return The resulting {@link MessageMenu}
 	 */
 	@NotNull
-	public Menu createMenu(@NotNull String identifier, @NotNull Function<DataState, MessageEmbed> embed, @NotNull ComponentRow... components) {
+	public MessageMenu createMenu(@NotNull String identifier, @NotNull Function<DataState<MessageMenu>, MessageEmbed> embed, @NotNull ComponentRow... components) {
 		return createMenu(identifier, embed, Arrays.asList(components));
+	}
+
+	/**
+	 * @param identifier The identifier of this modal menu
+	 * @param title      A function to provide the title
+	 * @param components The {@link TextComponent}s
+	 * @param handler A handler function
+	 * @return The resulting {@link MessageMenu}
+	 */
+	@NotNull
+	public ModalMenu createModal(@NotNull String identifier, @NotNull Function<DataState<ModalMenu>, String> title, @NotNull List<TextComponent> components, @NotNull BiConsumer<DataState<ModalMenu>, ModalResponse> handler) {
+		Checks.notNull(identifier, "identifier");
+		Checks.notNull(title, "title");
+		Checks.notNull(components, "components");
+		Checks.notNull(handler, "handler");
+
+		if(identifier.contains(":")) throw new IllegalArgumentException("Id may not contain ':'");
+		if(modals.containsKey(identifier)) return modals.get(identifier);
+
+		var result = new ModalMenu(this, identifier, title, components, handler);
+
+		eventManager.addEventHandler(result.createHandler());
+		modals.put(identifier, result);
+
+		return result;
 	}
 }

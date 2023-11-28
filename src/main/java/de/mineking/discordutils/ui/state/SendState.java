@@ -3,9 +3,7 @@ package de.mineking.discordutils.ui.state;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import de.mineking.discordutils.ui.Menu;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,55 +12,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class SendState extends State {
-	public SendState(@NotNull Menu menu, JsonObject data) {
+public abstract class SendState<M extends Menu> extends State<M> {
+	public SendState(@NotNull M menu, JsonObject data) {
 		super(menu, data);
 	}
 
 	/**
-	 * @param channel The channel to send the menu in
+	 * @param event The event to reply the menu to
 	 */
-	public void display(@NotNull MessageChannel channel) {
-		Checks.notNull(channel, "channel");
+	public abstract void display(@NotNull GenericComponentInteractionCreateEvent event);
 
-		menu.components.stream()
-				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this));
-
-		channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(null, menu, data)))).queue();
-	}
-
-	/**
-	 * @param event     An {@link IReplyCallback} to reply the menu to
-	 * @param ephemeral Whether the message should only be visible to the user who created the interaction
-	 */
-	public void display(@NotNull IReplyCallback event, boolean ephemeral) {
-		Checks.notNull(event, "event");
-
-		menu.components.stream()
-				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this));
-
-		if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
-		else event.reply(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(event, menu, data)))).setEphemeral(ephemeral).queue();
-	}
-
-	/**
-	 * @param event An {@link IReplyCallback} to reply the menu to
-	 */
-	public void display(@NotNull IReplyCallback event) {
-		display(event, true);
+	@NotNull
+	@Override
+	public <T> SendState<M> setState(@NotNull String name, @Nullable T value) {
+		return (SendState<M>) super.setState(name, value);
 	}
 
 	@NotNull
 	@Override
-	public <T> SendState setState(@NotNull String name, @Nullable T value) {
-		return (SendState) super.setState(name, value);
-	}
-
-	@NotNull
-	@Override
-	public <T> SendState setState(@NotNull String name, @NotNull Function<T, T> value) {
+	public <T> SendState<M> setState(@NotNull String name, @NotNull Function<T, T> value) {
 		Checks.notNull(name, "name");
 		Checks.notNull(value, "value");
 
@@ -82,7 +50,7 @@ public class SendState extends State {
 
 	@NotNull
 	@Override
-	public SendState putStates(@NotNull Map<String, ?> states) {
-		return (SendState) super.putStates(states);
+	public SendState<M> putStates(@NotNull Map<String, ?> states) {
+		return (SendState<M>) super.putStates(states);
 	}
 }

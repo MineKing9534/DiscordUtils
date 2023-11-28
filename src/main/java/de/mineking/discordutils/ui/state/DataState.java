@@ -1,8 +1,12 @@
 package de.mineking.discordutils.ui.state;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.modal.ModalMenu;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -15,14 +19,33 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class DataState extends State {
+public class DataState<M extends Menu> extends State<M> {
 	private final Map<String, Object> cache = new HashMap<>();
 	public final IReplyCallback event;
 
-	DataState(@Nullable IReplyCallback event, @NotNull Menu menu, @NotNull JsonObject data) {
+	public DataState(@Nullable IReplyCallback event, @NotNull M menu, @NotNull JsonObject data) {
 		super(menu, data);
 
 		this.event = event;
+	}
+
+	/**
+	 * @param menu  The parent {@link ModalMenu}
+	 * @param event The {@link GenericComponentInteractionCreateEvent}
+	 * @return A loaded {@link UpdateState}
+	 */
+	@NotNull
+	public static DataState<ModalMenu> load(@NotNull ModalMenu menu, @NotNull ModalInteractionEvent event) {
+		Checks.notNull(menu, "menu");
+		Checks.notNull(event, "event");
+
+		var data = new StringBuilder();
+
+		data.append(event.getModalId().split(":", 2)[1]);
+
+		event.getValues().forEach(c -> data.append(c.getId().split(":", 2)[1]));
+
+		return new DataState<>(event, menu, JsonParser.parseString(data.toString()).getAsJsonObject());
 	}
 
 	/**
@@ -116,13 +139,13 @@ public class DataState extends State {
 
 	@NotNull
 	@Override
-	public <T> DataState setState(@NotNull String name, @Nullable T value) {
-		return (DataState) super.setState(name, value);
+	public <T> DataState<M> setState(@NotNull String name, @Nullable T value) {
+		return (DataState<M>) super.setState(name, value);
 	}
 
 	@NotNull
 	@Override
-	public <T> DataState setState(@NotNull String name, @NotNull Function<T, T> value) {
+	public <T> DataState<M> setState(@NotNull String name, @NotNull Function<T, T> value) {
 		Checks.notNull(name, "name");
 		Checks.notNull(value, "value");
 
@@ -139,8 +162,8 @@ public class DataState extends State {
 
 	@NotNull
 	@Override
-	public DataState putStates(@NotNull Map<String, ?> states) {
-		return (DataState) super.putStates(states);
+	public DataState<M> putStates(@NotNull Map<String, ?> states) {
+		return (DataState<M>) super.putStates(states);
 	}
 
 	/**
@@ -149,7 +172,7 @@ public class DataState extends State {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public <T> DataState setCache(@NotNull String name, @Nullable T value) {
+	public <T> DataState<M> setCache(@NotNull String name, @Nullable T value) {
 		Checks.notNull(name, "name");
 
 		cache.put(name, value);

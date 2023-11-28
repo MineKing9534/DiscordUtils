@@ -2,7 +2,7 @@ package de.mineking.discordutils.ui.components.button;
 
 import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.events.handlers.FilteredEventHandler;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
 import de.mineking.discordutils.ui.components.button.label.LabelProvider;
 import de.mineking.discordutils.ui.components.button.label.TextLabel;
@@ -29,8 +29,8 @@ import java.util.function.Predicate;
 public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(0);
 	private final LabelProvider label;
-	private final Function<DataState, ButtonColor> color;
-	private Predicate<DataState> disabled = state -> false;
+	private final Function<DataState<MessageMenu>, ButtonColor> color;
+	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
 	private Consumer<UpdateState> handler = state -> {};
 	private Consumer<UpdateState> doubleClick = null;
@@ -43,7 +43,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	 * @param color A function to get the {@link ButtonColor} for the current {@link DataState}
 	 * @param label The label to use
 	 */
-	public ButtonComponent(@NotNull String name, @NotNull Function<DataState, ButtonColor> color, @NotNull LabelProvider label) {
+	public ButtonComponent(@NotNull String name, @NotNull Function<DataState<MessageMenu>, ButtonColor> color, @NotNull LabelProvider label) {
 		super(name);
 
 		Checks.notNull(color, "color");
@@ -63,7 +63,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	 * @param color A function to get the {@link ButtonColor} for the current {@link DataState}
 	 * @param label The label to use
 	 */
-	public ButtonComponent(@NotNull String name, @NotNull Function<DataState, ButtonColor> color, @NotNull String label) {
+	public ButtonComponent(@NotNull String name, @NotNull Function<DataState<MessageMenu>, ButtonColor> color, @NotNull String label) {
 		this(name, color, (TextLabel) state -> label);
 	}
 
@@ -72,7 +72,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	 * @param color A function to get the {@link ButtonColor} for the current {@link DataState}
 	 * @param label The label to use
 	 */
-	public ButtonComponent(@NotNull String name, @NotNull Function<DataState, ButtonColor> color, @NotNull Emoji label) {
+	public ButtonComponent(@NotNull String name, @NotNull Function<DataState<MessageMenu>, ButtonColor> color, @NotNull Emoji label) {
 		this(name, color, (EmojiLabel) state -> label);
 	}
 
@@ -187,7 +187,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public ButtonComponent asDisabled(@NotNull Predicate<DataState> disabled) {
+	public ButtonComponent asDisabled(@NotNull Predicate<DataState<MessageMenu>> disabled) {
 		Checks.notNull(disabled, "disabled");
 		this.disabled = disabled;
 		return this;
@@ -204,7 +204,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 
 	@Nullable
 	@Override
-	public IEventHandler<ButtonInteractionEvent> createHandler(@NotNull Menu menu, @NotNull Predicate<ButtonInteractionEvent> filter) {
+	public IEventHandler<ButtonInteractionEvent> createHandler(@NotNull MessageMenu menu, @NotNull Predicate<ButtonInteractionEvent> filter) {
 		return new FilteredEventHandler<>(ButtonInteractionEvent.class, filter) {
 			@Override
 			public synchronized void handleEvent(ButtonInteractionEvent event) {
@@ -228,7 +228,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 
 	@NotNull
 	@Override
-	public ActionComponent build(@NotNull String id, @NotNull UpdateState state) {
+	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
 		var text = label.getText(state);
 		var emoji = label.getEmoji(state);
 		var color = this.color.apply(state);

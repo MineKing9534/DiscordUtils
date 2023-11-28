@@ -4,13 +4,14 @@ import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
 import de.mineking.discordutils.ui.components.button.label.TextLabel;
 import de.mineking.discordutils.ui.components.types.ComponentRow;
 import de.mineking.discordutils.ui.state.DataState;
+import de.mineking.discordutils.ui.state.MessageSendState;
 import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -53,7 +54,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 * @return The resulting menu
 	 */
 	@NotNull
-	public <T extends ListEntry> Menu createListMenu(@NotNull String path, @NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
+	public <T extends ListEntry> MessageMenu createListMenu(@NotNull String path, @NotNull Function<DataState<MessageMenu>, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
 		Checks.notNull(path, "path");
 		Checks.notNull(object, "object");
 		Checks.notNull(additionalComponents, "additionalComponents");
@@ -100,7 +101,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 * @return The resulting {@link ListCommand}
 	 */
 	@NotNull
-	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull BiConsumer<C, SendState> state, @NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
+	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull BiConsumer<C, MessageSendState> state, @NotNull Function<DataState<MessageMenu>, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
 		Checks.notNull(state, "state");
 		Checks.notNull(object, "object");
 		Checks.notNull(additionalComponents, "additionalComponents");
@@ -119,7 +120,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 * @return The resulting {@link ListCommand}
 	 */
 	@NotNull
-	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull Function<DataState, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
+	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull Function<DataState<MessageMenu>, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
 		return createCommand((c, state) -> {}, object, additionalComponents);
 	}
 }

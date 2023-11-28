@@ -1,5 +1,6 @@
 package de.mineking.discordutils.list;
 
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.state.DataState;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -14,7 +15,7 @@ public interface Listable<T extends ListEntry> {
 	 * @return All entries
 	 */
 	@NotNull
-	List<T> getEntries(@NotNull DataState state, @NotNull ListContext context);
+	List<T> getEntries(@NotNull DataState<MessageMenu> state, @NotNull ListContext context);
 
 	/**
 	 * @return The number of entries to display on a single page
@@ -29,7 +30,7 @@ public interface Listable<T extends ListEntry> {
 	 * @return An {@link EmbedBuilder}
 	 */
 	@NotNull
-	default EmbedBuilder createEmbed(@NotNull DataState state, @NotNull ListContext context) {
+	default EmbedBuilder createEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext context) {
 		return new EmbedBuilder();
 	}
 
@@ -39,7 +40,7 @@ public interface Listable<T extends ListEntry> {
 	 * @return The {@link MessageEmbed} to display
 	 */
 	@NotNull
-	default MessageEmbed buildEmbed(@NotNull DataState state, @NotNull ListContext context) {
+	default MessageEmbed buildEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext context) {
 		var embed = createEmbed(state, context);
 
 		var entries = getEntries(state, context);

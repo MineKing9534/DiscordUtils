@@ -2,7 +2,7 @@ package de.mineking.discordutils.ui.state;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
@@ -15,18 +15,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-public class UpdateState extends DataState {
-	UpdateState(@Nullable IReplyCallback event, @NotNull Menu menu, @NotNull JsonObject data) {
+public class UpdateState extends DataState<MessageMenu> {
+	UpdateState(@Nullable IReplyCallback event, @NotNull MessageMenu menu, @NotNull JsonObject data) {
 		super(event, menu, data);
 	}
 
 	/**
-	 * @param menu  The parent {@link Menu}
+	 * @param menu  The parent {@link MessageMenu}
 	 * @param event The {@link GenericComponentInteractionCreateEvent}
 	 * @return A loaded {@link UpdateState}
 	 */
 	@NotNull
-	public static UpdateState load(@NotNull Menu menu, @NotNull GenericComponentInteractionCreateEvent event) {
+	public static UpdateState load(@NotNull MessageMenu menu, @NotNull GenericComponentInteractionCreateEvent event) {
 		Checks.notNull(menu, "menu");
 		Checks.notNull(event, "event");
 
@@ -43,7 +43,7 @@ public class UpdateState extends DataState {
 	}
 
 	/**
-	 * Rerenders the menu
+	 * Re-renders the menu
 	 */
 	public void instantUpdate() {
 		if(event == null) return;
@@ -53,7 +53,7 @@ public class UpdateState extends DataState {
 	}
 
 	/**
-	 * Disables all components and then rerenders the menu. This should be used if your rendering takes very long
+	 * Disables all components and then re-renders the menu. This should be used if your rendering takes very long
 	 */
 	public void update() {
 		if(event == null || !(event instanceof GenericComponentInteractionCreateEvent evt)) return;

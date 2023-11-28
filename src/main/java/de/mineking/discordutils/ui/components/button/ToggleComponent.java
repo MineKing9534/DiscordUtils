@@ -3,6 +3,7 @@ package de.mineking.discordutils.ui.components.button;
 import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
 import de.mineking.discordutils.ui.components.button.label.LabelProvider;
 import de.mineking.discordutils.ui.components.button.label.TextLabel;
+import de.mineking.discordutils.ui.state.MessageSendState;
 import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import java.util.function.Function;
 
 public class ToggleComponent extends ButtonComponent {
 	@Override
-	public void register(@NotNull SendState state) {
+	public void register(@NotNull MessageSendState state) {
 		state.setState(name, current -> current == null ? false : current);
 	}
 

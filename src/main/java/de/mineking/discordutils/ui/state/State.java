@@ -11,16 +11,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class State {
+public abstract class State<M extends Menu> {
 	public final static Gson gson = new Gson();
 
 	@NotNull
-	public final Menu menu;
+	public final M menu;
 
 	@NotNull
 	public final JsonObject data;
 
-	State(@NotNull Menu menu, @NotNull JsonObject data) {
+	State(@NotNull M menu, @NotNull JsonObject data) {
 		Checks.notNull(menu, "menu");
 		Checks.notNull(data, "data");
 
@@ -34,7 +34,7 @@ public abstract class State {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public <T> State setState(@NotNull String name, @Nullable T value) {
+	public <T> State<M> setState(@NotNull String name, @Nullable T value) {
 		return setState(name, old -> value);
 	}
 
@@ -44,14 +44,14 @@ public abstract class State {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public abstract <T> State setState(@NotNull String name, @NotNull Function<T, T> value);
+	public abstract <T> State<M> setState(@NotNull String name, @NotNull Function<T, T> value);
 
 	/**
 	 * @param states A {@link Map} of states to set
 	 * @return {@code this}
 	 */
 	@NotNull
-	public State putStates(@NotNull Map<String, ?> states) {
+	public State<M> putStates(@NotNull Map<String, ?> states) {
 		Checks.notNull(states, "states");
 		states.forEach(this::setState);
 		return this;

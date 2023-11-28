@@ -2,7 +2,7 @@ package de.mineking.discordutils.ui.components.select;
 
 import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.events.handlers.FilteredEventHandler;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.types.Component;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -22,10 +22,10 @@ import java.util.function.Predicate;
 
 public class EntitySelectComponent extends Component<EntitySelectInteractionEvent> {
 	private final List<EntitySelectMenu.SelectTarget> targets;
-	private Function<DataState, String> placeholder = state -> null;
-	private Function<DataState, Integer> minValues = state -> null;
-	private Function<DataState, Integer> maxValues = state -> null;
-	private Predicate<DataState> disabled = state -> false;
+	private Function<DataState<MessageMenu>, String> placeholder = state -> null;
+	private Function<DataState<MessageMenu>, Integer> minValues = state -> null;
+	private Function<DataState<MessageMenu>, Integer> maxValues = state -> null;
+	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
 	private BiConsumer<UpdateState, Mentions> handler = (state, options) -> {};
 
@@ -85,7 +85,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public EntitySelectComponent asDisabled(@NotNull Predicate<DataState> disabled) {
+	public EntitySelectComponent asDisabled(@NotNull Predicate<DataState<MessageMenu>> disabled) {
 		Checks.notNull(disabled, "disabled");
 		this.disabled = disabled;
 		return this;
@@ -105,7 +105,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public EntitySelectComponent setPlaceholder(@NotNull Function<DataState, String> placeholder) {
+	public EntitySelectComponent setPlaceholder(@NotNull Function<DataState<MessageMenu>, String> placeholder) {
 		Checks.notNull(placeholder, "placeholder");
 		this.placeholder = placeholder;
 		return this;
@@ -125,7 +125,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public EntitySelectComponent setMinValues(@NotNull Function<DataState, Integer> minValues) {
+	public EntitySelectComponent setMinValues(@NotNull Function<DataState<MessageMenu>, Integer> minValues) {
 		Checks.notNull(minValues, "minValues");
 		this.minValues = minValues;
 		return this;
@@ -145,7 +145,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	 * @return {@code this}
 	 */
 	@NotNull
-	public EntitySelectComponent setMaxValues(@NotNull Function<DataState, Integer> maxValues) {
+	public EntitySelectComponent setMaxValues(@NotNull Function<DataState<MessageMenu>, Integer> maxValues) {
 		Checks.notNull(maxValues, "maxValues");
 		this.maxValues = maxValues;
 		return this;
@@ -162,7 +162,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 
 	@Nullable
 	@Override
-	public IEventHandler<EntitySelectInteractionEvent> createHandler(@NotNull Menu menu, @NotNull Predicate<EntitySelectInteractionEvent> filter) {
+	public IEventHandler<EntitySelectInteractionEvent> createHandler(@NotNull MessageMenu menu, @NotNull Predicate<EntitySelectInteractionEvent> filter) {
 		return new FilteredEventHandler<>(EntitySelectInteractionEvent.class, filter) {
 			@Override
 			public synchronized void handleEvent(EntitySelectInteractionEvent event) {
@@ -173,7 +173,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 
 	@NotNull
 	@Override
-	public ActionComponent build(@NotNull String id, @NotNull UpdateState state) {
+	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
 		var temp = EntitySelectMenu.create(id, targets)
 				.setPlaceholder(placeholder.apply(state))
 				.setDisabled(disabled.test(state));

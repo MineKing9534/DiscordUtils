@@ -1,13 +1,12 @@
 package de.mineking.discordutils.ui.components.button;
 
 import de.mineking.discordutils.events.IEventHandler;
-import de.mineking.discordutils.ui.Menu;
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
 import de.mineking.discordutils.ui.components.button.label.LabelProvider;
 import de.mineking.discordutils.ui.components.button.label.TextLabel;
 import de.mineking.discordutils.ui.components.types.Component;
 import de.mineking.discordutils.ui.state.DataState;
-import de.mineking.discordutils.ui.state.UpdateState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
@@ -22,15 +21,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class LinkComponent extends Component<ButtonInteractionEvent> {
-	private final Function<DataState, String> url;
+	private final Function<DataState<MessageMenu>, String> url;
 	private final LabelProvider label;
-	private Predicate<UpdateState> disabled = state -> false;
+	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
 	/**
 	 * @param url   The url
 	 * @param label The label
 	 */
-	public LinkComponent(@NotNull Function<DataState, String> url, @NotNull LabelProvider label) {
+	public LinkComponent(@NotNull Function<DataState<MessageMenu>, String> url, @NotNull LabelProvider label) {
 		super(UUID.randomUUID().toString());
 
 		Checks.notNull(url, "url");
@@ -49,7 +48,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param url   The url
 	 * @param label The label
 	 */
-	public LinkComponent(@NotNull Function<DataState, String> url, @NotNull String label) {
+	public LinkComponent(@NotNull Function<DataState<MessageMenu>, String> url, @NotNull String label) {
 		this(url, (TextLabel) state -> label);
 	}
 
@@ -57,7 +56,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @param url   The url
 	 * @param label The label
 	 */
-	public LinkComponent(@NotNull Function<DataState, String> url, @NotNull Emoji label) {
+	public LinkComponent(@NotNull Function<DataState<MessageMenu>, String> url, @NotNull Emoji label) {
 		this(url, (EmojiLabel) state -> label);
 	}
 
@@ -90,7 +89,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 	 * @return {@code this}
 	 */
 	@NotNull
-	public LinkComponent asDisabled(@NotNull Predicate<UpdateState> disabled) {
+	public LinkComponent asDisabled(@NotNull Predicate<DataState<MessageMenu>> disabled) {
 		Checks.notNull(disabled, "disabled");
 		this.disabled = disabled;
 		return this;
@@ -107,13 +106,13 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 
 	@Nullable
 	@Override
-	public IEventHandler<ButtonInteractionEvent> createHandler(@NotNull Menu menu, @NotNull Predicate<ButtonInteractionEvent> filter) {
+	public IEventHandler<ButtonInteractionEvent> createHandler(@NotNull MessageMenu menu, @NotNull Predicate<ButtonInteractionEvent> filter) {
 		return null;
 	}
 
 	@NotNull
 	@Override
-	public ActionComponent build(@NotNull String id, @NotNull UpdateState state) {
+	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
 		var text = label.getText(state);
 		var emoji = label.getEmoji(state);
 		var url = this.url.apply(state);

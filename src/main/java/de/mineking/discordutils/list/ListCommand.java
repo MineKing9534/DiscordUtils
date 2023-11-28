@@ -4,8 +4,8 @@ import de.mineking.discordutils.commands.Command;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.context.ICommandContext;
-import de.mineking.discordutils.ui.Menu;
-import de.mineking.discordutils.ui.state.SendState;
+import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.state.MessageSendState;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -16,12 +16,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ListCommand<C extends ICommandContext> extends Command<C> {
-	private final Function<String, Menu> menu;
-	private final BiConsumer<C, SendState> state;
+	private final Function<String, MessageMenu> menu;
+	private final BiConsumer<C, MessageSendState> state;
 
 	private final String pageName;
 
-	ListCommand(Function<String, Menu> menu, BiConsumer<C, SendState> state, CommandManager<C, ?> manager, OptionData option) {
+	ListCommand(Function<String, MessageMenu> menu, BiConsumer<C, MessageSendState> state, CommandManager<C, ?> manager, OptionData option) {
 		super(manager, net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH, "list");
 
 		this.menu = menu;
