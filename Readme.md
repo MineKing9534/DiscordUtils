@@ -632,6 +632,14 @@ You can add additional handlers or listen to state changes with `effect`.
 The MenuComponent is another extension for the ButtonComponent. When pressed, it displays a different menu. This mechanic can be used to have a menu with multiple frames.
 By default, the current state is transferred to the new menu. To change this behavior, you can use `setStateCreator`.
 
+### StringSelectComponent
+
+The StringSelectComponent is a component that allows users to select between multiple options. You can dynamically set these options. You can also set a minimum and a maximum for the options a user has to select.
+
+### EntitySelectComponent
+
+The EntitySelectComponent is similar to StringSelectComponent, but instead of custom options, a user has to select between users, channels or roles. You can specify the entity type in the constructor.
+
 ## Help Manager
 
 ## List Manager
