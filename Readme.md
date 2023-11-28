@@ -559,7 +559,7 @@ Example:
 
 @ApplicationCommand(name = "test")
 public class TestCommand {
-  public final Menu menu;
+  public final MessageMenu menu;
 
   public UITestCommand(DiscordUtils<?> manager) {
     menu = manager.getUIManager().createMenu(
