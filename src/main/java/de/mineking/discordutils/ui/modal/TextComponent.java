@@ -21,7 +21,7 @@ public class TextComponent {
 	private Function<DataState<ModalMenu>, Integer> minLength = state -> null;
 	private Function<DataState<ModalMenu>, Integer> maxLength = state -> null;
 
-	private Function<DataState<ModalMenu>, Boolean> required = state -> false;
+	private Function<DataState<ModalMenu>, Boolean> required = state -> true;
 
 	/**
 	 * @param name  The name of this component
