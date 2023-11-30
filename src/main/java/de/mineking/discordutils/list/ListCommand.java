@@ -22,7 +22,7 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 	private final String pageName;
 
 	ListCommand(Function<String, MessageMenu> menu, BiConsumer<C, MessageSendState> state, CommandManager<C, ?> manager, OptionData option) {
-		super(manager, net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH, "list");
+		super(manager, "list");
 
 		this.menu = menu;
 		this.state = state;

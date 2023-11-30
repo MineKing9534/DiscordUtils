@@ -7,6 +7,8 @@ import de.mineking.discordutils.console.DiscordOutputStream;
 import de.mineking.discordutils.console.MirrorPrintStream;
 import de.mineking.discordutils.console.RedirectTarget;
 import de.mineking.discordutils.events.EventManager;
+import de.mineking.discordutils.help.HelpManager;
+import de.mineking.discordutils.help.HelpTarget;
 import de.mineking.discordutils.languagecache.LanguageCacheManager;
 import de.mineking.discordutils.list.ListManager;
 import de.mineking.discordutils.localization.Localization;
@@ -308,31 +310,42 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		}
 
 		/**
-		 * @param config A consumer the new {@link EventManager}
+		 * @param config A consumer to configure the new {@link EventManager}
 		 * @return {@code this}
 		 */
 		@NotNull
-		public Builder<B> useEventManager(Consumer<EventManager> config) {
+		public Builder<B> useEventManager(@Nullable Consumer<EventManager> config) {
 			return addManager(new EventManager(), config);
 		}
 
 
 		/**
-		 * @param config A consumer the new {@link UIManager}
+		 * @param config A consumer to configure the new {@link UIManager}
 		 * @return {@code this}
 		 */
 		@NotNull
-		public Builder<B> useUIManager(Consumer<UIManager> config) {
+		public Builder<B> useUIManager(@Nullable Consumer<UIManager> config) {
 			return addManager(new UIManager(this), config);
 		}
 
 		/**
-		 * @param config A consumer the new {@link ListManager}
+		 * @param config A consumer to configure the new {@link ListManager}
 		 * @return {@code this}
 		 */
 		@NotNull
-		public <C extends ICommandContext> Builder<B> useListManager(Consumer<ListManager<C>> config) {
+		public <C extends ICommandContext> Builder<B> useListManager(@Nullable Consumer<ListManager<C>> config) {
 			return addManager(new ListManager<>(this), config);
+		}
+
+		/**
+		 * @param targets    The {@link HelpTarget} to add
+		 * @param mainTarget The default {@link HelpTarget}
+		 * @param config     A consumer to configure the new {@link HelpManager}
+		 * @return {@code this}
+		 */
+		@NotNull
+		public <C extends ICommandContext> Builder<B> useHelpManager(@NotNull List<HelpTarget> targets, @NotNull HelpTarget mainTarget, @Nullable Consumer<HelpManager<C>> config) {
+			return addManager(new HelpManager<>(this, targets, mainTarget), config);
 		}
 
 		public DiscordUtils<B> build() {

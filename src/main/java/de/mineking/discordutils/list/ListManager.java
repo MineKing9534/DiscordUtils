@@ -28,11 +28,13 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	private final UIManager uiManager;
 	private final CommandManager<C, ?> commandManager;
 
-	private OptionData pageOption = new OptionData(OptionType.INTEGER, "page", "Page")
+	private OptionData pageOption = new OptionData(OptionType.INTEGER, "page", "page")
 			.setMinValue(1);
 
 	@SuppressWarnings("unchecked")
 	public ListManager(@NotNull DiscordUtils.Builder<?> manager) {
+		Checks.notNull(manager, "manager");
+
 		uiManager = manager.getManager(UIManager.class);
 		commandManager = manager.getManager(CommandManager.class);
 	}
@@ -43,6 +45,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 */
 	@NotNull
 	public ListManager<C> setPageOption(@NotNull OptionData option) {
+		Checks.notNull(option, "option");
 		this.pageOption = option;
 		return this;
 	}
