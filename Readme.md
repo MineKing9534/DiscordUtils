@@ -546,7 +546,7 @@ public class TestCommand {
 ## UI Manager
 
 The UIManager allows you to create complex menus without having to manually create event handlers and manage states.
-Before you use `useUIManager` your have to call `useEventManager` because the UIManager used the EventManager internally.
+Before you use `useUIManager` you have to call `useEventManager` because the UIManager used the EventManager internally.
 The UIManager requires this additional dependency:
 
 ```groovy
