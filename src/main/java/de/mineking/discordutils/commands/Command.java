@@ -165,6 +165,16 @@ public abstract class Command<C extends ICommandContext> {
 	}
 
 	/**
+	 * @return The id of this command
+	 * @throws IllegalStateException If the scope of this command is {@link Scope#GUILD}
+	 */
+	@Nullable
+	public Long getId() {
+		if(scope == Scope.GUILD) throw new IllegalStateException();
+		return id.get(0);
+	}
+
+	/**
 	 * @return The effective {@link IExecutionCondition} of this command
 	 */
 	@NotNull
