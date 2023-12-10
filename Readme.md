@@ -561,8 +561,8 @@ Example:
 public class TestCommand {
   public final MessageMenu menu;
 
-  public UITestCommand(DiscordUtils<?> manager) {
-    menu = manager.getUIManager().createMenu(
+  public UITestCommand(UIManager manager) {
+    menu = manager.createMenu(
             "test",
             state -> new EmbedBuilder()
                     .setTitle("Test Menu")
@@ -609,6 +609,8 @@ Available Components:
 - [ButtonComponent](#buttoncomponent)
 - [ToggleComponent](#togglecomponent)
 - [MenuComponent](#menucomponent)
+- [StringSelectComponent](#stringselectcomponent)
+- [EntitySelectComponent](#entityselectcomponent)
 
 ### ButtonComponent
 
