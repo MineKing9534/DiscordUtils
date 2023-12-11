@@ -212,6 +212,12 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		return (ListManager<C>) getManager(ListManager.class).orElseThrow(IllegalStateException::new);
 	}
 
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <C extends ICommandContext> HelpManager<C> getHelpManager() {
+		return (HelpManager<C>) getManager(HelpManager.class).orElseThrow(IllegalStateException::new);
+	}
+
 	public static class Builder<B> {
 		private final Set<Manager> managers = new HashSet<>();
 		private final List<Runnable> setup = new ArrayList<>();
