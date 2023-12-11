@@ -154,6 +154,14 @@ public abstract class Command<C extends ICommandContext> {
 	}
 
 	/**
+	 * @return The root of this command
+	 */
+	@NotNull
+	public Command<C> getRoot() {
+		return parent == null ? this : parent.getRoot();
+	}
+
+	/**
 	 * @param guild The id of the guild to get the id of this command for. If the scope of this command is not {@link Scope#GUILD}, you can provide {@code null} here
 	 * @return The id of this command or {@code null}
 	 */
