@@ -45,7 +45,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	private final List<? extends HelpTarget> targets;
 
 	@SuppressWarnings("unchecked")
-	public HelpManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull Function<DiscordUtils.Builder<?>, List<? extends HelpTarget>> targets, @NotNull HelpTarget mainTarget) {
+	public <B> HelpManager(@NotNull DiscordUtils.Builder<B> manager, @NotNull Function<DiscordUtils.Builder<B>, List<? extends HelpTarget>> targets, @NotNull HelpTarget mainTarget) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(targets, "targets");
 		Checks.notNull(mainTarget, "mainManager");
