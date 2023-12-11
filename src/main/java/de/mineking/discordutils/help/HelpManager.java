@@ -41,10 +41,10 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	private final MessageMenu mainMenu;
 
 	private final Map<String, MessageMenu> menus;
-	private final List<HelpTarget> targets;
+	private final List<? extends HelpTarget> targets;
 
 	@SuppressWarnings("unchecked")
-	public HelpManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull List<HelpTarget> targets, @NotNull HelpTarget mainTarget) {
+	public HelpManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull List<? extends HelpTarget> targets, @NotNull HelpTarget mainTarget) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(targets, "targets");
 		Checks.notNull(mainTarget, "mainManager");
@@ -104,7 +104,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	 * @return An {@link Optional} holding the matching target
 	 */
 	@NotNull
-	public Optional<HelpTarget> getTarget(@Nullable String key) {
+	public Optional<? extends HelpTarget> getTarget(@Nullable String key) {
 		if(key == null) return Optional.empty();
 
 		return targets.stream()
