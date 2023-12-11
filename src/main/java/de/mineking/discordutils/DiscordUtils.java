@@ -350,7 +350,7 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		 * @return {@code this}
 		 */
 		@NotNull
-		public <C extends ICommandContext> Builder<B> useHelpManager(@NotNull List<HelpTarget> targets, @NotNull HelpTarget mainTarget, @Nullable Consumer<HelpManager<C>> config) {
+		public <C extends ICommandContext> Builder<B> useHelpManager(@NotNull List<? extends HelpTarget> targets, @NotNull HelpTarget mainTarget, @Nullable Consumer<HelpManager<C>> config) {
 			return addManager(new HelpManager<>(this, targets, mainTarget), config);
 		}
 
