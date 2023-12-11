@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HelpManager<C extends ICommandContext> extends Manager {
@@ -44,12 +45,12 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	private final List<? extends HelpTarget> targets;
 
 	@SuppressWarnings("unchecked")
-	public HelpManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull List<? extends HelpTarget> targets, @NotNull HelpTarget mainTarget) {
+	public HelpManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull Function<DiscordUtils.Builder<?>, List<? extends HelpTarget>> targets, @NotNull HelpTarget mainTarget) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(targets, "targets");
 		Checks.notNull(mainTarget, "mainManager");
 
-		this.targets = targets;
+		this.targets = targets.apply(manager);
 
 		this.mainTarget = mainTarget;
 		var uiManager = manager.getManager(UIManager.class);
@@ -60,7 +61,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 				mainTarget.getComponents()
 		);
 
-		this.menus = targets.stream().collect(Collectors.toMap(HelpTarget::getKey, t -> uiManager.createMenu(
+		this.menus = this.targets.stream().collect(Collectors.toMap(HelpTarget::getKey, t -> uiManager.createMenu(
 				"help." + t.getKey(),
 				t::build,
 				t.getComponents()
