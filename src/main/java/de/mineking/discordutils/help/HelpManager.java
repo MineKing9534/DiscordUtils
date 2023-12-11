@@ -3,12 +3,10 @@ package de.mineking.discordutils.help;
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandFilter;
-import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.ui.MessageMenu;
-import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -53,7 +51,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 		this.targets = targets.apply(manager);
 
 		this.mainTarget = mainTarget;
-		var uiManager = manager.getManager(UIManager.class);
+		var uiManager = manager.getUIManager();
 
 		this.mainMenu = uiManager.createMenu(
 				"help",
@@ -67,7 +65,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 				t.getComponents()
 		)));
 
-		var commandManager = (CommandManager<C, ?>) manager.getManager(CommandManager.class);
+		var commandManager = manager.<C, IAutocompleteContext>getCommandManager();
 		commandManager.registerCommand(new HelpCommand<>(commandManager, this));
 
 		commandManager.findCommands((CommandFilter<C>) CommandFilter.top().and(c -> !c.getSubcommands().isEmpty())).forEach(c -> c.addSubcommand(new HelpSubCommand<>(commandManager, this, c)));

@@ -23,7 +23,7 @@ public class UIManager extends Manager {
 	private final Map<String, ModalMenu> modals = new HashMap<>();
 
 	public UIManager(@NotNull DiscordUtils.Builder<?> manager) {
-		eventManager = manager.getManager(EventManager.class);
+		eventManager = manager.getEventManager();
 	}
 
 	/**

@@ -35,8 +35,8 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	public ListManager(@NotNull DiscordUtils.Builder<?> manager) {
 		Checks.notNull(manager, "manager");
 
-		uiManager = manager.getManager(UIManager.class);
-		commandManager = manager.getManager(CommandManager.class);
+		uiManager = manager.getUIManager();
+		commandManager = manager.getCommandManager();
 	}
 
 	/**

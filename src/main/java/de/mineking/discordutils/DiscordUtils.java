@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class DiscordUtils<B> extends ListenerAdapter {
+public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer {
 	public final JDA jda;
 	public final B bot;
 
@@ -57,6 +57,11 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		this.managers = managers;
 
 		this.jda.addEventListener(this);
+	}
+
+	@Override
+	public Set<Manager> getManagers() {
+		return managers;
 	}
 
 	/**
@@ -150,75 +155,7 @@ public class DiscordUtils<B> extends ListenerAdapter {
 		);
 	}
 
-	/**
-	 * @param type The {@link Class} of the {@link Manager} you want to get
-	 * @return An {@link Optional} holding the {@link Manager} if present
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <T extends Manager> Optional<T> getManager(@NotNull Class<T> type) {
-		Checks.notNull(type, "type");
-
-		return managers.stream()
-				.filter(m -> m.getClass().equals(type))
-				.map(m -> (T) m)
-				.findAny();
-	}
-
-	/**
-	 * @return The {@link CommandManager} previously registered on this {@link DiscordUtils} instance
-	 * @throws IllegalStateException If no {@link CommandManager} is registered
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <C extends ICommandContext, A extends IAutocompleteContext> CommandManager<C, A> getCommandManager() throws IllegalStateException {
-		return (CommandManager<C, A>) getManager(CommandManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	/**
-	 * @return The {@link LanguageCacheManager} previously registered on this {@link DiscordUtils} instance
-	 * @throws IllegalStateException If no {@link LanguageCacheManager} is registered
-	 */
-	@NotNull
-	public LanguageCacheManager getLanguageCache() throws IllegalStateException {
-		return getManager(LanguageCacheManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	/**
-	 * @return The {@link EventManager} previously registered on this {@link DiscordUtils} instance
-	 * @throws IllegalStateException If no {@link EventManager} is registered
-	 */
-	@NotNull
-	public EventManager getEventManager() throws IllegalStateException {
-		return getManager(EventManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	/**
-	 * @return The {@link UIManager} previously registered on this {@link DiscordUtils} instance
-	 * @throws IllegalStateException If no {@link UIManager} is registered
-	 */
-	@NotNull
-	public UIManager getUIManager() throws IllegalStateException {
-		return getManager(UIManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	/**
-	 * @return The {@link ListManager} previously registered on this {@link DiscordUtils} instance
-	 * @throws IllegalStateException If no {@link ListManager} is registered
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public <C extends ICommandContext> ListManager<C> getListManager() {
-		return (ListManager<C>) getManager(ListManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public <C extends ICommandContext> HelpManager<C> getHelpManager() {
-		return (HelpManager<C>) getManager(HelpManager.class).orElseThrow(IllegalStateException::new);
-	}
-
-	public static class Builder<B> {
+	public static class Builder<B> implements ManagerContainer {
 		private final Set<Manager> managers = new HashSet<>();
 		private final List<Runnable> setup = new ArrayList<>();
 
@@ -232,17 +169,9 @@ public class DiscordUtils<B> extends ListenerAdapter {
 			this.bot = bot;
 		}
 
-		/**
-		 * @param type The type oif the manager to get
-		 * @return The manager with the provided type
-		 */
-		@NotNull
-		@SuppressWarnings("unchecked")
-		public <T extends Manager> T getManager(@NotNull Class<T> type) {
-			Checks.notNull(type, "type");
-			return managers.stream()
-					.filter(m -> m.getClass().equals(type))
-					.findFirst().map(m -> (T) m).orElseThrow();
+		@Override
+		public Set<Manager> getManagers() {
+			return managers;
 		}
 
 		/**
