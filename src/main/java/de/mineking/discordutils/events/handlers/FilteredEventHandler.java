@@ -24,7 +24,7 @@ public abstract class FilteredEventHandler<T extends GenericEvent> extends Event
 	}
 
 	/**
-	 * Shortcut for {@link #FilteredEventHandler(Class, Predicate, boolean), that does not remove the handler
+	 * Shortcut for {@link #FilteredEventHandler(Class, Predicate, boolean)}, that does not remove the handler
 	 */
 	public FilteredEventHandler(@NotNull Class<T> type, @NotNull Predicate<T> filter) {
 		this(type, filter, false);

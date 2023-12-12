@@ -101,7 +101,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 
 	/**
 	 * @param exceptionHandler A consumer that will be called when something goes wrong executing a command
-	 * @return {@link this}
+	 * @return {@code this}
 	 */
 	@NotNull
 	public CommandManager<C, A> setExceptionHandler(BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler) {
