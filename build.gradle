@@ -34,7 +34,7 @@ publishing {
             url = "https://maven.mineking.dev/releases"
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+                password = System.getenv("MAVEN_SECRET")
             }
             authentication {
                 basic(BasicAuthentication)
