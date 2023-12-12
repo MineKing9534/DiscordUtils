@@ -31,7 +31,6 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	private OptionData pageOption = new OptionData(OptionType.INTEGER, "page", "page")
 			.setMinValue(1);
 
-	@SuppressWarnings("unchecked")
 	public ListManager(@NotNull DiscordUtils.Builder<?> manager) {
 		Checks.notNull(manager, "manager");
 
