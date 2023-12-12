@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 public class MenuComponent<T extends Menu> extends ButtonComponent {
 	@SuppressWarnings("unchecked")
-	private BiFunction<T, UpdateState, SendState<T>> creator = (menu, state) -> (SendState<T>) menu.createState(state);
+	private BiFunction<T, UpdateState, SendState<T>> creator = (menu, state) -> (SendState<T>) menu.createState();
 
 	/**
 	 * @param menu  The menu to display when clicked
@@ -89,5 +89,15 @@ public class MenuComponent<T extends Menu> extends ButtonComponent {
 		Checks.notNull(creator, "creator");
 		this.creator = creator;
 		return this;
+	}
+
+	/**
+	 * Sets a state creator, that automatically copies the current state to the new menu
+	 * @return {@code this}
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public MenuComponent<T> transfereState() {
+		return setStateCreator((menu, state) -> (SendState<T>) menu.createState(state));
 	}
 }
