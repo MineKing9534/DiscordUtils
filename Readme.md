@@ -661,3 +661,6 @@ The EntitySelectComponent is similar to StringSelectComponent, but instead of cu
 ## List Manager
 
 The ListManager can be used to paginate large amounts of data. It uses the [UIManager](#ui-manager) internally.
+
+## Default Localization System
+
