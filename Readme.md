@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-  implementation "de.mineking:DiscordUtils:3.0.0"
+  implementation "de.mineking:DiscordUtils:VERSION"
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
   <dependency>
     <groupId>de.mineking</groupId>
     <artifactId>DiscordUtils</artifactId>
-    <version>3.0.0</version>
+    <version>VERSION</version>
   </dependency>
 </dependencies>
 ```
