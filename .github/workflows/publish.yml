@@ -1,0 +1,21 @@
+  name: Java CD with Gradle
+
+  on:
+    workflow_dispatch:
+    release:
+      types:
+        - published
+
+  jobs:
+    build:
+      uses: ./.github/workflows/build.yml
+    publish:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Publish with gradle
+          run: ./gradlew publish
+          env:
+            MAVEN_USERNAME: ${{ secrets.MAVEN_NAME }}
+            MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
+            RELEASE: true

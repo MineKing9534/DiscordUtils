@@ -10,16 +10,21 @@ name: Java CI with Gradle
 on:
   workflow_dispatch:
   push:
-    branches: [ "master" ]
+    branches: [ "**" ]
+    paths:
+      - 'src/**'
+      - 'build.gradle'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - 'src/**'
+      - 'build.gradle'
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -42,3 +47,4 @@ jobs:
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_NAME }}
         MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
+        RELEASE: false

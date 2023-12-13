@@ -5,6 +5,7 @@ plugins {
 
 group = 'de.mineking'
 version = '3.0.0'
+var commit = getCommit()
 
 repositories {
     mavenCentral()
@@ -31,7 +32,7 @@ java {
 publishing {
     repositories {
         maven {
-            url = "https://maven.mineking.dev/releases"
+            url = "https://maven.mineking.dev/" + (System.getenv("RELEASE") ? "releases" : "snapshots")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_SECRET")
@@ -45,7 +46,7 @@ publishing {
         maven(MavenPublication) {
             groupId = "de.mineking"
             artifactId = "DiscordUtils"
-            version = this.version
+            version = System.getenv("RELEASE") ? this.version : commit
 
             from components.java
         }
@@ -62,4 +63,13 @@ test {
 
 compileJava {
     options.compilerArgs << '-parameters'
+}
+
+static String getCommit() {
+    try {
+        var commit = 'git rev-parse --verify --short HEAD'.execute().text.trim()
+        return commit.isEmpty() ? 'unknown' : commit
+    } catch(IOException e) {
+        throw new RuntimeException(e)
+    }
 }
