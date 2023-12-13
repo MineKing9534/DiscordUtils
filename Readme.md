@@ -1,4 +1,4 @@
-![[Java CI]](https://github.com/MineKing9534/DiscordUtils/actions/workflows/check.yml/badge.svg)
+![[Java CI]](https://github.com/Utils4J/DiscordUtils/actions/workflows/check.yml/badge.svg)
 ![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/mineking/DiscordUtils?prefix=v&name=Latest%20Version)
 
 # Installation
