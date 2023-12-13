@@ -13,9 +13,9 @@
       needs: build
       runs-on: ubuntu-latest
       steps:
-        - name: Publish with gradle
-          run: ./gradlew publish
-          env:
-            MAVEN_USERNAME: ${{ secrets.MAVEN_NAME }}
-            MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
-            RELEASE: true
+      - name: Publish with gradle
+        run: ./gradlew publish
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_NAME }}
+          MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
+          RELEASE: true

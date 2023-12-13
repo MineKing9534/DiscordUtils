@@ -5,7 +5,9 @@ plugins {
 
 group = 'de.mineking'
 version = '3.0.0'
+
 var commit = getCommit()
+var release = System.getenv("RELEASE") == "true"
 
 repositories {
     mavenCentral()
@@ -32,7 +34,7 @@ java {
 publishing {
     repositories {
         maven {
-            url = "https://maven.mineking.dev/" + (System.getenv("RELEASE") ? "releases" : "snapshots")
+            url = "https://maven.mineking.dev/" + (release ? "releases" : "snapshots")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_SECRET")
@@ -46,7 +48,7 @@ publishing {
         maven(MavenPublication) {
             groupId = "de.mineking"
             artifactId = "DiscordUtils"
-            version = System.getenv("RELEASE") ? this.version : commit
+            version = release ? this.version : commit
 
             from components.java
         }
