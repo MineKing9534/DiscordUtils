@@ -14,6 +14,7 @@ import de.mineking.discordutils.list.ListManager;
 import de.mineking.discordutils.localization.Localization;
 import de.mineking.discordutils.localization.LocalizationFunction;
 import de.mineking.discordutils.localization.LocalizationManager;
+import de.mineking.discordutils.restaction.CustomRestActionManager;
 import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -281,6 +282,14 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		@NotNull
 		public <C extends ICommandContext> Builder<B> useHelpManager(@NotNull Function<DiscordUtils.Builder<B>, List<? extends HelpTarget>> targets, @NotNull HelpTarget mainTarget, @Nullable Consumer<HelpManager<C>> config) {
 			return addManager(new HelpManager<>(this, targets, mainTarget), config);
+		}
+
+		/**
+		 * @param config A consumer to configure the new {@link CustomRestActionManager}
+		 * @return {@code this}
+		 */
+		public Builder<B> useCustomRequests(@Nullable Consumer<CustomRestActionManager> config) {
+			return addManager(new CustomRestActionManager(), config);
 		}
 
 		public DiscordUtils<B> build() {
