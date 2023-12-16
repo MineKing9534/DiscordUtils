@@ -5,6 +5,7 @@ import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.MessageRenderer;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
@@ -91,7 +92,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		return uiManager.createMenu(
 				"list." + path,
-				s -> object.apply(s).buildEmbed(s, new ListContext(this, s.event)),
+				MessageRenderer.embed(s -> object.apply(s).buildEmbed(s, new ListContext(this, s.event))),
 				components
 		);
 	}

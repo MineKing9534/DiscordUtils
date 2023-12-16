@@ -7,6 +7,7 @@ import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.MessageRenderer;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -55,13 +56,13 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 
 		this.mainMenu = uiManager.createMenu(
 				"help",
-				mainTarget::build,
+				MessageRenderer.embed(mainTarget::build),
 				mainTarget.getComponents()
 		);
 
 		this.menus = this.targets.stream().collect(Collectors.toMap(HelpTarget::getKey, t -> uiManager.createMenu(
 				"help." + t.getKey(),
-				t::build,
+				MessageRenderer.embed(t::build),
 				t.getComponents()
 		)));
 
