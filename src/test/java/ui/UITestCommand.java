@@ -4,6 +4,7 @@ import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.commands.ApplicationCommand;
 import de.mineking.discordutils.commands.ApplicationCommandMethod;
 import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.MessageRenderer;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
 import de.mineking.discordutils.ui.components.button.ToggleComponent;
@@ -18,11 +19,12 @@ public class UITestCommand {
 	public UITestCommand(DiscordUtils<?> manager) {
 		menu = manager.getUIManager().createMenu(
 				"test",
-				state -> new EmbedBuilder()
+				MessageRenderer.embed(state -> new EmbedBuilder()
 						.setTitle("Test Menu")
 						.addField("Text", state.getState("text"), false)
 						.addField("Last user", state.getEvent().map(e -> e.getUser().toString()).orElse("*none*"), false)
-						.build(),
+						.build()
+				),
 				ComponentRow.of(
 						new ButtonComponent("button", ButtonColor.BLUE, "Append !")
 								.appendHandler(state -> {

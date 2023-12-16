@@ -578,11 +578,12 @@ public class TestCommand {
   public UITestCommand(UIManager manager) {
     menu = manager.createMenu(
             "test",
-            state -> new EmbedBuilder()
+            MessageRenderer.embed(state -> new EmbedBuilder()
                     .setTitle("Test Menu")
                     .addField("Text", state.getState("text"), false)
                     .addField("Last user", state.getEvent().map(e -> e.getUser().toString()).orElse("*none*"), false)
-                    .build(),
+                    .build()
+            ),
             ComponentRow.of(
                     new ButtonComponent("button", ButtonColor.BLUE, "Append !")
                             .appendHandler(state -> {
@@ -615,7 +616,7 @@ For example, you should not store large objects but instead an identifier to the
 Additionally, you should not store sensitive information in a state because other users or bots might be able to see the component custom ids, where the state is saved.
 
 ```java
-state.getState("xy id",id->database.getFromId(id));
+state.getState("xy id", id -> database.getFromId(id));
 ```
 
 The `effect` method can be used to detect state changes, much like in the react framework in web development. This may be useful if you want to store the value of a state in the database or something similar.
