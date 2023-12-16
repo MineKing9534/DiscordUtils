@@ -612,6 +612,8 @@ If you don't need to set an initial state like in the above example, you can als
 The state is stored as json in the component ids. This means that the storage space in state is very limited, and you should only persist data in there that really have to be stored.
 For example, you should not store large objects but instead an identifier to then load the actual data from a database or something like that:
 
+Additionally, you should not store sensitive information in a state because other users or bots might be able to see the component custom ids, where the state is saved.
+
 ```java
 state.getState("xy id",id->database.getFromId(id));
 ```
