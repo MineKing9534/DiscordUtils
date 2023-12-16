@@ -7,6 +7,7 @@ import de.mineking.discordutils.events.EventManager;
 import de.mineking.discordutils.help.HelpManager;
 import de.mineking.discordutils.languagecache.LanguageCacheManager;
 import de.mineking.discordutils.list.ListManager;
+import de.mineking.discordutils.restaction.CustomRestActionManager;
 import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,15 @@ public interface ManagerContainer {
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	default  <C extends ICommandContext> HelpManager<C> getHelpManager() {
+	default <C extends ICommandContext> HelpManager<C> getHelpManager() {
 		return (HelpManager<C>) getManager(HelpManager.class).orElseThrow(IllegalStateException::new);
+	}
+
+	/**
+	 * @return The {@link CustomRestActionManager} previously registered on this {@link DiscordUtils} instance
+	 * @throws IllegalStateException If no {@link HelpManager} is registered
+	 */
+	default CustomRestActionManager getCustomRestActionManager() {
+		return getManager(CustomRestActionManager.class).orElseThrow(IllegalStateException::new);
 	}
 }
