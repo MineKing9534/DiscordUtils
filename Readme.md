@@ -1,9 +1,9 @@
-![[Java CI]](https://github.com/MineKing9534/DiscordUtils/actions/workflows/check.yml/badge.svg)
-![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/mineking/DiscordUtils?prefix=v&name=Latest%20Version)
+![[Java CI]](https://github.com/Utils4J/DiscordUtils/actions/workflows/check.yml/badge.svg)
+![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/mineking/DiscordUtils?prefix=v&name=Latest%20Version&color=0374b5)
 
 # Installation
 
-DiscordUtils is hosted on a custom repository at [https://maven.mineking.dev](https://maven.mineking.dev/releases/de/mineking/DiscordUtils). Replace VERSION with the lastest version (without the `v` prefix).
+DiscordUtils is hosted on a custom repository at [https://maven.mineking.dev](https://maven.mineking.dev/#/releases/de/mineking/DiscordUtils). Replace VERSION with the lastest version (without the `v` prefix).
 Alternatively, you can download the artifacts from jitpack (not recommended).
 
 ### Gradle
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-  implementation "de.mineking:DiscordUtils:3.0.0"
+  implementation "de.mineking:DiscordUtils:VERSION"
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
   <dependency>
     <groupId>de.mineking</groupId>
     <artifactId>DiscordUtils</artifactId>
-    <version>3.0.0</version>
+    <version>VERSION</version>
   </dependency>
 </dependencies>
 ```
@@ -578,11 +578,12 @@ public class TestCommand {
   public UITestCommand(UIManager manager) {
     menu = manager.createMenu(
             "test",
-            state -> new EmbedBuilder()
+            MessageRenderer.embed(state -> new EmbedBuilder()
                     .setTitle("Test Menu")
                     .addField("Text", state.getState("text"), false)
                     .addField("Last user", state.getEvent().map(e -> e.getUser().toString()).orElse("*none*"), false)
-                    .build(),
+                    .build()
+            ),
             ComponentRow.of(
                     new ButtonComponent("button", ButtonColor.BLUE, "Append !")
                             .appendHandler(state -> {
@@ -612,8 +613,10 @@ If you don't need to set an initial state like in the above example, you can als
 The state is stored as json in the component ids. This means that the storage space in state is very limited, and you should only persist data in there that really have to be stored.
 For example, you should not store large objects but instead an identifier to then load the actual data from a database or something like that:
 
+Additionally, you should not store sensitive information in a state because other users or bots might be able to see the component custom ids, where the state is saved.
+
 ```java
-state.getState("xy id",id->database.getFromId(id));
+state.getState("xy id", id -> database.getFromId(id));
 ```
 
 The `effect` method can be used to detect state changes, much like in the react framework in web development. This may be useful if you want to store the value of a state in the database or something similar.
