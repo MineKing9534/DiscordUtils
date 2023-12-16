@@ -212,6 +212,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		else {
 			try {
 				method.invoke(instance.get(), buildParameters(context));
+			} catch(CommandCancellation ignored) {
+
 			} catch(InvocationTargetException e) {
 				CommandManager.logger.error("Command threw exception", e.getCause());
 				if(manager.exceptionHandler != null) manager.exceptionHandler.accept(context.getEvent(), new CommandException(this, e.getCause()));
