@@ -162,12 +162,12 @@ public abstract class Command<C extends ICommandContext> {
 	}
 
 	/**
-	 * @param guild The id of the guild to get the id of this command for. If the scope of this command is not {@link Scope#GUILD}, you can provide {@code null} here
+	 * @param guild The id of the guild to get the id of this command for. If the scope of this command is not {@link Scope#GUILD}, you can provide {@code 0} here
 	 * @return The id of this command or {@code null}
 	 */
 	@Nullable
 	public Long getId(long guild) {
-		return scope == Scope.GUILD
+		return getRoot().scope == Scope.GUILD
 				? id.get(guild)
 				: id.get(0);
 	}
@@ -178,18 +178,26 @@ public abstract class Command<C extends ICommandContext> {
 	 */
 	@Nullable
 	public Long getId() {
-		if(scope == Scope.GUILD) throw new IllegalStateException();
+		if(getRoot().scope == Scope.GUILD) throw new IllegalStateException();
 		return id.get(0);
 	}
 
+	/**
+	 * @param guild The id of the guild to get the id of this command for. If the scope of this command is not {@link Scope#GUILD}, you can provide {@code 0} here
+	 * @return A clickable mention of this command
+	 * @throws IllegalStateException If the scope of this command is {@link Scope#GUILD}
+	 */
 	@NotNull
 	public String getAsMention(long guild) {
 		return "</" + getPath(" ") + ":" + getId(guild) + ">";
 	}
 
+	/**
+	 * @return A clickable mention of this command
+	 */
 	@NotNull
 	public String getAsMention() {
-		if(scope == Scope.GUILD) throw new IllegalStateException();
+		if(getRoot().scope == Scope.GUILD) throw new IllegalStateException();
 		return getAsMention(0);
 	}
 
