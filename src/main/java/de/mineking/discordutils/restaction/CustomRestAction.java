@@ -9,6 +9,7 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -72,9 +73,9 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 		return new CustomRestFuture<>(this, host, route, body, headers);
 	}
 
-	public abstract T handle(CustomRequest<T> request, Response response);
+	public abstract T handle(CustomRequest<T> request, Response response) throws IOException;
 
-	void handleSuccess(CustomRequest<T> request, Response response) {
+	void handleSuccess(CustomRequest<T> request, Response response) throws IOException {
 		if(request.onSuccess() != null) request.onSuccess().accept(handle(request, response));
 	}
 }

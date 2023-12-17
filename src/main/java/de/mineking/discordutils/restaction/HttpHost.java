@@ -1,5 +1,6 @@
 package de.mineking.discordutils.restaction;
 
+import de.mineking.discordutils.IOBiFunction;
 import net.dv8tion.jda.api.requests.Route;
 import net.dv8tion.jda.internal.requests.Requester;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -11,7 +12,7 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiFunction;
+import java.io.IOException;
 
 public class HttpHost {
 	public final CustomRestActionManager manager;
@@ -28,20 +29,20 @@ public class HttpHost {
 	}
 
 	@NotNull
-	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull BiFunction<CustomRequest<T>, Response, T> handler, @Nullable RequestBody body, @Nullable Headers headers) {
+	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull IOBiFunction<CustomRequest<T>, Response, T> handler, @Nullable RequestBody body, @Nullable Headers headers) {
 		Checks.notNull(route, "route");
 		Checks.notNull(handler, "handler");
 
-		return new CustomRestAction<T>(this, route, body, headers == null ? null : headers.headers) {
+		return new CustomRestAction<>(this, route, body, headers == null ? null : headers.headers) {
 			@Override
-			public T handle(CustomRequest<T> request, Response response) {
+			public T handle(CustomRequest<T> request, Response response) throws IOException {
 				return handler.apply(request, response);
 			}
 		};
 	}
 
 	@NotNull
-	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull BiFunction<CustomRequest<T>, Response, T> handler) {
+	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull IOBiFunction<CustomRequest<T>, Response, T> handler) {
 		return request(route, handler, null, null);
 	}
 
