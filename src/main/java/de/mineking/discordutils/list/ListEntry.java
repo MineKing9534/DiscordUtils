@@ -9,5 +9,5 @@ public interface ListEntry {
 	 * @return The string representation of this entry
 	 */
 	@NotNull
-	String build(int index, @NotNull ListContext context);
+	String build(int index, @NotNull ListContext<? extends ListEntry> context);
 }

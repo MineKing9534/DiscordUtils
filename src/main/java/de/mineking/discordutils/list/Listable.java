@@ -15,7 +15,7 @@ public interface Listable<T extends ListEntry> {
 	 * @return All entries
 	 */
 	@NotNull
-	List<T> getEntries(@NotNull DataState<MessageMenu> state, @NotNull ListContext context);
+	List<T> getEntries(@NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context);
 
 	/**
 	 * @return The number of entries to display on a single page
@@ -30,7 +30,7 @@ public interface Listable<T extends ListEntry> {
 	 * @return An {@link EmbedBuilder}
 	 */
 	@NotNull
-	default EmbedBuilder createEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext context) {
+	default EmbedBuilder createEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context) {
 		return new EmbedBuilder();
 	}
 
@@ -40,21 +40,19 @@ public interface Listable<T extends ListEntry> {
 	 * @return The {@link MessageEmbed} to display
 	 */
 	@NotNull
-	default MessageEmbed buildEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext context) {
+	default MessageEmbed buildEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context) {
 		var embed = createEmbed(state, context);
 
-		var entries = getEntries(state, context);
+		state.setCache("size", context.entries().size());
 
-		state.setCache("size", entries.size());
-
-		var maxPage = (entries.size() - 1) / entriesPerPage() + 1;
+		var maxPage = (context.entries().size() - 1) / entriesPerPage() + 1;
 		state.setCache("maxpage", maxPage);
 
 		int page = Math.max(Math.min(state.<Integer>getOptionalState("page").orElse(1), 1), maxPage);
 
-		if(!entries.isEmpty()) {
-			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < entries.size(); i++) {
-				embed.appendDescription(entries.get(i).build(i, context) + "\n");
+		if(!context.entries().isEmpty()) {
+			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < context.entries().size(); i++) {
+				embed.appendDescription(context.entries().get(i).build(i, context) + "\n");
 			}
 		}
 

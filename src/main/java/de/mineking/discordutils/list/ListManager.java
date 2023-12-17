@@ -92,7 +92,12 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		return uiManager.createMenu(
 				"list." + path,
-				MessageRenderer.embed(s -> object.apply(s).buildEmbed(s, new ListContext(this, s.event))),
+				MessageRenderer.embed(s -> {
+					var o = object.apply(s);
+					var context = new ListContext<T>(this, s.event, new ArrayList<>());
+					context.entries().addAll(o.getEntries(s, context));
+					return o.buildEmbed(s, context);
+				}),
 				components
 		);
 	}
