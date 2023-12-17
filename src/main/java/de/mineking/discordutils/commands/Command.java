@@ -1,9 +1,9 @@
 package de.mineking.discordutils.commands;
 
+import de.mineking.discordutils.commands.condition.ICommandPermission;
 import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.IRegistrationCondition;
 import de.mineking.discordutils.commands.condition.Scope;
-import de.mineking.discordutils.commands.condition.ICommandPermission;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -166,7 +166,7 @@ public abstract class Command<C extends ICommandContext> {
 	 * @return The id of this command or {@code null}
 	 */
 	@Nullable
-	public Long getId(@NotNull Long guild) {
+	public Long getId(long guild) {
 		return scope == Scope.GUILD
 				? id.get(guild)
 				: id.get(0);
@@ -180,6 +180,17 @@ public abstract class Command<C extends ICommandContext> {
 	public Long getId() {
 		if(scope == Scope.GUILD) throw new IllegalStateException();
 		return id.get(0);
+	}
+
+	@NotNull
+	public String getAsMention(long guild) {
+		return "</" + getPath(" ") + ":" + getId(guild) + ">";
+	}
+
+	@NotNull
+	public String getAsMention() {
+		if(scope == Scope.GUILD) throw new IllegalStateException();
+		return getAsMention(0);
 	}
 
 	/**

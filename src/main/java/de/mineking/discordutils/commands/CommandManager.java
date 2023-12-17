@@ -350,15 +350,14 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 
 	/**
 	 * @param type The java clazz of the annotated command to look up
-	 * @return The default command instance for the specified class. If none is found, an exception is thrown
+	 * @return The command implementation for the provided class
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
-	public <T> T getCommand(@NotNull Class<T> type) {
+	public <T> AnnotatedCommand<T, C, A> getCommand(@NotNull Class<T> type) {
 		Checks.notNull(type, "type");
 		return commands.values().stream()
 				.filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.clazz.equals(type))
-				.findFirst().map(c -> (T) ((AnnotatedCommand<?, ?, ?>) c).instance.apply(null)).orElseThrow();
+				.findFirst().map(c -> (AnnotatedCommand<T, C, A>) c).orElseThrow();
 	}
 
 	/**
