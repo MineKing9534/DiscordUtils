@@ -4,6 +4,7 @@ import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.IRegistrationCondition;
 import de.mineking.discordutils.commands.condition.cooldown.Cooldown;
 import de.mineking.discordutils.commands.condition.cooldown.CooldownImpl;
+import de.mineking.discordutils.commands.condition.cooldown.CooldownPool;
 import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.Autocomplete;
@@ -19,6 +20,7 @@ import java.lang.reflect.*;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -32,6 +34,8 @@ import java.util.function.Function;
  * @see CommandManager#registerCommand(Class)
  */
 public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompleteContext> extends Command<C> {
+	private final static Map<String, CooldownImpl<?>> cooldowns = new HashMap<>();
+
 	@NotNull
 	public final Class<T> clazz;
 	@NotNull
@@ -108,28 +112,37 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 					CommandManager.logger.error("Failed to read condition field", e);
 				}
 			}
+		}
 
-			for(var m : clazz.getMethods()) {
-				var cooldown = m.getAnnotation(Cooldown.class);
+		for(var m : clazz.getMethods()) {
+			var cooldown = m.getAnnotation(Cooldown.class);
 
-				if(cooldown != null) {
-					//TODO use Cooldown#uses()
-					condition = getCondition().and(new CooldownImpl<>(Duration.ofSeconds(cooldown.interval()), (man, context) ->
-							instance.apply(context).ifPresent(i -> {
-								try {
-									manager.getManager().invokeMethod(m, i, p -> {
-										if(p.getType().isAssignableFrom(context.getClass())) return context;
-										else return null;
-									});
-								} catch(InvocationTargetException | IllegalAccessException e) {
-									CommandManager.logger.error("Failed to execute cooldown error method", e);
-								}
-							})
-					));
+			if(cooldown != null) {
+				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), (man, context) ->
+						instance.apply(context).ifPresent(i -> {
+							try {
+								manager.getManager().invokeMethod(m, i, p -> {
+									if(p.getType().isAssignableFrom(context.getClass())) return context;
+									else return null;
+								});
+							} catch(InvocationTargetException | IllegalAccessException e) {
+								CommandManager.logger.error("Failed to execute cooldown error method", e);
+							}
+						})
+				);
 
-					break;
-				}
+				if(!cooldown.identifier().isEmpty()) cooldowns.put(cooldown.identifier(), impl);
+
+				condition = getCondition().and(impl);
+
+				break;
 			}
+		}
+
+		if(clazz.isAnnotationPresent(CooldownPool.class)) {
+			var impl = cooldowns.get(clazz.getAnnotation(CooldownPool.class).value());
+			if(impl == null) CommandManager.logger.warn("Cooldown-Pool referenced by " + getPath(".") + " not found - Ignoring...");
+			else condition = getCondition().and((CooldownImpl<C>) impl);
 		}
 
 		if(info.type() == net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) {
