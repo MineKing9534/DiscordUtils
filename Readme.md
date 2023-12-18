@@ -1,4 +1,4 @@
-![[Java CI]](https://github.com/Utils4J/DiscordUtils/actions/workflows/check.yml/badge.svg)
+s![[Java CI]](https://github.com/Utils4J/DiscordUtils/actions/workflows/check.yml/badge.svg)
 ![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/mineking/DiscordUtils?prefix=v&name=Latest%20Version&color=0374b5)
 
 # Installation
@@ -174,8 +174,8 @@ public class TestBot {
 
     discordUtils = DiscordUtils.create(jda, this)
             .useCommandManager(
-                    shared.CommandContext::new, //Function to create command context
-                    shared.AutocompleteContext::new, //Function to create autocomplete context
+		            CommandContext::new, //Function to create command context
+		            AutocompleteContext::new, //Function to create autocomplete context
                     cmdMan -> cmdMan.updateCommands() //Consumer to configure the resulting CommandManager. The updateCommands() method schedules an update of all commands for when the bot is successfully logged in
             ).build();
   }
@@ -193,7 +193,7 @@ Here is a basic example of an annotated command:
 @ApplicationCommand(name = "echo", description = "sends back the the input") //The @ApplicationCommand annotation specifies basic information about your command. It has to be present!
 public class EchoCommand {
   @ApplicationCommandMethod //The @ApplicationCommandMethod specifies the method that actually handles the command execution
-  public void performCommand(shared.CommandContext context, //The method can have any name
+  public void performCommand(CommandContext context, //The method can have any name
                              @Option(name = "text") String text //All method parameters with the @Option annotation will be added to the command's option list. They will automatically be created and parsed
   ) {
     context.event.reply(text).setEphemeral(true).queue();
@@ -284,7 +284,7 @@ If you want to dynamically create your choices based on the user input, you can 
 ```java
 public class TestCommand {
   @Autocomplete("value")
-  public void handleAutocomplete(shared.AutocompleteContext context) {
+  public void handleAutocomplete(AutocompleteContext context) {
     context.event
             .replyChoice(context.event.getFocusedOption().getValue() + "!", context.event.getFocusedOption().getValue() + "!") //Suggest adding an exclamation mark at the end of the current input
             .queue();
@@ -424,12 +424,12 @@ You can also declare multiple commands in one class like this:
 ```java
 public class TestCommands {
   @ApplicationCommand(name = "a")
-  public void performA(shared.CommandContext context) {
+  public void performA(CommandContext context) {
     //...
   }
 
   @ApplicationCommand(name = "b")
-  public void performB(shared.CommandContext context) {
+  public void performB(CommandContext context) {
     //...
   }
 }
@@ -443,13 +443,13 @@ annotation and use these instead.
 To create inherited commands, you can create a class that extends `Command`. You then have to create an instance of your command class and register it to the command manager:
 
 ```java
-public class TestCommand extends Command<shared.CommandContext> {
+public class TestCommand extends Command<CommandContext> {
   public TestCommand() {
     addOption(new OptionData(OptionType.STRING, "test", "description", true));
   }
 
   @Override
-  public void performCommand(shared.CommandContext context) {
+  public void performCommand(CommandContext context) {
     //You have to access the option like you would normally with context.event.getOption(...)
   }
 }
@@ -464,11 +464,11 @@ commandManager.registerCommand(new TestCommand());
 For autocomplete, you can use `AutocompleteOption`:
 
 ```java
-public class TestCommand extends Command<shared.CommandContext> {
+public class TestCommand extends Command<CommandContext> {
   public TestCommand() {
     addOption(new AutocompleteOption(OptionType.STRING, "test", "description", true) {
       @Override
-      public void handleAutocomplete(shared.AutocompleteContext context) {
+      public void handleAutocomplete(AutocompleteContext context) {
         context.event
                 .replyChoice(context.event.getFocusedOption().getValue() + "!", context.event.getFocusedOption().getValue() + "!") //Suggest adding an exclamation mark at the end of the current input
                 .queue();
@@ -477,7 +477,7 @@ public class TestCommand extends Command<shared.CommandContext> {
   }
 
   @Override
-  public void performCommand(shared.CommandContext context) {
+  public void performCommand(CommandContext context) {
     //You have to access the option like you would normally with context.event.getOption(...)
   }
 }
@@ -542,7 +542,7 @@ When you enable the EventManager, you can also use `@Listener` in annotated comm
 @ApplicationCommand(name = "test")
 public class TestCommand {
   @ApplicationCommandMethod
-  public void performCommand(shared.CommandContext context) {
+  public void performCommand(CommandContext context) {
     context.event.replyModal(
             Modal.create("test:modal", "title", TextInputStyle.SHORT)
                     //...
