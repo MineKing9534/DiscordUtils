@@ -12,6 +12,8 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -19,7 +21,7 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 	private final Function<String, MessageMenu> menu;
 	private final BiConsumer<C, MessageSendState> state;
 
-	private final String pageName;
+	private final OptionData pageOption;
 
 	ListCommand(Function<String, MessageMenu> menu, BiConsumer<C, MessageSendState> state, CommandManager<C, ?> manager, OptionData option) {
 		super(manager, "list");
@@ -27,15 +29,22 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 		this.menu = menu;
 		this.state = state;
 
-		addOption(option);
-		this.pageName = option.getName();
+		this.pageOption = option;
+	}
+
+	@NotNull
+	@Override
+	public List<OptionData> getOptions() {
+		var temp = new ArrayList<>(options);
+		temp.add(pageOption);
+		return temp;
 	}
 
 	@Override
 	public void performCommand(@NotNull C context) throws Exception {
 		var state = menu.apply(getPath(".")).createState();
 
-		state.setState("page", context.getEvent().getOption(pageName, 1, OptionMapping::getAsInt));
+		state.setState("page", context.getEvent().getOption(pageOption.getName(), 1, OptionMapping::getAsInt));
 
 		this.state.accept(context, state);
 		state.display(context.getEvent());

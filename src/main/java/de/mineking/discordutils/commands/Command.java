@@ -146,6 +146,14 @@ public abstract class Command<C extends ICommandContext> {
 	}
 
 	/**
+	 * @return An unmodifiable copy of this command's options
+	 */
+	@NotNull
+	public List<OptionData> getOptions() {
+		return Collections.unmodifiableList(options);
+	}
+
+	/**
 	 * @return The parent of this command or {@code null}
 	 */
 	@Nullable
@@ -314,7 +322,7 @@ public abstract class Command<C extends ICommandContext> {
 					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 		} else {
 			var sc = Commands.slash(name, "---")
-					.addOptions(options)
+					.addOptions(getOptions())
 					.setDefaultPermissions(getPermission().requiredPermissions())
 					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 
@@ -345,7 +353,7 @@ public abstract class Command<C extends ICommandContext> {
 
 	private SubcommandData buildSubcommand(String prefix) {
 		var cmd = new SubcommandData(prefix + name, "---")
-				.addOptions(options);
+				.addOptions(getOptions());
 
 		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
 		cmd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());

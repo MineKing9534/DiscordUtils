@@ -437,7 +437,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
 		if(!commands.containsKey(event.getFullCommandName())) return;
 
-		for(var option : commands.get(event.getFullCommandName()).options) {
+		for(var option : commands.get(event.getFullCommandName()).getOptions()) {
 			if(option instanceof AutocompleteOption<?> && option.getName().equals(event.getFocusedOption().getName())) {
 				((AutocompleteOption<A>) option).handleAutocomplete(createAutocompleteContext(event));
 				return;
