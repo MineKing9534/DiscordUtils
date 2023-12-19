@@ -104,7 +104,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				manager.getParser(p).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
 			}
 
-			var tInstance = instance.apply(null);
+			var tInstance = instance.apply(null).orElse(null);
 			for(var f : clazz.getFields()) {
 				try {
 					if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = getCondition().and((IExecutionCondition<C>) f.get(tInstance));
