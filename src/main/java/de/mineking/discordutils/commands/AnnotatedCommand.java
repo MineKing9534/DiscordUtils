@@ -110,7 +110,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 					if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = getCondition().and((IExecutionCondition<C>) f.get(tInstance));
 					else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = getRegistration().and((IRegistrationCondition<C>) f.get(tInstance));
 				} catch(Exception e) {
-					CommandManager.logger.error("Failed to read condition field", e);
+					CommandManager.logger.error("Failed to read condition field '{}' for command '{}'", f.getName(), name, e);
 				}
 			}
 		}
