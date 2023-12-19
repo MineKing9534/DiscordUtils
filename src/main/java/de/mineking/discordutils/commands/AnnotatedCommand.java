@@ -64,7 +64,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			if(!m.isAnnotationPresent(Setup.class)) continue;
 
 			try {
-				manager.getManager().invokeMethod(m, null, p -> {
+				manager.getManager().invokeMethod(m, null, (i, p) -> {
 					if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return this;
 					else return null;
 				});
@@ -122,7 +122,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), (man, context) ->
 						instance.apply(context).ifPresent(i -> {
 							try {
-								manager.getManager().invokeMethod(m, i, p -> {
+								manager.getManager().invokeMethod(m, i, (x, p) -> {
 									if(p.getType().isAssignableFrom(context.getClass())) return context;
 									else return null;
 								});
@@ -225,7 +225,12 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		if(instance.isEmpty()) CommandManager.logger.warn("No instance found for '{}' with context {}", name, context);
 		else {
 			try {
-				method.invoke(instance.get(), buildParameters(context));
+				manager.getManager().invokeMethod(method, instance.get(), (i, p) -> {
+					if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
+					else if(p.getType().isAssignableFrom(context.getClass())) return context;
+					else if(p.isAnnotationPresent(Option.class)) return manager.parseOption(context.getEvent(), getOptionName(p), p, p.getType(), method.getGenericParameterTypes()[i]);
+					else return null;
+				});
 			} catch(CommandCancellation ignored) {
 
 			} catch(InvocationTargetException e) {
@@ -249,7 +254,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			public void handleAutocomplete(@NotNull A context) {
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {
 					try {
-						manager.getManager().invokeMethod(autocomplete, instance, p -> {
+						manager.getManager().invokeMethod(autocomplete, instance, (i, p) -> {
 							if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
 							else if(p.getType().isAssignableFrom(context.getClass())) return context;
 							else if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return AnnotatedCommand.this;
@@ -298,19 +303,5 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		}
 
 		return manager.configureOption(this, option, param, param.getType(), generic);
-	}
-
-	private Object[] buildParameters(C context) {
-		var parameters = new Object[method.getParameterCount()];
-
-		for(int i = 0; i < method.getParameterCount(); i++) {
-			var p = method.getParameters()[i];
-
-			if(p.getType().isAssignableFrom(context.getEvent().getClass())) parameters[i] = context.getEvent();
-			else if(p.getType().isAssignableFrom(context.getClass())) parameters[i] = context;
-			else if(p.isAnnotationPresent(Option.class)) parameters[i] = manager.parseOption(context.getEvent(), getOptionName(p), p, p.getType(), method.getGenericParameterTypes()[i]);
-		}
-
-		return parameters;
 	}
 }

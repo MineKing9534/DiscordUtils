@@ -157,11 +157,11 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 				if(listener == null) continue;
 
 				try {
-					eventManager.addEventHandler(getManager().createInstance(listener.type(), p -> {
+					eventManager.addEventHandler(getManager().createInstance(listener.type(), (i, p) -> {
 						if(p.getName().equals("filter")) return listener.filter();
 						else if(p.getName().equals("handler")) return (Consumer<?>) event -> {
 							try {
-								getManager().invokeMethod(m, instance.apply(null), mp -> {
+								getManager().invokeMethod(m, instance.apply(null), (x, mp) -> {
 									if(mp.getType().isAssignableFrom(event.getClass())) return event;
 									else return null;
 								});
@@ -295,7 +295,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	@Nullable
 	public <T> T createCommandInstance(Class<T> type) {
 		try {
-			return getManager().createInstance(type, p -> null);
+			return getManager().createInstance(type, (i, p) -> null);
 		} catch(Exception e) {
 			logger.error("Failed to create command instance", e);
 			return null;

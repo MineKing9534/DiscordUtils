@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,7 +89,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 	 * @return The resulting instance
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T createInstance(@NotNull Class<T> type, @NotNull Function<Parameter, Object> args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+	public <T> T createInstance(@NotNull Class<T> type, @NotNull BiFunction<Integer, Parameter, Object> args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
 		Checks.notNull(type, "type");
 		Checks.notNull(args, "args");
 
@@ -102,7 +103,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 	 * @param args     A function to provide a value for a parameter
 	 * @return The method's return value
 	 */
-	public Object invokeMethod(@NotNull Method method, Object instance, @NotNull Function<Parameter, Object> args) throws InvocationTargetException, IllegalAccessException {
+	public Object invokeMethod(@NotNull Method method, Object instance, @NotNull BiFunction<Integer, Parameter, Object> args) throws InvocationTargetException, IllegalAccessException {
 		Checks.notNull(method, "method");
 		Checks.notNull(args, "args");
 
@@ -110,7 +111,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 	}
 
 	@SuppressWarnings("unchecked")
-	private Object[] createParameters(Parameter[] params, Function<Parameter, Object> args) {
+	private Object[] createParameters(Parameter[] params, BiFunction<Integer, Parameter, Object> args) {
 		var result = new Object[params.length];
 
 		for(int i = 0; i < params.length; i++) {
@@ -119,7 +120,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 			if(bot != null && p.getType().isAssignableFrom(bot.getClass())) result[i] = bot;
 			else if(p.getType().isAssignableFrom(DiscordUtils.class)) result[i] = this;
 			else if(Manager.class.isAssignableFrom(p.getType())) result[i] = getManager((Class<? extends Manager>) p.getType()).orElseThrow();
-			else result[i] = args.apply(p);
+			else result[i] = args.apply(i, p);
 		}
 
 		return result;
