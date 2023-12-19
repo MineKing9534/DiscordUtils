@@ -104,10 +104,11 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				manager.getParser(p).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
 			}
 
+			var tInstance = instance.apply(null);
 			for(var f : clazz.getFields()) {
 				try {
-					if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = getCondition().and((IExecutionCondition < C >) f.get(null));
-					else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = getRegistration().and((IRegistrationCondition<C>) f.get(null));
+					if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = getCondition().and((IExecutionCondition<C>) f.get(tInstance));
+					else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = getRegistration().and((IRegistrationCondition<C>) f.get(tInstance));
 				} catch(Exception e) {
 					CommandManager.logger.error("Failed to read condition field", e);
 				}
