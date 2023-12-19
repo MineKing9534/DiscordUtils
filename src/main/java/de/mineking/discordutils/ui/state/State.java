@@ -1,8 +1,6 @@
 package de.mineking.discordutils.ui.state;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import de.mineking.discordutils.ui.Menu;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +10,15 @@ import java.util.Map;
 import java.util.function.Function;
 
 public abstract class State<M extends Menu> {
-	public final static Gson gson = new Gson();
+	public static ToNumberStrategy numberStrategy = in -> {
+		var str = in.nextString();
+		return str.contains(".") ? Double.parseDouble(str) : Integer.parseInt(str);
+	};
+
+	public final static Gson gson = new GsonBuilder()
+			.setNumberToNumberStrategy(numberStrategy)
+			.setObjectToNumberStrategy(numberStrategy)
+			.create();
 
 	@NotNull
 	public final M menu;
