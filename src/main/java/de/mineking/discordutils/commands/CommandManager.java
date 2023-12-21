@@ -161,7 +161,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 						if(p.getName().equals("filter")) return listener.filter();
 						else if(p.getName().equals("handler")) return (Consumer<?>) event -> {
 							try {
-								getManager().invokeMethod(m, instance.apply(null), (x, mp) -> {
+								getManager().invokeMethod(m, instance.apply(null).orElse(null), (x, mp) -> {
 									if(mp.getType().isAssignableFrom(event.getClass())) return event;
 									else return null;
 								});
