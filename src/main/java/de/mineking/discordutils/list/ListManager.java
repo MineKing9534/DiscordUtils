@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -122,12 +123,19 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		Checks.notNull(object, "object");
 		Checks.notNull(additionalComponents, "additionalComponents");
 
+		var menu = new AtomicReference<MessageMenu>();
+
 		return new ListCommand<>(
-				path -> createListMenu(path, object, additionalComponents),
+				menu,
 				state,
 				commandManager,
 				pageOption
-		);
+		) {
+			public void register() {
+				super.register();
+				menu.set(createListMenu("path", object, additionalComponents));
+			}
+		};
 	}
 
 	/**

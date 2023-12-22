@@ -93,6 +93,7 @@ public class MenuComponent<T extends Menu> extends ButtonComponent {
 
 	/**
 	 * Sets a state creator, that automatically copies the current state to the new menu
+	 *
 	 * @return {@code this}
 	 */
 	@SuppressWarnings("unchecked")

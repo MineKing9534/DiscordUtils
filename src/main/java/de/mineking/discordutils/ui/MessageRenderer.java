@@ -224,5 +224,5 @@ public interface MessageRenderer {
 	}
 
 	@NotNull
-	MessageEditBuilder buildMessage(@NotNull DataState<MessageMenu> state,  @NotNull List<ActionRow> components);
+	MessageEditBuilder buildMessage(@NotNull DataState<MessageMenu> state, @NotNull List<ActionRow> components);
 }

@@ -4,7 +4,6 @@ import de.mineking.discordutils.events.IEventHandler;
 import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.MessageSendState;
-import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.internal.utils.Checks;

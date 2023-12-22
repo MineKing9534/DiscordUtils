@@ -54,9 +54,9 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 
 	@Override
 	public void queue(Consumer<? super T> success, Consumer<? super Throwable> failure) {
-		if (success == null)
+		if(success == null)
 			success = RestAction.getDefaultSuccess();
-		if (failure == null)
+		if(failure == null)
 			failure = RestAction.getDefaultFailure();
 
 		host.request(new CustomRequest<T>(this, route, success, failure, body, headers));

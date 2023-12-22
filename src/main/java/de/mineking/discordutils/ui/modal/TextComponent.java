@@ -148,7 +148,7 @@ public class TextComponent {
 	}
 
 	/**
-	 * @param id The id to use
+	 * @param id    The id to use
 	 * @param state The current {@link DataState}
 	 * @return The resulting {@link TextInput}
 	 */

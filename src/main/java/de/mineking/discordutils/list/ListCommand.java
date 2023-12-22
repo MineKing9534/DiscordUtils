@@ -14,16 +14,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class ListCommand<C extends ICommandContext> extends Command<C> {
-	private final Function<String, MessageMenu> menu;
+	private final AtomicReference<MessageMenu> menu;
 	private final BiConsumer<C, MessageSendState> state;
 
 	private final OptionData pageOption;
 
-	ListCommand(Function<String, MessageMenu> menu, BiConsumer<C, MessageSendState> state, CommandManager<C, ?> manager, OptionData option) {
+	ListCommand(AtomicReference<MessageMenu> menu, BiConsumer<C, MessageSendState> state, CommandManager<C, ?> manager, OptionData option) {
 		super(manager, "list");
 
 		this.menu = menu;
@@ -42,7 +42,7 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 
 	@Override
 	public void performCommand(@NotNull C context) throws Exception {
-		var state = menu.apply(getPath(".")).createState();
+		var state = menu.get().createState();
 
 		state.setState("page", context.getEvent().getOption(pageOption.getName(), 1, OptionMapping::getAsInt));
 

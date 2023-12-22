@@ -120,7 +120,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		Checks.notNull(command, "command");
 
 		commands.put(command.getDiscordPath(), command);
-		command.subcommands.forEach(this::registerCommand);
+		command.register();
 
 		return this;
 	}

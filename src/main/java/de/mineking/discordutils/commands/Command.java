@@ -125,6 +125,10 @@ public abstract class Command<C extends ICommandContext> {
 		if(getCondition().isAllowed(manager, context)) performCommand(context);
 	}
 
+	protected void register() {
+		subcommands.forEach(manager::registerCommand);
+	}
+
 	void forAll(Consumer<Command<C>> handler) {
 		handler.accept(this);
 		subcommands.forEach(handler);
