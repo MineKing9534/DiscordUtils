@@ -99,11 +99,14 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			var context = new ListContext<T>(this, s.event, new ArrayList<>());
 			context.entries().addAll(o.getEntries(s, context));
 
-			s.setCache("maxpage", (context.entries().size() - 1) / o.entriesPerPage() + 1);
+			var max = (context.entries().size() - 1) / o.entriesPerPage() + 1;
+			s.setCache("maxpage", max);
 			s.setCache("size", context.entries().size());
 
 			s.setCache("context", context);
 			s.setCache("object", o);
+
+			s.<Integer>setState("page", p -> Math.max(Math.min(p, max), 1));
 		});
 	}
 

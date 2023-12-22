@@ -43,7 +43,7 @@ public interface Listable<T extends ListEntry> {
 	default MessageEmbed buildEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context) {
 		var embed = createEmbed(state, context);
 
-		int page = Math.max(Math.min(state.<Integer>getOptionalState("page").orElse(1), state.getCache("maxpage")), 1);
+		int page = state.getState("page");
 
 		if(!context.entries().isEmpty()) {
 			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < context.entries().size(); i++) {
