@@ -296,6 +296,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		public DiscordUtils<B> build() {
 			var result = new DiscordUtils<>(jda, bot, localization, managers);
 			managers.forEach(m -> m.manager = result);
+			Collections.reverse(setup);
 			setup.forEach(Runnable::run);
 			return result;
 		}
