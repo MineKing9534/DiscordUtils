@@ -27,6 +27,7 @@ public class DataState<M extends Menu> extends State<M> {
 		super(menu, data);
 
 		this.event = event;
+		menu.initialize(this);
 	}
 
 	/**
@@ -63,14 +64,18 @@ public class DataState<M extends Menu> extends State<M> {
 	 * @return The state value or {@code null}
 	 */
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <T> T getNullableState(@NotNull String name) {
 		Checks.notNull(name, "name");
 
 		var element = data.get(name);
 		if(element == null) return null;
 
-		return gson.fromJson(element, new TypeToken<>() {
+		var temp = gson.fromJson(element, new TypeToken<T>() {
 		});
+
+		if(temp instanceof Double d && !element.toString().contains(".")) return (T) ((Integer) (int) (double) d);
+		else return temp;
 	}
 
 	/**

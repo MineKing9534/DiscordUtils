@@ -1,5 +1,6 @@
 package de.mineking.discordutils.ui;
 
+import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import de.mineking.discordutils.ui.state.State;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
@@ -25,6 +26,7 @@ public abstract class Menu {
 	@SuppressWarnings("rawtypes")
 	private final Set<EffectHandler> genericEffect = new HashSet<>();
 
+
 	public Menu(@NotNull UIManager manager, @NotNull String id) {
 		this.manager = manager;
 		this.id = id;
@@ -38,6 +40,11 @@ public abstract class Menu {
 		if(effect.containsKey(name)) effect.get(name).handle(state, name, oldValue, newValue);
 		genericEffect.forEach(h -> h.handle(state, name, oldValue, newValue));
 	}
+
+	/**
+	 * <i>Internal method</i>
+	 */
+	public abstract void initialize(@NotNull DataState<?> state);
 
 	/**
 	 * @param name    The name of the state to listen to

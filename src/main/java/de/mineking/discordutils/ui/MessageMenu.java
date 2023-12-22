@@ -2,6 +2,7 @@ package de.mineking.discordutils.ui;
 
 import com.google.gson.JsonParser;
 import de.mineking.discordutils.ui.components.types.ComponentRow;
+import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.MessageSendState;
 import de.mineking.discordutils.ui.state.State;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MessageMenu extends Menu {
 	@NotNull
@@ -23,11 +25,19 @@ public class MessageMenu extends Menu {
 	@NotNull
 	public final List<ComponentRow> components;
 
+	private Consumer<DataState<MessageMenu>> cache;
+
 	MessageMenu(@NotNull UIManager manager, @NotNull String id, @NotNull MessageRenderer renderer, @NotNull List<ComponentRow> components) {
 		super(manager, id);
 
 		this.renderer = renderer;
 		this.components = components;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void initialize(@NotNull DataState<?> state) {
+		if(cache != null) cache.accept((DataState<MessageMenu>) state);
 	}
 
 	/**
@@ -79,6 +89,17 @@ public class MessageMenu extends Menu {
 	@Override
 	public <T> MessageMenu effect(@NotNull String name, @NotNull EffectHandler<T> handler) {
 		return (MessageMenu) super.effect(name, handler);
+	}
+
+
+	/**
+	 * @param handler A handler that is called before rendering. This can be used to initialize cache values
+	 * @return {@code this}
+	 */
+	@NotNull
+	public MessageMenu cache(@NotNull Consumer<DataState<MessageMenu>> handler) {
+		this.cache = handler;
+		return this;
 	}
 
 	@NotNull

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ModalMenu extends Menu {
@@ -27,11 +28,19 @@ public class ModalMenu extends Menu {
 
 	private final BiConsumer<DataState<ModalMenu>, ModalResponse> handler;
 
+	private Consumer<DataState<ModalMenu>> cache;
+
 	public ModalMenu(@NotNull UIManager manager, @NotNull String id, @NotNull Function<DataState<ModalMenu>, String> title, @NotNull List<TextComponent> components, @NotNull BiConsumer<DataState<ModalMenu>, ModalResponse> handler) {
 		super(manager, id);
 		this.title = title;
 		this.components = components;
 		this.handler = handler;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void initialize(@NotNull DataState<?> state) {
+		if(cache != null) cache.accept((DataState<ModalMenu>) state);
 	}
 
 	public IEventHandler<ModalInteractionEvent> createHandler() {
@@ -94,6 +103,16 @@ public class ModalMenu extends Menu {
 	@Override
 	public <T> ModalMenu effect(@NotNull String name, @NotNull EffectHandler<T> handler) {
 		return (ModalMenu) super.effect(name, handler);
+	}
+
+	/**
+	 * @param handler A handler that is called before rendering. This can be used to initialize cache values
+	 * @return {@code this}
+	 */
+	@NotNull
+	public ModalMenu cache(@NotNull Consumer<DataState<ModalMenu>> handler) {
+		this.cache = handler;
+		return this;
 	}
 
 	@NotNull

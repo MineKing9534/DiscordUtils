@@ -84,7 +84,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage")),
 				new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩"))
 						.appendHandler(s -> {
-							s.setState("page", s.getCache("maxpage"));
+							s.setState("page", s.<Integer>getCache("maxpage"));
 							s.update();
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage"))
 		));
@@ -92,14 +92,19 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		return uiManager.createMenu(
 				"list." + path,
-				MessageRenderer.embed(s -> {
-					var o = object.apply(s);
-					var context = new ListContext<T>(this, s.event, new ArrayList<>());
-					context.entries().addAll(o.getEntries(s, context));
-					return o.buildEmbed(s, context);
-				}),
+				MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))),
 				components
-		);
+		).cache(s -> {
+			var o = object.apply(s);
+			var context = new ListContext<T>(this, s.event, new ArrayList<>());
+			context.entries().addAll(o.getEntries(s, context));
+
+			s.setCache("maxpage", (context.entries().size() - 1) / o.entriesPerPage() + 1);
+			s.setCache("size", context.entries().size());
+
+			s.setCache("context", context);
+			s.setCache("object", o);
+		});
 	}
 
 	/**
