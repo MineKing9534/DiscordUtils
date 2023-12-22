@@ -133,7 +133,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		) {
 			public void register() {
 				super.register();
-				menu.set(createListMenu("path", object, additionalComponents));
+				menu.set(createListMenu(getPath("."), object, additionalComponents));
 			}
 		};
 	}
