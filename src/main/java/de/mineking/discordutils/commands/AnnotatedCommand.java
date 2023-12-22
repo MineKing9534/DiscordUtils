@@ -275,7 +275,10 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		if(option.getType() == OptionType.STRING) {
 			if(info.minLength() >= 0) option.setMinLength(info.minLength());
 			if(info.maxLength() >= 0) option.setMaxLength(info.maxLength());
-		} else if(option.getType() == OptionType.INTEGER || option.getType() == OptionType.NUMBER) {
+		} else if(option.getType() == OptionType.INTEGER) {
+			if(info.minValue() != Double.MIN_VALUE) option.setMinValue((int) info.minValue());
+			else if(info.maxValue() != Double.MIN_VALUE) option.setMaxValue((int) info.maxValue());
+		} else if(option.getType() == OptionType.NUMBER) {
 			if(info.minValue() != Double.MIN_VALUE) option.setMinValue(info.minValue());
 			else if(info.maxValue() != Double.MIN_VALUE) option.setMaxValue(info.maxValue());
 		} else if(option.getType() == OptionType.CHANNEL) option.setChannelTypes(info.channelTypes());
