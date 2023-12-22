@@ -184,6 +184,8 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 		if(minValues != null) temp.setMinValues(minValues);
 		if(maxValues != null) temp.setMaxValues(maxValues);
 
+		if(temp.getOptions().isEmpty()) temp.addOption("---", "---").setDisabled(true);
+
 		return temp.build();
 	}
 }
