@@ -36,6 +36,10 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	default IRegistrationCondition<C> and(@NotNull IRegistrationCondition<C> other) {
+		if(this == always) return other;
+		if(other == always) return this;
+		if(this == never || other == never) return never();
+
 		return new CombineRegistrationCondition<>(this, other, (a, b) -> a && b, " & ");
 	}
 
@@ -44,6 +48,10 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	default IRegistrationCondition<C> or(@NotNull IRegistrationCondition<C> other) {
+		if(this == always || other == always) return always();
+		if(this == never) return other;
+		if(other == never) return this;
+
 		return new CombineRegistrationCondition<>(this, other, (a, b) -> a || b, " / ");
 	}
 
@@ -55,20 +63,25 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 		return List.of(this);
 	}
 
+	IRegistrationCondition<?> always = (m, g, data) -> true;
+	IRegistrationCondition<?> never = (m, g, data) -> false;
+
 	/**
 	 * @return A {@link IRegistrationCondition} that always registers the command
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	static <C extends ICommandContext> IRegistrationCondition<C> always() {
-		return (m, g, data) -> true;
+		return (IRegistrationCondition<C>) always;
 	}
 
 	/**
 	 * @return A {@link IRegistrationCondition} that never registers the command
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	static <C extends ICommandContext> IRegistrationCondition<C> never() {
-		return (m, g, data) -> false;
+		return (IRegistrationCondition<C>) never;
 	}
 
 	/**

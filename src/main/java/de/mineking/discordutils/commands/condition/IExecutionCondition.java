@@ -32,6 +32,10 @@ public interface IExecutionCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	default IExecutionCondition<C> and(@NotNull IExecutionCondition<C> other) {
+		if(this == always) return other;
+		if(other == always) return this;
+		if(this == never || this == other) return never();
+
 		return new CombineExecutionCondition<>(this, other, (a, b) -> a && b, " & ");
 	}
 
@@ -40,6 +44,10 @@ public interface IExecutionCondition<C extends ICommandContext> {
 	 */
 	@NotNull
 	default IExecutionCondition<C> or(@NotNull IExecutionCondition<C> other) {
+		if(this == always || other == always) return always();
+		if(this == never) return other;
+		if(other == never) return this;
+
 		return new CombineExecutionCondition<>(this, other, (a, b) -> a || b, " / ");
 	}
 
@@ -51,20 +59,25 @@ public interface IExecutionCondition<C extends ICommandContext> {
 		return List.of(this);
 	}
 
+	IExecutionCondition<?> always = (m, c) -> true;
+	IExecutionCondition<?> never = (m, c) -> false;
+
 	/**
 	 * @return A {@link IExecutionCondition} that always permits execution
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	static <C extends ICommandContext> IExecutionCondition<C> always() {
-		return (m, c) -> true;
+		return (IExecutionCondition<C>) always;
 	}
 
 	/**
 	 * @return A {@link IExecutionCondition} that never permits execution
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	static <C extends ICommandContext> IExecutionCondition<C> never() {
-		return (m, c) -> false;
+		return (IExecutionCondition<C>) never;
 	}
 
 	/**
