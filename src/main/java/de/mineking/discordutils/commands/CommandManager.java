@@ -172,7 +172,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 						else return null;
 					}));
 				} catch(Exception e) {
-					logger.error("failed to instantiate event handler for listener method");
+					logger.error("Failed to instantiate event handler for listener method");
 				}
 			}
 		});
