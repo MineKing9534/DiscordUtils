@@ -69,7 +69,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 					else return null;
 				});
 			} catch(Exception e) {
-				CommandManager.logger.error("Failed to execute setup method {} on {}", m.getName(), name);
+				CommandManager.logger.error("Failed to execute setup method for command '{}'", name, e);
 			}
 		}
 
