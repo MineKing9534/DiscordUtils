@@ -60,19 +60,6 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 
 		this.scope = info.scope();
 
-		for(var m : clazz.getMethods()) {
-			if(!m.isAnnotationPresent(Setup.class)) continue;
-
-			try {
-				manager.getManager().invokeMethod(m, null, (i, p) -> {
-					if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return this;
-					else return null;
-				});
-			} catch(Exception e) {
-				CommandManager.logger.error("Failed to execute setup method for command '{}'", name, e);
-			}
-		}
-
 		if(method != null) {
 			var autocomplete = new HashMap<String, Method>();
 
@@ -153,6 +140,19 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				if(i == null || i.type() != net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) continue;
 
 				addSubcommand(createCommand(t, manager));
+			}
+		}
+
+		for(var m : clazz.getMethods()) {
+			if(!m.isAnnotationPresent(Setup.class)) continue;
+
+			try {
+				manager.getManager().invokeMethod(m, null, (i, p) -> {
+					if(p.getType().isAssignableFrom(AnnotatedCommand.class)) return this;
+					else return null;
+				});
+			} catch(Exception e) {
+				CommandManager.logger.error("Failed to execute setup method for command '{}'", name, e);
 			}
 		}
 
