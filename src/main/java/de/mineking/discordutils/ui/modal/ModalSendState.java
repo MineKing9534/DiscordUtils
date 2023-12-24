@@ -1,7 +1,7 @@
-package de.mineking.discordutils.ui.state;
+package de.mineking.discordutils.ui.modal;
 
 import com.google.gson.JsonObject;
-import de.mineking.discordutils.ui.modal.ModalMenu;
+import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.internal.utils.Checks;

@@ -2,6 +2,7 @@ package de.mineking.discordutils.ui.state;
 
 import com.google.gson.JsonObject;
 import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.RenderTermination;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
@@ -33,7 +34,10 @@ public class MessageSendState extends SendState<MessageMenu> {
 				.flatMap(r -> r.getComponents().stream())
 				.forEach(c -> c.register(this));
 
-		channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(null, menu, data)))).queue();
+		try {
+			channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(null, menu, data)))).queue();
+		} catch(RenderTermination ignored) {
+		}
 	}
 
 	/**
@@ -47,8 +51,11 @@ public class MessageSendState extends SendState<MessageMenu> {
 				.flatMap(r -> r.getComponents().stream())
 				.forEach(c -> c.register(this));
 
-		if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
-		else event.reply(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(event, menu, data)))).setEphemeral(ephemeral).queue();
+		try {
+			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
+			else event.reply(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(event, menu, data)))).setEphemeral(ephemeral).queue();
+		} catch(RenderTermination ignored) {
+		}
 	}
 
 	/**

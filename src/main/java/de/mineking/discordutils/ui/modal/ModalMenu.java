@@ -7,7 +7,6 @@ import de.mineking.discordutils.ui.EffectHandler;
 import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.state.DataState;
-import de.mineking.discordutils.ui.state.ModalSendState;
 import de.mineking.discordutils.ui.state.State;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
