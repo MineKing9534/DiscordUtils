@@ -33,7 +33,13 @@ public abstract class EventHandler<T extends GenericEvent> implements IEventHand
 
 	@Override
 	public boolean handle(EventManager manager, T event) {
-		handleEvent(event);
+		try {
+			handleEvent(event);
+		} catch(EventTermination ignored) {
+		} catch(Exception e) {
+			EventManager.logger.error("Error in ErrorHandler", e);
+		}
+
 		return remove;
 	}
 

@@ -3,11 +3,15 @@ package de.mineking.discordutils.events;
 import de.mineking.discordutils.Manager;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class EventManager extends Manager {
+	public final static Logger logger = LoggerFactory.getLogger(EventManager.class);
+
 	@SuppressWarnings("rawtypes")
 	private final Set<IEventHandler> eventHandlers = new HashSet<>();
 
