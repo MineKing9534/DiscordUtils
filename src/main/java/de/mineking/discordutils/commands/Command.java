@@ -325,25 +325,30 @@ public abstract class Command<C extends ICommandContext> {
 					.setDefaultPermissions(getPermission().requiredPermissions())
 					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 		} else {
-			var sc = Commands.slash(name, "---")
-					.addOptions(getOptions())
-					.setDefaultPermissions(getPermission().requiredPermissions())
-					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
+			var sc = Commands.slash(name, "---");
 
-			subcommands.forEach(group -> {
-				if(!group.getRegistration().shouldRegister(manager, guild, data)) return;
+			try {
+				sc.addOptions(getOptions())
+						.setDefaultPermissions(getPermission().requiredPermissions())
+						.setGuildOnly(scope == Scope.GUILD_GLOBAL);
 
-				if(group.subcommands.isEmpty()) sc.addSubcommands(group.buildSubcommand(""));
-				else {
-					var gd = new SubcommandGroupData(group.name, "---")
-							.addSubcommands(group.buildSubcommands("", guild, data));
+				subcommands.forEach(group -> {
+					if(!group.getRegistration().shouldRegister(manager, guild, data)) return;
 
-					var localization = manager.getManager().getLocalization(f -> f.getCommandPath(group), group.description);
-					gd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
+					if(group.subcommands.isEmpty()) sc.addSubcommands(group.buildSubcommand(""));
+					else {
+						var gd = new SubcommandGroupData(group.name, "---")
+								.addSubcommands(group.buildSubcommands("", guild, data));
 
-					sc.addSubcommandGroups(gd);
-				}
-			});
+						var localization = manager.getManager().getLocalization(f -> f.getCommandPath(group), group.description);
+						gd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
+
+						sc.addSubcommandGroups(gd);
+					}
+				});
+			} catch(Exception e) {
+				CommandManager.logger.error("Failed to configure command '{}'", name, e);
+			}
 
 			cmd = sc;
 		}
