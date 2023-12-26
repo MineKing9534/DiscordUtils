@@ -1,12 +1,15 @@
 package de.mineking.discordutils.restaction;
 
-public class HttpException extends Exception {
-	public final int code;
-	public final String message;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
-	public HttpException(int code, String message) {
-		super("HttpException: [" + code + "] " + message);
-		this.code = code;
-		this.message = message;
+import java.io.IOException;
+
+public class HttpException extends Exception {
+	public final Response response;
+
+	public HttpException(@NotNull Response response) throws IOException {
+		super("HttpException: [" + response.code() + "] " + response.body().string());
+		this.response = response;
 	}
 }

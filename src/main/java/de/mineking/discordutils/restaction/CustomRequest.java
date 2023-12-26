@@ -12,8 +12,13 @@ import java.util.function.Consumer;
 
 public record CustomRequest<T>(@NotNull CustomRestAction<T> action, @NotNull Route.CompiledRoute route, @Nullable Consumer<? super T> onSuccess, @Nullable Consumer<? super Throwable> onError, @Nullable RequestBody body,
                                @Nullable CaseInsensitiveMap<String, String> headers) {
-	void handleSuccess(Response response) throws IOException {
+	void handleSuccess(@NotNull Response response) throws IOException {
 		if(response.isSuccessful()) action.handleSuccess(this, response);
-		else if(onError != null) onError.accept(new HttpException(response.code(), response.message()));
+		else if(onError != null) onError.accept(new HttpException(response));
+	}
+
+	void handleError(@NotNull Exception e) {
+		if(onError != null) onError.accept(e);
+		else CustomRestActionManager.logger.error("Custom RestAction failed", e);
 	}
 }

@@ -72,8 +72,7 @@ public class HttpHost {
 			try(var response = call.execute()) {
 				if(request.onSuccess() != null) request.handleSuccess(response);
 			} catch(Exception e) {
-				if(request.onError() != null) request.onError().accept(e);
-				else CustomRestActionManager.logger.error("Custom RestAction failed", e);
+				request.handleError(e);
 			}
 		});
 	}
