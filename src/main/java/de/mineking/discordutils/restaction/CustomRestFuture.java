@@ -6,15 +6,16 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 
 public class CustomRestFuture<T> extends CompletableFuture<T> {
 	private final CustomRequest<T> request;
 	private final HttpHost host;
 
-	CustomRestFuture(CustomRestAction<T> action, HttpHost host, Route.CompiledRoute route, RequestBody body, CaseInsensitiveMap<String, String> headers) {
+	CustomRestFuture(CustomRestAction<T> action, HttpHost host, Route.CompiledRoute route, RequestBody body, CaseInsensitiveMap<String, String> headers, BooleanSupplier check) {
 		this.host = host;
 
-		host.request(request = new CustomRequest<>(action, route, this::complete, this::completeExceptionally, body, headers));
+		host.request(request = new CustomRequest<>(action, route, this::complete, this::completeExceptionally, body, headers, check));
 	}
 
 	@NotNull

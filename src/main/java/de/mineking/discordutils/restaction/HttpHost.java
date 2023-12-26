@@ -35,7 +35,7 @@ public class HttpHost {
 
 		return new CustomRestAction<>(this, route, body, headers == null ? null : headers.headers) {
 			@Override
-			public T handle(CustomRequest<T> request, Response response) throws IOException {
+			public T handle(@NotNull CustomRequest<T> request, @NotNull Response response) throws IOException {
 				return handler.apply(request, response);
 			}
 		};
@@ -70,6 +70,8 @@ public class HttpHost {
 
 		manager.executor.execute(() -> {
 			try(var response = call.execute()) {
+				if(request.check() != null && !request.check().getAsBoolean()) return;
+
 				if(request.onSuccess() != null) request.handleSuccess(response);
 			} catch(Exception e) {
 				request.handleError(e);

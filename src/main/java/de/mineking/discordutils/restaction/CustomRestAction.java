@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.requests.Route;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +20,8 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 
 	private final RequestBody body;
 	private final CaseInsensitiveMap<String, String> headers;
+
+	private BooleanSupplier check;
 
 	CustomRestAction(HttpHost host, Route.CompiledRoute route, RequestBody body, CaseInsensitiveMap<String, String> headers) {
 		this.host = host;
@@ -45,21 +47,19 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 		return host.manager.getManager().jda;
 	}
 
-	@Contract("_ -> fail")
 	@NotNull
 	@Override
-	public CustomRestAction<T> setCheck(BooleanSupplier checks) {
-		throw new UnsupportedOperationException();
+	public CustomRestAction<T> setCheck(@Nullable BooleanSupplier checks) {
+		this.check = checks;
+		return this;
 	}
 
 	@Override
-	public void queue(Consumer<? super T> success, Consumer<? super Throwable> failure) {
-		if(success == null)
-			success = RestAction.getDefaultSuccess();
-		if(failure == null)
-			failure = RestAction.getDefaultFailure();
+	public void queue(@Nullable Consumer<? super T> success, @Nullable Consumer<? super Throwable> failure) {
+		if(success == null) success = RestAction.getDefaultSuccess();
+		if(failure == null) failure = RestAction.getDefaultFailure();
 
-		host.request(new CustomRequest<T>(this, route, success, failure, body, headers));
+		host.request(new CustomRequest<>(this, route, success, failure, body, headers, check));
 	}
 
 	@Override
@@ -70,12 +70,12 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 	@NotNull
 	@Override
 	public CompletableFuture<T> submit(boolean shouldQueue) {
-		return new CustomRestFuture<>(this, host, route, body, headers);
+		return new CustomRestFuture<>(this, host, route, body, headers, check);
 	}
 
-	public abstract T handle(CustomRequest<T> request, Response response) throws IOException;
+	public abstract T handle(@NotNull CustomRequest<T> request, @NotNull Response response) throws IOException;
 
-	void handleSuccess(CustomRequest<T> request, Response response) throws IOException {
+	void handleSuccess(@NotNull CustomRequest<T> request, @NotNull Response response) throws IOException {
 		if(request.onSuccess() != null) request.onSuccess().accept(handle(request, response));
 	}
 }

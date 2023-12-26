@@ -8,10 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public record CustomRequest<T>(@NotNull CustomRestAction<T> action, @NotNull Route.CompiledRoute route, @Nullable Consumer<? super T> onSuccess, @Nullable Consumer<? super Throwable> onError, @Nullable RequestBody body,
-                               @Nullable CaseInsensitiveMap<String, String> headers) {
+                               @Nullable CaseInsensitiveMap<String, String> headers, @Nullable BooleanSupplier check) {
 	void handleSuccess(@NotNull Response response) throws IOException {
 		if(response.isSuccessful()) action.handleSuccess(this, response);
 		else if(onError != null) onError.accept(new HttpException(response));
