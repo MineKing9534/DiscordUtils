@@ -44,6 +44,8 @@ public class CooldownImpl<C extends ICommandContext> implements IExecutionCondit
 		if(current == null) cooldown.put(user, current = new AtomicInteger());
 		else current.incrementAndGet();
 
+		if(current.get() >= uses) handler.accept(manager, context);
+
 		return current.get() < uses;
 	}
 
