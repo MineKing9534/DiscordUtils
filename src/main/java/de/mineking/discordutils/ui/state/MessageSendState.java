@@ -5,6 +5,7 @@ import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.RenderTermination;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -53,6 +54,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 
 		try {
 			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
+			else if(event instanceof IMessageEditCallback edit) edit.editMessage(menu.buildMessage(new UpdateState(event, menu, data))).queue();
 			else event.reply(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(event, menu, data)))).setEphemeral(ephemeral).queue();
 		} catch(RenderTermination ignored) {
 		}
