@@ -5,6 +5,7 @@ import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.MessageSendState;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ public abstract class Component<T extends GenericComponentInteractionCreateEvent
 	 *
 	 * @param state The state
 	 */
-	public void register(@NotNull MessageSendState state) {
+	public void register(@NotNull MessageSendState state, @Nullable IReplyCallback event) {
 	}
 
 	/**

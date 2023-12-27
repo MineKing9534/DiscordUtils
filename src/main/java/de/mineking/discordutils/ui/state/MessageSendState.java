@@ -32,7 +32,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 
 		menu.components.stream()
 				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this));
+				.forEach(c -> c.register(this, null));
 
 		try {
 			channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(null, menu, data)))).queue();
@@ -49,7 +49,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 
 		menu.components.stream()
 				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this));
+				.forEach(c -> c.register(this, event));
 
 		try {
 			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
