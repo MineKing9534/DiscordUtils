@@ -1,9 +1,11 @@
 package de.mineking.discordutils.ui.modal;
 
 import com.google.gson.JsonObject;
+import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +28,7 @@ public class ModalSendState extends SendState<ModalMenu> {
 	 */
 	public void display(@NotNull IModalCallback event) {
 		Checks.notNull(event, "event");
+		event.replyModal(menu.buildModal(new DataState<>((IReplyCallback) event, menu, data))).queue();
 	}
 
 	@NotNull
