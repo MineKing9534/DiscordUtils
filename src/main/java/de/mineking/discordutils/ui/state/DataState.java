@@ -27,7 +27,6 @@ public class DataState<M extends Menu> extends State<M> {
 		super(menu, data);
 
 		this.event = event;
-		menu.initialize(this);
 	}
 
 	/**
@@ -46,7 +45,9 @@ public class DataState<M extends Menu> extends State<M> {
 
 		event.getValues().forEach(c -> data.append(c.getId().split(":", 2)[1]));
 
-		return new DataState<>(event, menu, JsonParser.parseString(data.toString()).getAsJsonObject());
+		var result = new DataState<>(event, menu, JsonParser.parseString(data.toString()).getAsJsonObject());
+		menu.initialize(result);
+		return result;
 	}
 
 	/**

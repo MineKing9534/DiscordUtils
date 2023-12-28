@@ -18,6 +18,7 @@ import java.util.function.Function;
 public class UpdateState extends DataState<MessageMenu> {
 	UpdateState(@Nullable IReplyCallback event, @NotNull MessageMenu menu, @NotNull JsonObject data) {
 		super(event, menu, data);
+		menu.initialize(this);
 	}
 
 	/**
