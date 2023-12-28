@@ -46,9 +46,8 @@ public interface Listable<T extends ListEntry> {
 		int page = state.getState("page");
 
 		if(!context.entries().isEmpty()) {
-			for(int i = ((page - 1) * entriesPerPage()); i < (page * entriesPerPage()) && i < context.entries().size(); i++) {
-				embed.appendDescription(context.entries().get(i).build(i, context) + "\n");
-			}
+			int i = ((page - 1) * entriesPerPage());
+			for(var e : context.entries()) embed.appendDescription(e.build(i++, context) + "\n");
 		}
 
 		return embed.build();

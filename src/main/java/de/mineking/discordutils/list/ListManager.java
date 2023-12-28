@@ -98,8 +98,8 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		).cache(s -> {
 			var o = object.apply(s);
 			var context = new ListContext<T>(this, s.event, new ArrayList<>());
-			context.entries().addAll(o.getEntries(s, context));
 
+			var entries = o.getEntries(s, context);
 			var max = (context.entries().size() - 1) / o.entriesPerPage() + 1;
 			s.setCache("maxpage", max);
 			s.setCache("size", context.entries().size());
@@ -107,7 +107,10 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			s.setCache("context", context);
 			s.setCache("object", o);
 
-			s.<Integer>setState("page", p -> Math.max(Math.min(p, max), 1));
+			int page = Math.max(Math.min(s.getState("page"), max), 1);
+			s.setState("page", page);
+
+			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), context.entries().size())));
 		});
 	}
 
