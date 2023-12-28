@@ -100,7 +100,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			var context = new ListContext<T>(this, s.event, new ArrayList<>());
 
 			var entries = o.getEntries(s, context);
-			var max = (context.entries().size() - 1) / o.entriesPerPage() + 1;
+			var max = (entries.size() - 1) / o.entriesPerPage() + 1;
 			s.setCache("maxpage", max);
 			s.setCache("size", context.entries().size());
 
@@ -110,7 +110,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			int page = Math.max(Math.min(s.getState("page"), max), 1);
 			s.setState("page", page);
 
-			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), context.entries().size())));
+			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
 		});
 	}
 
