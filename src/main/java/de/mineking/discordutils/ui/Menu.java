@@ -44,7 +44,7 @@ public abstract class Menu {
 	/**
 	 * <i>Internal method</i>
 	 */
-	public abstract <T extends Menu> DataState<T> initialize(@NotNull DataState<T> state);
+	public abstract void initialize(@NotNull DataState<?> state);
 
 	/**
 	 * @param name    The name of the state to listen to

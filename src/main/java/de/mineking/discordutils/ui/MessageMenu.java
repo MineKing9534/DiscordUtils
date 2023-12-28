@@ -36,9 +36,8 @@ public class MessageMenu extends Menu {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Menu> DataState<T> initialize(@NotNull DataState<T> state) {
+	public void initialize(@NotNull DataState<?> state) {
 		if(cache != null) cache.accept((DataState<MessageMenu>) state);
-		return state;
 	}
 
 	/**

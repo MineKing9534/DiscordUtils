@@ -58,8 +58,6 @@ public class UpdateState extends DataState<MessageMenu> {
 	public void update() {
 		if(event == null || !(event instanceof GenericComponentInteractionCreateEvent evt)) return;
 
-		menu.initialize(this);
-
 		var components = evt.getMessage().getComponents().stream()
 				.map(a -> ActionRow.of(
 						a.getComponents().stream()
