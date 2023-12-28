@@ -27,7 +27,6 @@ public class DataState<M extends Menu> extends State<M> {
 		super(menu, data);
 
 		this.event = event;
-		menu.initialize(this);
 	}
 
 	/**

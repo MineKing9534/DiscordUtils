@@ -38,8 +38,9 @@ public class ModalMenu extends Menu {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void initialize(@NotNull DataState<?> state) {
+	public <T extends Menu> DataState<T> initialize(@NotNull DataState<T> state) {
 		if(cache != null) cache.accept((DataState<ModalMenu>) state);
+		return state;
 	}
 
 	public IEventHandler<ModalInteractionEvent> createHandler() {

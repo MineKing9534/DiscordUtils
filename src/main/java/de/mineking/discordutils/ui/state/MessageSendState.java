@@ -36,7 +36,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 				.forEach(c -> c.register(this, null));
 
 		try {
-			channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(null, menu, data)))).queue();
+			channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage((UpdateState) menu.initialize(new UpdateState(null, menu, data))))).queue();
 		} catch(RenderTermination ignored) {
 		}
 	}
@@ -53,11 +53,15 @@ public class MessageSendState extends SendState<MessageMenu> {
 				.forEach(c -> c.register(this, event));
 
 		try {
-			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(new UpdateState(event, menu, data))).queue();
-			else if(event instanceof IMessageEditCallback edit) edit.editMessage(menu.buildMessage(new UpdateState(event, menu, data))).queue();
-			else event.reply(MessageCreateData.fromEditData(menu.buildMessage(new UpdateState(event, menu, data)))).setEphemeral(ephemeral).queue();
+			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(createState(event))).queue();
+			else if(event instanceof IMessageEditCallback edit) edit.editMessage(menu.buildMessage(createState(event))).queue();
+			else event.reply(MessageCreateData.fromEditData(menu.buildMessage(createState(event)))).setEphemeral(ephemeral).queue();
 		} catch(RenderTermination ignored) {
 		}
+	}
+
+	private UpdateState createState(@NotNull IReplyCallback event) {
+		return (UpdateState) menu.initialize(new UpdateState(event, menu, data));
 	}
 
 	/**
