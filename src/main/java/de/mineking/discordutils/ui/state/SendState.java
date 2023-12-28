@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class SendState<M extends Menu> extends State<M> {
+public abstract class SendState<M extends Menu> extends DataState<M> {
 	public SendState(@NotNull M menu, JsonObject data) {
-		super(menu, data);
+		super(null, menu, data);
 	}
 
 	/**

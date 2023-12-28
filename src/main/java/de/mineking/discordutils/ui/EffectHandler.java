@@ -1,7 +1,7 @@
 package de.mineking.discordutils.ui;
 
-import de.mineking.discordutils.ui.state.State;
+import de.mineking.discordutils.ui.state.DataState;
 
 public interface EffectHandler<T> {
-	void handle(State state, String name, T oldValue, T newValue);
+	void handle(DataState<?> state, String name, T oldValue, T newValue);
 }

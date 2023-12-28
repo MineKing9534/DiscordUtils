@@ -20,7 +20,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DataState<M extends Menu> extends State<M> {
-	private final Map<String, Object> cache = new HashMap<>();
+	protected final Map<String, Object> cache = new HashMap<>();
 	public final IReplyCallback event;
 
 	public DataState(@Nullable IReplyCallback event, @NotNull M menu, @NotNull JsonObject data) {

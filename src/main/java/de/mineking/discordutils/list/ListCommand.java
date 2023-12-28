@@ -42,6 +42,8 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 
 	@Override
 	public void performCommand(@NotNull C context) throws Exception {
+		context.getEvent().deferReply(true).queue();
+
 		var state = menu.get().createState();
 
 		state.setState("page", context.getEvent().getOption(pageOption.getName(), 1, OptionMapping::getAsInt));

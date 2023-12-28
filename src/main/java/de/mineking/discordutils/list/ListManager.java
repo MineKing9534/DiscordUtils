@@ -85,7 +85,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage")),
 				new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩"))
 						.appendHandler(s -> {
-							s.setState("page", s.<Integer>getCache("maxpage"));
+							s.setState("page", Integer.MAX_VALUE);
 							s.update();
 						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage"))
 		));
@@ -95,8 +95,13 @@ public class ListManager<C extends ICommandContext> extends Manager {
 				"list." + path,
 				MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))),
 				components
-		).cache(s -> {
-			var o = object.apply(s);
+		).cache(s -> s.setCache("object", object.apply(s))).effect("page", (state, name, old, n) -> {
+			if(old != null && toInt(old) == toInt(n)) return;
+
+			@SuppressWarnings("unchecked")
+			var s = (DataState<MessageMenu>) state;
+
+			var o = s.<Listable<T>>getCache("object");
 			var context = new ListContext<T>(this, s.event, new ArrayList<>());
 
 			var entries = o.getEntries(s, context);
@@ -105,13 +110,16 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			s.setCache("size", context.entries().size());
 
 			s.setCache("context", context);
-			s.setCache("object", o);
 
 			int page = Math.max(Math.min(s.getState("page"), max), 1);
 			s.setState("page", page);
 
 			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
 		});
+	}
+
+	private Integer toInt(Object o) {
+		return o instanceof Double d ? d.intValue() : (int) o;
 	}
 
 	/**

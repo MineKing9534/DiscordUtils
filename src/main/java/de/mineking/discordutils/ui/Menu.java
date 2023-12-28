@@ -36,7 +36,7 @@ public abstract class Menu {
 	 * <i>Internal method</i>
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void triggerEffect(@NotNull State<?> state, @NotNull String name, @Nullable T oldValue, @Nullable T newValue) {
+	public <T> void triggerEffect(@NotNull DataState<?> state, @NotNull String name, @Nullable T oldValue, @Nullable T newValue) {
 		if(effect.containsKey(name)) effect.get(name).handle(state, name, oldValue, newValue);
 		genericEffect.forEach(h -> h.handle(state, name, oldValue, newValue));
 	}
