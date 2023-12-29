@@ -18,6 +18,7 @@ dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-beta.17'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
+    implementation 'club.minnced:discord-webhooks:0.8.4'
     implementation 'com.google.code.gson:gson:2.10.1'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')

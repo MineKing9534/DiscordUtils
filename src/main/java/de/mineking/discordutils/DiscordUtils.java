@@ -177,23 +177,35 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		}
 
 		/**
+		 * @param stdout Whether to mirror {@link System#out}
+		 * @param stderr Whether to mirror {@link System#err}
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */
 		@NotNull
-		public Builder<B> mirrorConsole(@NotNull RedirectTarget... targets) {
+		public Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull RedirectTarget... targets) {
 			Checks.notNull(targets, "targets");
 
+			if(!stdout && !stderr) return this;
 			if(targets.length == 0) return this;
 
 			var discordStreams = Arrays.stream(targets)
 					.map(t -> new DiscordOutputStream(mes -> t.sendMessage(jda, mes), 10))
 					.toList();
 
-			System.setOut(new MirrorPrintStream(discordStreams, System.out));
-			System.setErr(new MirrorPrintStream(discordStreams, System.err));
+			if(stdout) System.setOut(new MirrorPrintStream(discordStreams, System.out));
+			if(stderr) System.setErr(new MirrorPrintStream(discordStreams, System.err));
 
 			return this;
+		}
+
+		/**
+		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
+		 * @return {@code this}
+		 */
+		@NotNull
+		public Builder<B> mirrorConsole(@NotNull RedirectTarget... targets) {
+			return mirrorConsole(true, true, targets);
 		}
 
 		/**
