@@ -58,6 +58,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 * @return The resulting menu
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	public <T extends ListEntry> MessageMenu createListMenu(@NotNull String path, @NotNull Function<DataState<MessageMenu>, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
 		Checks.notNull(path, "path");
 		Checks.notNull(object, "object");
@@ -107,23 +108,27 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			s.setCache("size", context.entries().size());
 
 			s.setCache("context", context);
+
+			setEntries(s);
 		}).effect("page", (state, name, old, n) -> {
 			if(old != null && toInt(old) == toInt(n)) return;
-
-			var context = state.<ListContext<T>>getCache("context");
-			if(context == null) return;
-
-			var o = state.<Listable<T>>getCache("object");
-
-			int page = Math.max(Math.min(state.getState("page"), state.getCache("maxpage")), 1);
-			state.setState("page", page);
-
-			@SuppressWarnings("unchecked")
-			var entries = new ArrayList<>(o.getEntries((DataState<MessageMenu>) state, context));
-
-			context.entries().clear();
-			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
+			setEntries((DataState<MessageMenu>) state);
 		});
+	}
+
+	private <T extends ListEntry> void setEntries(@NotNull DataState<MessageMenu> state) {
+		var context = state.<ListContext<T>>getCache("context");
+		if(context == null) return;
+
+		var o = state.<Listable<T>>getCache("object");
+
+		int page = Math.max(Math.min(state.getState("page"), state.getCache("maxpage")), 1);
+		state.setState("page", page);
+
+		var entries = new ArrayList<>(o.getEntries(state, context));
+
+		context.entries().clear();
+		context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
 	}
 
 	private Integer toInt(Object o) {

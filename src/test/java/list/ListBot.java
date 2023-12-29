@@ -2,6 +2,9 @@ package list;
 
 import de.mineking.discordutils.DiscordUtils;
 import de.mineking.discordutils.commands.CommandManager;
+import de.mineking.discordutils.ui.components.button.ButtonColor;
+import de.mineking.discordutils.ui.components.button.ButtonComponent;
+import de.mineking.discordutils.ui.state.UpdateState;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -29,7 +32,7 @@ public class ListBot {
 						AutocompleteContext::new,
 						CommandManager::updateCommands
 				)
-				.useListManager(config -> config.getManager().getCommandManager().registerCommand(config.createCommand(state -> new TestList()).withName("list_test")))
+				.useListManager(config -> config.getManager().getCommandManager().registerCommand(config.createCommand(state -> new TestList(), new ButtonComponent("test", ButtonColor.GRAY, "TEST").appendHandler(UpdateState::update)).withName("list_test")))
 				.build();
 	}
 }
