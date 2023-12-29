@@ -28,7 +28,12 @@ public class ModalSendState extends SendState<ModalMenu> {
 	 */
 	public void display(@NotNull IModalCallback event) {
 		Checks.notNull(event, "event");
-		event.replyModal(menu.buildModal(new DataState<>((IReplyCallback) event, menu, data))).queue();
+		event.replyModal(menu.buildModal(prepareState(new DataState<>((IReplyCallback) event, menu, data)))).queue();
+	}
+
+	private DataState<ModalMenu> prepareState(DataState<ModalMenu> state) {
+		setup.forEach(f -> f.accept(state));
+		return state;
 	}
 
 	@NotNull

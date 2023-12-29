@@ -8,11 +8,16 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class SendState<M extends Menu> extends DataState<M> {
+	protected final Set<Consumer<DataState<M>>> setup = new HashSet<>();
+
 	public SendState(@NotNull M menu, JsonObject data) {
 		super(null, menu, data);
 	}
@@ -43,7 +48,7 @@ public abstract class SendState<M extends Menu> extends DataState<M> {
 		if(newValue != null) data.add(name, gson.toJsonTree(newValue));
 		else data.remove(name);
 
-		if(!Objects.equals(newValue, currentValue)) menu.triggerEffect(this, name, currentValue, newValue);
+		if(!Objects.equals(newValue, currentValue)) setup.add(s -> menu.triggerEffect(s, name, currentValue, newValue));
 
 		return this;
 	}

@@ -61,7 +61,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 	}
 
 	private UpdateState prepareState(UpdateState state) {
-		state.cache.putAll(cache);
+		setup.forEach(f -> f.accept(state));
 		return state;
 	}
 

@@ -95,12 +95,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 				"list." + path,
 				MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))),
 				components
-		).effect("page", (state, name, old, n) -> {
-			if(old != null && toInt(old) == toInt(n)) return;
-
-			@SuppressWarnings("unchecked")
-			var s = (DataState<MessageMenu>) state;
-
+		).cache(s -> {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
@@ -112,10 +107,21 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			s.setCache("size", context.entries().size());
 
 			s.setCache("context", context);
+		}).effect("page", (state, name, old, n) -> {
+			if(old != null && toInt(old) == toInt(n)) return;
 
-			int page = Math.max(Math.min(s.getState("page"), max), 1);
-			s.setState("page", page);
+			var context = state.<ListContext<T>>getCache("context");
+			if(context == null) return;
 
+			var o = state.<Listable<T>>getCache("object");
+
+			int page = Math.max(Math.min(state.getState("page"), state.getCache("maxpage")), 1);
+			state.setState("page", page);
+
+			@SuppressWarnings("unchecked")
+			var entries = new ArrayList<>(o.getEntries((DataState<MessageMenu>) state, context));
+
+			context.entries().clear();
 			context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
 		});
 	}
