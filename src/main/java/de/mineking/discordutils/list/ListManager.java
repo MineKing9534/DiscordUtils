@@ -95,13 +95,15 @@ public class ListManager<C extends ICommandContext> extends Manager {
 				"list." + path,
 				MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))),
 				components
-		).cache(s -> s.setCache("object", object.apply(s))).effect("page", (state, name, old, n) -> {
+		).effect("page", (state, name, old, n) -> {
 			if(old != null && toInt(old) == toInt(n)) return;
 
 			@SuppressWarnings("unchecked")
 			var s = (DataState<MessageMenu>) state;
 
-			var o = s.<Listable<T>>getCache("object");
+			var o = object.apply(s);
+			s.setCache("object", o);
+
 			var context = new ListContext<T>(this, s.event, new ArrayList<>());
 
 			var entries = o.getEntries(s, context);
