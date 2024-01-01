@@ -7,6 +7,7 @@ import de.mineking.discordutils.ui.components.types.Component;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.UpdateState;
 import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -22,6 +24,8 @@ import java.util.function.Predicate;
 
 public class EntitySelectComponent extends Component<EntitySelectInteractionEvent> {
 	private final List<EntitySelectMenu.SelectTarget> targets;
+	private Collection<ChannelType> channelTypes;
+
 	private Function<DataState<MessageMenu>, String> placeholder = state -> null;
 	private Function<DataState<MessageMenu>, Integer> minValues = state -> null;
 	private Function<DataState<MessageMenu>, Integer> maxValues = state -> null;
@@ -151,6 +155,17 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 		return this;
 	}
 
+	@NotNull
+	public EntitySelectComponent setChannelTypes(@NotNull ChannelType... channelTypes) {
+		return setChannelTypes(Arrays.asList(channelTypes));
+	}
+
+	@NotNull
+	public EntitySelectComponent setChannelTypes(@NotNull Collection<ChannelType> channelTypes) {
+		this.channelTypes = channelTypes;
+		return this;
+	}
+
 	/**
 	 * @param maxValues The maximum allowed number of options
 	 * @return {@code this}
@@ -183,6 +198,8 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 
 		if(minValues != null) temp.setMinValues(minValues);
 		if(maxValues != null) temp.setMaxValues(maxValues);
+
+		if(channelTypes != null) temp.setChannelTypes(channelTypes);
 
 		return temp.build();
 	}
