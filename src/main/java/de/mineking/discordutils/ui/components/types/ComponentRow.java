@@ -46,7 +46,7 @@ public interface ComponentRow {
 		for(var c : components) {
 			if(5 - temp.size() < c.requiredSpace()) {
 				result.add(ComponentRow.of(temp));
-				temp.clear();
+				temp = new ArrayList<>();
 			}
 
 			temp.add(c);
