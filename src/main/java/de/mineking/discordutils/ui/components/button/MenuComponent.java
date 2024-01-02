@@ -5,6 +5,7 @@ import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.components.button.label.EmojiLabel;
 import de.mineking.discordutils.ui.components.button.label.LabelProvider;
 import de.mineking.discordutils.ui.components.button.label.TextLabel;
+import de.mineking.discordutils.ui.modal.ModalMenu;
 import de.mineking.discordutils.ui.state.DataState;
 import de.mineking.discordutils.ui.state.SendState;
 import de.mineking.discordutils.ui.state.UpdateState;
@@ -30,7 +31,7 @@ public class MenuComponent<T extends Menu> extends ButtonComponent {
 		super(menu.id, color, label);
 
 		appendHandler(state -> state.getEvent().ifPresent(event -> {
-			if(event instanceof IMessageEditCallback edit) edit.deferEdit().queue();
+			if(event instanceof IMessageEditCallback edit && !(menu instanceof ModalMenu)) edit.deferEdit().queue();
 			if(event instanceof GenericComponentInteractionCreateEvent ce) creator.apply(menu, state).display(ce);
 		}));
 	}
