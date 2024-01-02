@@ -41,15 +41,20 @@ public interface ComponentRow {
 	@NotNull
 	static List<ComponentRow> ofMany(@NotNull List<? extends Component<?>> components) {
 		var result = new ArrayList<ComponentRow>();
+
 		var temp = new ArrayList<Component<?>>();
+		int tempSize = 0;
 
 		for(var c : components) {
-			if(5 - temp.size() < c.requiredSpace()) {
+			if(5 - tempSize < c.requiredSpace()) {
 				result.add(ComponentRow.of(temp));
+
 				temp = new ArrayList<>();
+				tempSize = 0;
 			}
 
 			temp.add(c);
+			tempSize += c.requiredSpace();
 		}
 
 		if(!temp.isEmpty()) result.add(ComponentRow.of(temp));
