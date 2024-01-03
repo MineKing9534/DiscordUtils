@@ -72,23 +72,23 @@ public class ListManager<C extends ICommandContext> extends Manager {
 						.appendHandler(s -> {
 							s.setState("page", 1);
 							s.update();
-						}).asDisabled(s -> s.<Integer>getState("page") == 1),
+						}).asDisabled(s -> s.getState("page", int.class) == 1),
 				new ButtonComponent("back", ButtonColor.GRAY, Emoji.fromUnicode("⬅"))
 						.appendHandler(s -> {
 							s.<Integer>setState("page", p -> p - 1);
 							s.update();
-						}).asDisabled(s -> s.<Integer>getState("page") == 1),
-				new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page") + "/" + state.getCache("maxpage")).asDisabled(true),
+						}).asDisabled(s -> s.getState("page", int.class) == 1),
+				new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page", int.class) + "/" + state.getCache("maxpage")).asDisabled(true),
 				new ButtonComponent("next", ButtonColor.GRAY, Emoji.fromUnicode("➡"))
 						.appendHandler(s -> {
 							s.<Integer>setState("page", p -> p + 1);
 							s.update();
-						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage")),
+						}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage")),
 				new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩"))
 						.appendHandler(s -> {
 							s.setState("page", Integer.MAX_VALUE);
 							s.update();
-						}).asDisabled(s -> s.getState("page") == s.getCache("maxpage"))
+						}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))
 		));
 		components.addAll(Arrays.asList(additionalComponents));
 
@@ -122,7 +122,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		var o = state.<Listable<T>>getCache("object");
 
-		int page = Math.max(Math.min(state.getState("page"), state.getCache("maxpage")), 1);
+		int page = Math.max(Math.min(state.getState("page", int.class), state.getCache("maxpage")), 1);
 		state.setState("page", page);
 
 		var entries = new ArrayList<>(o.getEntries(state, context));

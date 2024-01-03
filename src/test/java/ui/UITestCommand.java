@@ -21,7 +21,7 @@ public class UITestCommand {
 				"test",
 				MessageRenderer.embed(state -> new EmbedBuilder()
 						.setTitle("Test Menu")
-						.addField("Text", state.getState("text"), false)
+						.addField("Text", state.getState("text", String.class), false)
 						.addField("Last user", state.getEvent().map(e -> e.getUser().toString()).orElse("*none*"), false)
 						.build()
 				),

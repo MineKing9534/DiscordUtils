@@ -43,7 +43,7 @@ public interface Listable<T extends ListEntry> {
 	default MessageEmbed buildEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context) {
 		var embed = createEmbed(state, context);
 
-		int page = state.getState("page");
+		var page = state.getState("page", int.class);
 
 		if(!context.entries().isEmpty()) {
 			int i = ((page - 1) * entriesPerPage());

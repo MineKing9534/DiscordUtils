@@ -60,12 +60,16 @@ public class DataState<M extends Menu> extends State<M> {
 	}
 
 	/**
+	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
+	 *
 	 * @param name The name of the state
 	 * @param type The {@link Type} of the state
 	 * @return The state value or {@code null}
 	 */
 	@Nullable
-	public <T> T getRawState(@NotNull String name, @NotNull Type type) {
+	public <T> T getNullableState(@NotNull String name, @NotNull Type type) {
+		Checks.notNull(name, "name");
+
 		var element = data.get(name);
 		if(element == null) return null;
 
@@ -76,58 +80,76 @@ public class DataState<M extends Menu> extends State<M> {
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name The name of the state
+	 * @param type The {@link Class} of the state
 	 * @return The state value or {@code null}
 	 */
 	@Nullable
-	@SuppressWarnings("unchecked")
-	public <T> T getNullableState(@NotNull String name) {
-		Checks.notNull(name, "name");
-
-		var element = data.get(name);
-		if(element == null) return null;
-
-		var temp = gson.fromJson(element, new TypeToken<T>() {
-		});
-
-		if(temp instanceof Double d && !element.toString().contains(".")) return (T) ((Integer) (int) (double) d);
-		else return temp;
+	public <T> T getNullableState(@NotNull String name, @NotNull Class<T> type) {
+		return getNullableState(name, (Type) type);
 	}
 
 	/**
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name The name of the state
+	 * @param type The {@link Type} of the state
 	 * @return An {@link Optional} holding the state value
 	 */
 	@NotNull
-	public <T> Optional<T> getOptionalState(@NotNull String name) {
-		return Optional.ofNullable(this.getNullableState(name));
+	public <T> Optional<T> getOptionalState(@NotNull String name, @NotNull Type type) {
+		return Optional.ofNullable(this.getNullableState(name, type));
 	}
 
 	/**
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name The name of the state
+	 * @param type The {@link Class} of the state
+	 * @return An {@link Optional} holding the state value
+	 */
+	@NotNull
+	public <T> Optional<T> getOptionalState(@NotNull String name, @NotNull Class<T> type) {
+		return Optional.ofNullable(this.getNullableState(name, type));
+	}
+
+	/**
+	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
+	 *
+	 * @param name The name of the state
+	 * @param type The {@link Type} of the state
 	 * @return The value of the state. If there is no value present, an exception is thrown
 	 */
 	@NotNull
-	public <T> T getState(@NotNull String name) {
-		return this.<T>getOptionalState(name).orElseThrow();
+	public <T> T getState(@NotNull String name, @NotNull Type type) {
+		return this.<T>getOptionalState(name, type).orElseThrow();
+	}
+
+	/**
+	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
+	 *
+	 * @param name The name of the state
+	 * @param type The {@link Class} of the state
+	 * @return The value of the state. If there is no value present, an exception is thrown
+	 */
+	@NotNull
+	public <T> T getState(@NotNull String name, @NotNull Class<T> type) {
+		return getOptionalState(name, type).orElseThrow();
 	}
 
 	/**
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
+	 * @param type The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return The value or {@code null}
 	 */
 	@Nullable
-	public <U, T> T getNullableState(@NotNull String name, @NotNull Function<U, T> creator) {
+	public <U, T> T getNullableState(@NotNull String name, @NotNull Type type, @NotNull Function<U, T> creator) {
 		Checks.notNull(name, "name");
 		Checks.notNull(creator, "creator");
 
-		var temp = this.<U>getNullableState(name);
+		var temp = this.<U>getNullableState(name, type);
 		if(temp == null) return null;
 
 		return creator.apply(temp);
@@ -137,24 +159,26 @@ public class DataState<M extends Menu> extends State<M> {
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
+	 * @param type The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return An {@link Optional} holding the state value
 	 */
 	@NotNull
-	public <U, T> Optional<T> getOptionalState(@NotNull String name, @NotNull Function<U, T> creator) {
-		return Optional.ofNullable(this.getNullableState(name, creator));
+	public <U, T> Optional<T> getOptionalState(@NotNull String name, @NotNull Type type, @NotNull Function<U, T> creator) {
+		return Optional.ofNullable(this.getNullableState(name, type, creator));
 	}
 
 	/**
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
+	 * @param type The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return The value of the state. If there is no value present, an exception is thrown.
 	 */
 	@NotNull
-	public <U, T> T getState(@NotNull String name, @NotNull Function<U, T> creator) {
-		return getOptionalState(name, creator).orElseThrow();
+	public <U, T> T getState(@NotNull String name, @NotNull Type type, @NotNull Function<U, T> creator) {
+		return getOptionalState(name, type, creator).orElseThrow();
 	}
 
 	@NotNull
@@ -169,7 +193,7 @@ public class DataState<M extends Menu> extends State<M> {
 		Checks.notNull(name, "name");
 		Checks.notNull(value, "value");
 
-		var currentValue = this.<T>getNullableState(name);
+		var currentValue = this.<T>getNullableState(name, new TypeToken<T>() {}.getType());
 		var newValue = value.apply(currentValue);
 
 		if(newValue != null) data.add(name, gson.toJsonTree(newValue));

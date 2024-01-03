@@ -23,7 +23,7 @@ public class ToggleComponent extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public ToggleComponent(@NotNull String name, @NotNull Function<Boolean, ButtonColor> color, @NotNull LabelProvider label) {
-		super(name, state -> color.apply(state.getState(name)), label);
+		super(name, state -> color.apply(state.getState(name, boolean.class)), label);
 
 		appendHandler(state -> {
 			state.<Boolean>setState(name, current -> !current);
