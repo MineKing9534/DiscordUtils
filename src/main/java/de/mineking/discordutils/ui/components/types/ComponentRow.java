@@ -15,6 +15,15 @@ public interface ComponentRow {
 	List<? extends Component<?>> getComponents();
 
 	/**
+	 * @return The total required space of all components in this row
+	 */
+	default int size() {
+		return getComponents().stream()
+				.mapToInt(Component::requiredSpace)
+				.sum();
+	}
+
+	/**
 	 * @param components The components to use
 	 * @return A {@link ComponentRow} holding the provided components
 	 */
