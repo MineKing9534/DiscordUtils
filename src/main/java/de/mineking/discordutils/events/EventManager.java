@@ -32,6 +32,6 @@ public class EventManager extends Manager {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onGenericEvent(@NotNull GenericEvent event) {
-		eventHandlers.removeIf(handler -> handler.accepts(event) && handler.handle(this, event));
+		new HashSet<>(eventHandlers).removeIf(handler -> handler.accepts(event) && handler.handle(this, event));
 	}
 }
