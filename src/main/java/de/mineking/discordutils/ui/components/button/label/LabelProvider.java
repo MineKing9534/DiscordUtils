@@ -1,5 +1,6 @@
 package de.mineking.discordutils.ui.components.button.label;
 
+import de.mineking.discordutils.ui.MessageMenu;
 import de.mineking.discordutils.ui.state.DataState;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ public interface LabelProvider {
 	 * @return The string to use as label
 	 */
 	@Nullable
-	default String getText(@NotNull DataState state) {
+	default String getText(@NotNull DataState<MessageMenu> state) {
 		return null;
 	}
 
@@ -20,7 +21,7 @@ public interface LabelProvider {
 	 * @return The {@link Emoji} to use as label
 	 */
 	@Nullable
-	default Emoji getEmoji(@NotNull DataState state) {
+	default Emoji getEmoji(@NotNull DataState<MessageMenu> state) {
 		return null;
 	}
 }
