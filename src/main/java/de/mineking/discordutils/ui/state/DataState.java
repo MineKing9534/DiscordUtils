@@ -12,6 +12,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +57,19 @@ public class DataState<M extends Menu> extends State<M> {
 	@NotNull
 	public Optional<IReplyCallback> getEvent() {
 		return Optional.ofNullable(event);
+	}
+
+	/**
+	 * @param name The name of the state
+	 * @param type The {@link Type} of the state
+	 * @return The state value or {@code null}
+	 */
+	@Nullable
+	public <T> T getRawState(@NotNull String name, @NotNull Type type) {
+		var element = data.get(name);
+		if(element == null) return null;
+
+		return gson.fromJson(element, type);
 	}
 
 	/**
