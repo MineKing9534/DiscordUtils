@@ -216,18 +216,16 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 * Searches the registered {@link IOptionParser}s for a matching one to query the {@link OptionType} that should be used.
 	 *
 	 * @param type    The java type of the parameter
-	 * @param generic The parameter's generic type information
 	 * @param param   The java method parameter
 	 * @return The {@link OptionType} that should be used. If no matching {@link IOptionParser} was found, {@link OptionType#UNKNOWN} will be returned.
 	 */
 	@NotNull
-	public OptionType getOptionType(@NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
+	public OptionType getOptionType(@NotNull Type type, @NotNull Parameter param) {
 		Checks.notNull(type, "type");
-		Checks.notNull(generic, "generic");
 
 		return optionParsers.stream()
 				.filter(p -> p.accepts(type, param))
-				.map(p -> p.getType(this, type, generic, param))
+				.map(p -> p.getType(this, type, param))
 				.findFirst().orElse(OptionType.UNKNOWN);
 	}
 
@@ -238,54 +236,51 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 * @param name    The name of the option. This may be the same as the parameter name, but it is not required to!
 	 * @param param   The java method parameter
 	 * @param type    The java type of the parameter
-	 * @param generic The parameter's generic type information
 	 * @return The resulting option
 	 */
 	@Nullable
-	public Object parseOption(@NotNull GenericCommandInteractionEvent event, @NotNull String name, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+	public Object parseOption(@NotNull GenericCommandInteractionEvent event, @NotNull String name, @NotNull Parameter param, @NotNull Type type) {
 		Checks.notNull(event, "event");
 		Checks.notNull(name, "name");
 		Checks.notNull(param, "param");
 		Checks.notNull(type, "type");
-		Checks.notNull(generic, "generic");
 
 		return optionParsers.stream()
 				.filter(p -> p.accepts(type, param))
-				.map(p -> Optional.ofNullable(p.parse(this, event, name, param, type, generic)))
+				.map(p -> Optional.ofNullable(p.parse(this, event, name, param, type)))
 				.findFirst().flatMap(o -> o).orElse(null);
 	}
 
 	/**
-	 * Calls the {@link IOptionParser#configure(Command, OptionData, Parameter, Class, Type)} method to finalize an option's configuration
+	 * Calls the {@link IOptionParser#configure(Command, OptionData, Parameter, Type)} method to finalize an option's configuration
 	 *
 	 * @param command The {@link Command}
 	 * @param option  The option to configure
 	 * @param param   The java method parameter
 	 * @param type    The java type of the parameter
-	 * @param generic the parameter's generic type information
 	 * @return The resulting {@link OptionData}
 	 */
-	public OptionData configureOption(@NotNull Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Class<?> type, @NotNull Type generic) {
+	public OptionData configureOption(@NotNull Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Type type) {
 		Checks.notNull(option, "option");
 		Checks.notNull(param, "param");
 		Checks.notNull(type, "type");
-		Checks.notNull(generic, "generic");
 
-		return getParser(param)
-				.map(p -> p.configure(command, option, param, type, generic))
+		return getParser(param, type)
+				.map(p -> p.configure(command, option, param, type))
 				.orElse(option);
 	}
 
 	/**
 	 * @param param The java method parameter
+	 * @param type The java type of this parameter
 	 * @return An {@link Optional} containing the {@link IOptionParser} responsible for the specified {@link Parameter} if any is present.
 	 */
 	@NotNull
-	public Optional<IOptionParser> getParser(@NotNull Parameter param) {
+	public Optional<IOptionParser> getParser(@NotNull Parameter param, @NotNull Type type) {
 		Checks.notNull(param, "param");
 
 		return optionParsers.stream()
-				.filter(p -> p.accepts(param.getType(), param))
+				.filter(p -> p.accepts(type, param))
 				.findFirst();
 	}
 

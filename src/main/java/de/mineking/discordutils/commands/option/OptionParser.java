@@ -1,6 +1,7 @@
 package de.mineking.discordutils.commands.option;
 
 import de.mineking.discordutils.commands.CommandManager;
+import de.mineking.javautils.reflection.ReflectionUtils;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,13 +25,13 @@ public abstract class OptionParser implements IOptionParser {
 	}
 
 	@Override
-	public boolean accepts(@NotNull Class<?> type, @NotNull Parameter param) {
-		return type.isAssignableFrom(clazz);
+	public boolean accepts(@NotNull Type type, @NotNull Parameter param) {
+		return ReflectionUtils.getClass(type).isAssignableFrom(clazz);
 	}
 
 	@NotNull
 	@Override
-	public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Class<?> type, @NotNull Type generic, @NotNull Parameter param) {
+	public OptionType getType(@NotNull CommandManager<?, ?> manager, @NotNull Type type, @NotNull Parameter param) {
 		return this.type;
 	}
 }

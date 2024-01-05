@@ -4,21 +4,24 @@ plugins {
 }
 
 group = 'de.mineking'
-version = '3.6.8'
+version = '3.7.0'
 
 var commit = getCommit()
 var release = System.getenv("RELEASE") == "true"
 
 repositories {
     mavenCentral()
+    maven { url 'https://maven.mineking.dev/releases' }
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-beta.17'
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-
     implementation 'club.minnced:discord-webhooks:0.8.4'
+
+    implementation 'de.mineking:JavaUtils:1.3.0'
+
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     implementation 'com.google.code.gson:gson:2.10.1'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
