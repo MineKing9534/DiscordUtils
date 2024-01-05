@@ -156,7 +156,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			}
 		}
 
-		if(getSubcommands().isEmpty() && method == null) CommandManager.logger.warn("Command '{}' has neither subcommands nor a method", name);
+		if(getSubcommands().isEmpty() && method == null) CommandManager.logger.warn("Command '{}' has neither subcommands nor a method. NOTE: You might have forgotten to add @ApplicationCommandMethod", name);
 	}
 
 	private static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> createCommand(Class<T> type, CommandManager<C, A> manager) {
