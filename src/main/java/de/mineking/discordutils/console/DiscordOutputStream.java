@@ -3,7 +3,7 @@ package de.mineking.discordutils.console;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.SplitUtil;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,7 @@ public class DiscordOutputStream extends OutputStream {
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	private final Consumer<MessageCreateData> handler;
+	private final Consumer<MessageCreateBuilder> handler;
 	private final StringBuffer buffer = new StringBuffer();
 
 	private Instant last = Instant.now();
@@ -29,7 +29,7 @@ public class DiscordOutputStream extends OutputStream {
 	 * @param handler The handler for messages that can be sent
 	 * @param delay   The update delay in seconds
 	 */
-	public DiscordOutputStream(@NotNull Consumer<MessageCreateData> handler, int delay) {
+	public DiscordOutputStream(@NotNull Consumer<MessageCreateBuilder> handler, int delay) {
 		Checks.notNull(handler, "handler");
 		this.handler = handler;
 
@@ -46,7 +46,7 @@ public class DiscordOutputStream extends OutputStream {
 			for(var s : SplitUtil.split(buffer.toString(), Message.MAX_CONTENT_LENGTH - additionalLength, SplitUtil.Strategy.NEWLINE, SplitUtil.Strategy.WHITESPACE, SplitUtil.Strategy.ANYWHERE)) {
 				if(!sendIncomplete && s.length() < Message.MAX_CONTENT_LENGTH - additionalLength) return;
 
-				handler.accept(MessageCreateData.fromContent(MarkdownUtil.codeblock("ansi", s)));
+				handler.accept(new MessageCreateBuilder().setContent(MarkdownUtil.codeblock("ansi", s)));
 				buffer.delete(0, s.length());
 			}
 
