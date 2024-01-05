@@ -88,7 +88,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 
 				var name = getOptionName(p);
 
-				manager.getParser(p).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
+				manager.getParser(p, generic).ifPresent(op -> op.registerOption(this, buildOption(o, p, generic, name, autocomplete.get(o.id().isEmpty() ? name : o.id()), choices.get(o.id().isEmpty() ? name : o.id())), p));
 			}
 		}
 
@@ -228,7 +228,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				manager.getManager().invokeMethod(method, instance.get(), (i, p) -> {
 					if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
 					else if(p.getType().isAssignableFrom(context.getClass())) return context;
-					else if(p.isAnnotationPresent(Option.class)) return manager.parseOption(context.getEvent(), getOptionName(p), p, p.getType(), method.getGenericParameterTypes()[i]);
+					else if(p.isAnnotationPresent(Option.class)) return manager.parseOption(context.getEvent(), getOptionName(p), p, method.getGenericParameterTypes()[i]);
 					else return null;
 				});
 			} catch(CommandCancellation ignored) {
@@ -248,8 +248,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	private OptionData buildOption(Option info, Parameter param, Type generic, String name, Method autocomplete, Field choiceInfo) {
 		OptionData option;
 
-		if(autocomplete == null) option = new OptionData(manager.getOptionType(param.getType(), generic, param), name, "---", info.required());
-		else option = new AutocompleteOption<A>(manager.getOptionType(param.getType(), generic, param), name, "---", info.required()) {
+		if(autocomplete == null) option = new OptionData(manager.getOptionType(generic, param), name, "---", info.required());
+		else option = new AutocompleteOption<A>(manager.getOptionType(generic, param), name, "---", info.required()) {
 			@Override
 			public void handleAutocomplete(@NotNull A context) {
 				AnnotatedCommand.this.autocompleteInstance.apply(context).ifPresent(instance -> {
@@ -305,6 +305,6 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			});
 		}
 
-		return manager.configureOption(this, option, param, param.getType(), generic);
+		return manager.configureOption(this, option, param, generic);
 	}
 }
