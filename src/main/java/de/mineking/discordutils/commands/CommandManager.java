@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -165,6 +166,8 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 									if(mp.getType().isAssignableFrom(event.getClass())) return event;
 									else return null;
 								});
+							} catch(InvocationTargetException e) {
+								logger.error("An error occurred in listener method", e.getCause());
 							} catch(Exception e) {
 								logger.error("Failed to invoke listener method", e);
 							}
