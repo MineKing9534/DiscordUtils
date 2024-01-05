@@ -177,8 +177,8 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		}
 
 		/**
-		 * @param stdout Whether to mirror {@link System#out}
-		 * @param stderr Whether to mirror {@link System#err}
+		 * @param stdout  Whether to mirror {@link System#out}
+		 * @param stderr  Whether to mirror {@link System#err}
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */

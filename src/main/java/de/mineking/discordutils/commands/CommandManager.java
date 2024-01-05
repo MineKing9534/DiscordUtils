@@ -215,8 +215,8 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	/**
 	 * Searches the registered {@link IOptionParser}s for a matching one to query the {@link OptionType} that should be used.
 	 *
-	 * @param type    The java type of the parameter
-	 * @param param   The java method parameter
+	 * @param type  The java type of the parameter
+	 * @param param The java method parameter
 	 * @return The {@link OptionType} that should be used. If no matching {@link IOptionParser} was found, {@link OptionType#UNKNOWN} will be returned.
 	 */
 	@NotNull
@@ -232,10 +232,10 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	/**
 	 * Parses an option
 	 *
-	 * @param event   The {@link GenericCommandInteractionEvent}
-	 * @param name    The name of the option. This may be the same as the parameter name, but it is not required to!
-	 * @param param   The java method parameter
-	 * @param type    The java type of the parameter
+	 * @param event The {@link GenericCommandInteractionEvent}
+	 * @param name  The name of the option. This may be the same as the parameter name, but it is not required to!
+	 * @param param The java method parameter
+	 * @param type  The java type of the parameter
 	 * @return The resulting option
 	 */
 	@Nullable
@@ -272,7 +272,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 
 	/**
 	 * @param param The java method parameter
-	 * @param type The java type of this parameter
+	 * @param type  The java type of this parameter
 	 * @return An {@link Optional} containing the {@link IOptionParser} responsible for the specified {@link Parameter} if any is present.
 	 */
 	@NotNull

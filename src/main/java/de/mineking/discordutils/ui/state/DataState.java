@@ -140,7 +140,7 @@ public class DataState<M extends Menu> extends State<M> {
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
-	 * @param type The {@link Type} of the state
+	 * @param type    The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return The value or {@code null}
 	 */
@@ -159,7 +159,7 @@ public class DataState<M extends Menu> extends State<M> {
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
-	 * @param type The {@link Type} of the state
+	 * @param type    The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return An {@link Optional} holding the state value
 	 */
@@ -172,7 +172,7 @@ public class DataState<M extends Menu> extends State<M> {
 	 * States are json-serialized and then saved in the empty space of component ids. This means that state storage is very limited. Therefore, you should only store data in the state that you really need to.
 	 *
 	 * @param name    The name of the state
-	 * @param type The {@link Type} of the state
+	 * @param type    The {@link Type} of the state
 	 * @param creator A function to convert the state to the wanted type
 	 * @return The value of the state. If there is no value present, an exception is thrown.
 	 */
@@ -193,7 +193,8 @@ public class DataState<M extends Menu> extends State<M> {
 		Checks.notNull(name, "name");
 		Checks.notNull(value, "value");
 
-		var currentValue = this.<T>getNullableState(name, new TypeToken<T>() {}.getType());
+		var currentValue = this.<T>getNullableState(name, new TypeToken<T>() {
+		}.getType());
 		var newValue = value.apply(currentValue);
 
 		if(newValue != null) data.add(name, gson.toJsonTree(newValue));
