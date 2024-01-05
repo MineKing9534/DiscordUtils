@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DiscordOutputStream extends OutputStream {
-	public final static int additionalLength = "```ansi\n```".length();
+	public final static int additionalLength = "```ansi\n```".length() + 30;
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 

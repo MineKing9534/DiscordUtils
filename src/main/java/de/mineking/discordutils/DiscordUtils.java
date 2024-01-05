@@ -159,7 +159,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 
 	public static class Builder<B> implements ManagerContainer {
 		private final Set<Manager> managers = new HashSet<>();
-		private final List<Runnable> setup = new ArrayList<>();
+		private final List<Consumer<DiscordUtils<B>>> setup = new ArrayList<>();
 
 		private LocalizationManager localization;
 
@@ -182,19 +182,22 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */
+		@SafeVarargs
 		@NotNull
-		public Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull RedirectTarget... targets) {
+		public final Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull RedirectTarget<B>... targets) {
 			Checks.notNull(targets, "targets");
 
 			if(!stdout && !stderr) return this;
 			if(targets.length == 0) return this;
 
-			var discordStreams = Arrays.stream(targets)
-					.map(t -> new DiscordOutputStream(mes -> t.sendMessage(jda, mes), 10))
-					.toList();
+			setup.add(0, discordUtils -> {
+				var discordStreams = Arrays.stream(targets)
+						.map(t -> new DiscordOutputStream(mes -> t.sendMessage(discordUtils, mes), 10))
+						.toList();
 
-			if(stdout) System.setOut(new MirrorPrintStream(discordStreams, System.out));
-			if(stderr) System.setErr(new MirrorPrintStream(discordStreams, System.err));
+				if(stdout) System.setOut(new MirrorPrintStream(discordStreams, System.out));
+				if(stderr) System.setErr(new MirrorPrintStream(discordStreams, System.err));
+			});
 
 			return this;
 		}
@@ -203,8 +206,9 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */
+		@SafeVarargs
 		@NotNull
-		public Builder<B> mirrorConsole(@NotNull RedirectTarget... targets) {
+		public final Builder<B> mirrorConsole(@NotNull RedirectTarget<B>... targets) {
 			return mirrorConsole(true, true, targets);
 		}
 
@@ -230,7 +234,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 			jda.addEventListener(manager);
 			managers.add(manager);
 
-			if(config != null) setup.add(() -> config.accept(manager));
+			if(config != null) setup.add(discordUtils -> config.accept(manager));
 
 			return this;
 		}
@@ -309,7 +313,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 			var result = new DiscordUtils<>(jda, bot, localization, managers);
 			managers.forEach(m -> m.manager = result);
 			Collections.reverse(setup);
-			setup.forEach(Runnable::run);
+			setup.forEach(x -> x.accept(result));
 			return result;
 		}
 	}
