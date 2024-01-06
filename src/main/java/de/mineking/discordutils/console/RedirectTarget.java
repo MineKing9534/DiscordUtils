@@ -13,6 +13,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -20,8 +21,11 @@ public interface RedirectTarget<B> {
 	void sendMessage(@NotNull DiscordUtils<B> discordUtils, @NotNull MessageCreateBuilder message);
 
 	@NotNull
-	static <B> RedirectTarget<B> pingRoleOnError(@NotNull RedirectTarget<B> original, @NotNull Function<B, Role> role) {
-		return (discordUtils, message) -> original.sendMessage(discordUtils, message.getContent().contains("ERROR") ? message.setContent(role.apply(discordUtils.bot).getAsMention() + message.getContent()) : message);
+	static <B> RedirectTarget<B> pingRoleOnError(@NotNull RedirectTarget<B> original, @NotNull Function<B, Optional<Role>> role) {
+		return (discordUtils, message) -> {
+			Optional<Role> r = role.apply(discordUtils.getBot());
+			original.sendMessage(discordUtils, r.isPresent() && message.getContent().contains("ERROR") ? message.setContent(r.get().getAsMention() + message.getContent()) : message);
+		};
 	}
 
 	/**
