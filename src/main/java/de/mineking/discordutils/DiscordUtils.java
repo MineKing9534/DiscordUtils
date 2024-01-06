@@ -182,16 +182,15 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */
-		@SafeVarargs
 		@NotNull
-		public final Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull RedirectTarget<B>... targets) {
+		public final Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull List<RedirectTarget<B>> targets) {
 			Checks.notNull(targets, "targets");
 
 			if(!stdout && !stderr) return this;
-			if(targets.length == 0) return this;
+			if(targets.isEmpty()) return this;
 
 			setup.add(0, discordUtils -> {
-				var discordStreams = Arrays.stream(targets)
+				var discordStreams = targets.stream()
 						.map(t -> new DiscordOutputStream(mes -> t.sendMessage(discordUtils, mes), 10))
 						.toList();
 
@@ -206,11 +205,33 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
 		 * @return {@code this}
 		 */
+		@NotNull
+		public final Builder<B> mirrorConsole(@NotNull List<RedirectTarget<B>> targets) {
+			return mirrorConsole(true, true, targets);
+		}
+
+		/**
+		 * @param stdout  Whether to mirror {@link System#out}
+		 * @param stderr  Whether to mirror {@link System#err}
+		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
+		 * @return {@code this}
+		 */
+		@SafeVarargs
+		@NotNull
+		public final Builder<B> mirrorConsole(boolean stdout, boolean stderr, @NotNull RedirectTarget<B>... targets) {
+			return mirrorConsole(stdout, stderr, Arrays.asList(targets));
+		}
+
+		/**
+		 * @param targets The {@link RedirectTarget}s you want to mirror the console to
+		 * @return {@code this}
+		 */
 		@SafeVarargs
 		@NotNull
 		public final Builder<B> mirrorConsole(@NotNull RedirectTarget<B>... targets) {
 			return mirrorConsole(true, true, targets);
 		}
+
 
 		/**
 		 * @param localization The {@link LocalizationManager} to use
