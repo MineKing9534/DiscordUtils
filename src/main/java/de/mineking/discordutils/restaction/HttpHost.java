@@ -29,6 +29,22 @@ public class HttpHost {
 	}
 
 	/**
+	 * @return The {@link CustomRestActionManager} managing this host
+	 */
+	@NotNull
+	public CustomRestActionManager getManager() {
+		return manager;
+	}
+
+	/**
+	 * @return The base url for this host
+	 */
+	@NotNull
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	/**
 	 * @return A modifiable {@link CaseInsensitiveMap} for the default headers for this host
 	 */
 	@NotNull

@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class DataState<M extends Menu> extends State<M> {
 	protected final Map<String, Object> cache = new HashMap<>();
-	private final IReplyCallback event;
+	protected final IReplyCallback event;
 
 	public DataState(@Nullable IReplyCallback event, @NotNull M menu, @NotNull JsonObject data) {
 		super(menu, data);

@@ -117,7 +117,7 @@ public class LinkComponent extends Component<ButtonInteractionEvent> {
 		var emoji = label.getEmoji(state);
 		var url = this.url.apply(state);
 
-		var button = emoji != null ? Button.link(url, emoji) : Button.link(url, Objects.requireNonNullElse(text, name));
+		var button = emoji != null ? Button.link(url, emoji) : Button.link(url, Objects.requireNonNullElse(text, getName()));
 
 		return button.withDisabled(disabled.test(state));
 	}

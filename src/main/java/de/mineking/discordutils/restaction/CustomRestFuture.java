@@ -30,6 +30,6 @@ public class CustomRestFuture<T> extends CompletableFuture<T> {
 
 	@NotNull
 	public CustomRestActionManager getManager() {
-		return host.manager;
+		return host.getManager();
 	}
 }

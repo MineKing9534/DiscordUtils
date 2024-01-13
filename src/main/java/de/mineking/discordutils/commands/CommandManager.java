@@ -301,9 +301,9 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		autoUpdate = true;
 		this.data = cache;
 
-		if(getManager().jda.getStatus() == JDA.Status.CONNECTED) {
+		if(getManager().getJDA().getStatus() == JDA.Status.CONNECTED) {
 			updateGlobalCommands().queue();
-			getManager().jda.getGuilds().forEach(g -> updateGuildCommands(g).queue());
+			getManager().getJDA().getGuilds().forEach(g -> updateGuildCommands(g).queue());
 		}
 
 		return this;
@@ -342,7 +342,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	@NotNull
 	public <T> AnnotatedCommand<T, C, A> getCommand(@NotNull Class<T> type) {
 		Checks.notNull(type, "type");
-		return commands.values().stream().filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.clazz.equals(type)).findFirst().map(c -> (AnnotatedCommand<T, C, A>) c).orElseThrow();
+		return commands.values().stream().filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.getClazz().equals(type)).findFirst().map(c -> (AnnotatedCommand<T, C, A>) c).orElseThrow();
 	}
 
 	/**
@@ -353,7 +353,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGlobalCommands() {
-		return getManager().jda.updateCommands().addCommands(findCommands(CommandFilter.all(CommandFilter.top(), (CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert())).stream().map(c -> c.buildCommand(null, new Cache())).toList()).onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(0, c.getIdLong()))));
+		return getManager().getJDA().updateCommands().addCommands(findCommands(CommandFilter.all(CommandFilter.top(), (CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert())).stream().map(c -> c.buildCommand(null, new Cache())).toList()).onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(0, c.getIdLong()))));
 	}
 
 	/**

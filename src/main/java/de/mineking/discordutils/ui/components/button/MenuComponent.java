@@ -28,9 +28,9 @@ public class MenuComponent<T extends Menu> extends ButtonComponent {
 	 * @param label The label to use
 	 */
 	public MenuComponent(@NotNull T menu, @NotNull Function<DataState<MessageMenu>, ButtonColor> color, @NotNull LabelProvider label) {
-		super(menu.id, color, label);
+		super(menu.getId(), color, label);
 
-		appendHandler(state -> state.getEvent().ifPresent(event -> {
+		appendHandler(state -> state.event().ifPresent(event -> {
 			if(event instanceof IMessageEditCallback edit && !(menu instanceof ModalMenu)) edit.deferEdit().queue();
 			if(event instanceof GenericComponentInteractionCreateEvent ce) creator.apply(menu, state).display(ce);
 		}));

@@ -339,7 +339,7 @@ public interface IOptionParser {
 					throw new RuntimeException(ex);
 				}
 			}).map(c -> new Command.Choice(c.toString(), c.name())).peek(c -> {
-				var localization = command.manager.getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
+				var localization = command.getManager().getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
 				c.setNameLocalizations(localization.values());
 			}).toList());
 		}

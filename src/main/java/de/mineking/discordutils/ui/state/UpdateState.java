@@ -67,7 +67,7 @@ public class UpdateState extends DataState<MessageMenu> {
 	 * Deletes the menu message
 	 */
 	public void close() {
-		getEvent().ifPresent(event -> event.getHook().deleteOriginal().queue());
+		event().ifPresent(event -> event.getHook().deleteOriginal().queue());
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class UpdateState extends DataState<MessageMenu> {
 	 */
 	public void sendReply(@NotNull MessageCreateData message) {
 		Checks.notNull(message, "message");
-		getEvent().ifPresent(event -> {
+		event().ifPresent(event -> {
 			if(event.isAcknowledged()) event.getHook().sendMessage(message).setEphemeral(true).queue();
 			else event.reply(message).setEphemeral(true).queue();
 		});

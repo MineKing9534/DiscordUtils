@@ -85,7 +85,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
-			var context = new ListContext<T>(this, s.event, new ArrayList<>());
+			var context = new ListContext<T>(this, s.getEvent(), new ArrayList<>());
 
 			var entries = o.getEntries(s, context);
 			var max = (entries.size() - 1) / o.entriesPerPage() + 1;

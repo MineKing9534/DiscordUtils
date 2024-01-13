@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class ToggleComponent extends ButtonComponent {
 	@Override
 	public void register(@NotNull MessageSendState state, @Nullable IReplyCallback event) {
-		state.setState(name, current -> current == null ? false : current);
+		state.setState(getName(), current -> current == null ? false : current);
 	}
 
 	/**

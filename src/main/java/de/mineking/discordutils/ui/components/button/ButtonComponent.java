@@ -234,7 +234,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 		var emoji = label.getEmoji(state);
 		var color = this.color.apply(state);
 
-		var button = emoji != null ? Button.of(color.style, id, emoji) : Button.of(color.style, id, Objects.requireNonNullElse(text, name));
+		var button = emoji != null ? Button.of(color.getStyle(), id, emoji) : Button.of(color.getStyle(), id, Objects.requireNonNullElse(text, getName()));
 
 		return button.withDisabled(disabled.test(state));
 	}

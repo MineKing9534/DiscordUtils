@@ -15,6 +15,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -31,6 +32,14 @@ public class MessageMenu extends Menu {
 		this.components = components;
 	}
 
+	/**
+	 * @return An unmodifiable copy of this menu's components
+	 */
+	@NotNull
+	public List<ComponentRow> getComponents() {
+		return Collections.unmodifiableList(components);
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void initialize(@NotNull DataState<?> state) {
@@ -45,10 +54,10 @@ public class MessageMenu extends Menu {
 	public MessageEditData buildMessage(@NotNull UpdateState state) {
 		Checks.notNull(state, "state");
 
-		var data = new StringBuilder(state.data.toString());
+		var data = new StringBuilder(state.getData().toString());
 
 		var message = renderer.buildMessage(state, this.components.stream().map(r -> ActionRow.of(r.getComponents().stream().map(c -> {
-			var id = this.id + ":" + c.name + ":";
+			var id = this.getId() + ":" + c.getName() + ":";
 
 			if(!data.isEmpty()) {
 				var pos = Math.min(Button.ID_MAX_LENGTH - id.length(), data.length());
@@ -60,7 +69,7 @@ public class MessageMenu extends Menu {
 		}).toList())).toList());
 
 		if(!data.isEmpty())
-			throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(state.data.toString().length(), state.data.toString(), data.length(), data.toString()));
+			throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(state.getData().toString().length(), state.getData().toString(), data.length(), data.toString()));
 
 		return message.build();
 	}
@@ -91,7 +100,7 @@ public class MessageMenu extends Menu {
 	@NotNull
 	@Override
 	public MessageSendState createState(@Nullable State<?> state) {
-		return new MessageSendState(this, state == null ? JsonParser.parseString("{}").getAsJsonObject() : state.data);
+		return new MessageSendState(this, state == null ? JsonParser.parseString("{}").getAsJsonObject() : state.getData());
 	}
 
 	@NotNull

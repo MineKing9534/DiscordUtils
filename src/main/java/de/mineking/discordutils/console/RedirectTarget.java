@@ -45,7 +45,7 @@ public interface RedirectTarget<B> {
 	 */
 	@NotNull
 	static <B> RedirectTarget<B> channel(long channel, @Nullable Consumer<MessageCreateBuilder> handler) {
-		return (discordUtils, message) -> discordUtils.jda.getChannelById(MessageChannel.class, channel).sendMessage(prepare(message, handler)).queue();
+		return (discordUtils, message) -> discordUtils.getJDA().getChannelById(MessageChannel.class, channel).sendMessage(prepare(message, handler)).queue();
 	}
 
 	/**
@@ -73,7 +73,7 @@ public interface RedirectTarget<B> {
 	 */
 	@NotNull
 	static <B> RedirectTarget<B> directMessage(long user, @Nullable Consumer<MessageCreateBuilder> handler) {
-		return (discordUtils, message) -> discordUtils.jda.openPrivateChannelById(user).flatMap(channel -> channel.sendMessage(prepare(message, handler))).queue();
+		return (discordUtils, message) -> discordUtils.getJDA().openPrivateChannelById(user).flatMap(channel -> channel.sendMessage(prepare(message, handler))).queue();
 	}
 
 	/**

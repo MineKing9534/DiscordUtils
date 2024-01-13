@@ -17,9 +17,9 @@ public abstract class State<M extends Menu> {
 
 	public final static Gson gson = new GsonBuilder().setNumberToNumberStrategy(numberStrategy).setObjectToNumberStrategy(numberStrategy).create();
 
-	private final M menu;
+	protected final M menu;
 
-	private final JsonObject data;
+	protected final JsonObject data;
 
 	State(@NotNull M menu, @NotNull JsonObject data) {
 		Checks.notNull(menu, "menu");

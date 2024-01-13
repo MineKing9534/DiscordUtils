@@ -31,12 +31,12 @@ public abstract class Command<C extends ICommandContext> {
 	@NotNull
 	protected Scope scope = Scope.GLOBAL;
 
-	private final CommandManager<C, ?> manager;
-	private Command<C> parent;
+	protected final CommandManager<C, ?> manager;
+	protected Command<C> parent;
 
 	final Map<Object, Long> id = new HashMap<>();
 
-	private final Type type;
+	protected final Type type;
 
 	/**
 	 * The {@link IExecutionCondition} of this command. You can chain multiple conditions using {@link IExecutionCondition#and(IExecutionCondition)} and {@link IExecutionCondition#or(IExecutionCondition)}
