@@ -19,11 +19,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class MessageMenu extends Menu {
-	@NotNull
-	public final MessageRenderer renderer;
-
-	@NotNull
-	public final List<ComponentRow> components;
+	private final MessageRenderer renderer;
+	private final List<ComponentRow> components;
 
 	private Consumer<DataState<MessageMenu>> cache;
 
@@ -50,31 +47,20 @@ public class MessageMenu extends Menu {
 
 		var data = new StringBuilder(state.data.toString());
 
-		var message = renderer.buildMessage(state, this.components.stream()
-				.map(r -> ActionRow.of(
-						r.getComponents().stream()
-								.map(c -> {
-									var id = this.id + ":" + c.name + ":";
+		var message = renderer.buildMessage(state, this.components.stream().map(r -> ActionRow.of(r.getComponents().stream().map(c -> {
+			var id = this.id + ":" + c.name + ":";
 
-									if(!data.isEmpty()) {
-										var pos = Math.min(Button.ID_MAX_LENGTH - id.length(), data.length());
-										id += data.substring(0, pos);
-										data.delete(0, pos);
-									}
+			if(!data.isEmpty()) {
+				var pos = Math.min(Button.ID_MAX_LENGTH - id.length(), data.length());
+				id += data.substring(0, pos);
+				data.delete(0, pos);
+			}
 
-									return c.build(id, state);
-								})
-								.toList()
-				))
-				.toList()
-		);
+			return c.build(id, state);
+		}).toList())).toList());
 
-		if(!data.isEmpty()) throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(
-				state.data.toString().length(),
-				state.data.toString(),
-				data.length(),
-				data.toString()
-		));
+		if(!data.isEmpty())
+			throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(state.data.toString().length(), state.data.toString(), data.length(), data.toString()));
 
 		return message.build();
 	}

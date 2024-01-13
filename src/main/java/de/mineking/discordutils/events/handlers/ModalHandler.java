@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class ModalHandler extends FilteredEventHandler<ModalInteractionEvent> {
-	public final Consumer<ModalInteractionEvent> handler;
+	private final Consumer<ModalInteractionEvent> handler;
 
 	/**
 	 * @param filter  Regex for custom id

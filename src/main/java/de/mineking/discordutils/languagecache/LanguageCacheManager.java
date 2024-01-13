@@ -15,9 +15,7 @@ import java.util.Optional;
 public class LanguageCacheManager extends Manager {
 	private final DiscordLocale defaultLocale;
 
-	private final Cache<Long, DiscordLocale> cache = Caffeine.newBuilder()
-			.expireAfterAccess(Duration.ofHours(4))
-			.build();
+	private final Cache<Long, DiscordLocale> cache = Caffeine.newBuilder().expireAfterAccess(Duration.ofHours(4)).build();
 
 	public LanguageCacheManager(@NotNull DiscordLocale defaultLocale) {
 		Checks.notNull(defaultLocale, "defaultLocale");

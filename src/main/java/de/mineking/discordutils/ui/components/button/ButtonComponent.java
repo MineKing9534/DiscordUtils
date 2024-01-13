@@ -32,7 +32,8 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 	private final Function<DataState<MessageMenu>, ButtonColor> color;
 	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
-	private Consumer<UpdateState> handler = state -> {};
+	private Consumer<UpdateState> handler = state -> {
+	};
 	private Consumer<UpdateState> doubleClick = null;
 	private int doubleClickTimeout = 3;
 
@@ -233,9 +234,7 @@ public class ButtonComponent extends Component<ButtonInteractionEvent> {
 		var emoji = label.getEmoji(state);
 		var color = this.color.apply(state);
 
-		var button = emoji != null
-				? Button.of(color.style, id, emoji)
-				: Button.of(color.style, id, Objects.requireNonNullElse(text, name));
+		var button = emoji != null ? Button.of(color.style, id, emoji) : Button.of(color.style, id, Objects.requireNonNullElse(text, name));
 
 		return button.withDisabled(disabled.test(state));
 	}

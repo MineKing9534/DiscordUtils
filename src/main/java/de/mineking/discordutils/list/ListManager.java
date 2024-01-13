@@ -30,8 +30,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	private final UIManager uiManager;
 	private final CommandManager<C, ?> commandManager;
 
-	private OptionData pageOption = new OptionData(OptionType.INTEGER, "page", "page")
-			.setMinValue(1);
+	private OptionData pageOption = new OptionData(OptionType.INTEGER, "page", "page").setMinValue(1);
 
 	public ListManager(@NotNull DiscordUtils.Builder<?> manager) {
 		Checks.notNull(manager, "manager");
@@ -67,36 +66,22 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		var components = new ArrayList<ComponentRow>();
 
-		components.add(ComponentRow.of(
-				new ButtonComponent("first", ButtonColor.GRAY, Emoji.fromUnicode("⏪"))
-						.appendHandler(s -> {
-							s.setState("page", 1);
-							s.update();
-						}).asDisabled(s -> s.getState("page", int.class) == 1),
-				new ButtonComponent("back", ButtonColor.GRAY, Emoji.fromUnicode("⬅"))
-						.appendHandler(s -> {
-							s.<Integer>setState("page", p -> p - 1);
-							s.update();
-						}).asDisabled(s -> s.getState("page", int.class) == 1),
-				new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page", int.class) + "/" + state.getCache("maxpage")).asDisabled(true),
-				new ButtonComponent("next", ButtonColor.GRAY, Emoji.fromUnicode("➡"))
-						.appendHandler(s -> {
-							s.<Integer>setState("page", p -> p + 1);
-							s.update();
-						}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage")),
-				new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩"))
-						.appendHandler(s -> {
-							s.setState("page", Integer.MAX_VALUE);
-							s.update();
-						}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))
-		));
+		components.add(ComponentRow.of(new ButtonComponent("first", ButtonColor.GRAY, Emoji.fromUnicode("⏪")).appendHandler(s -> {
+			s.setState("page", 1);
+			s.update();
+		}).asDisabled(s -> s.getState("page", int.class) == 1), new ButtonComponent("back", ButtonColor.GRAY, Emoji.fromUnicode("⬅")).appendHandler(s -> {
+			s.<Integer>setState("page", p -> p - 1);
+			s.update();
+		}).asDisabled(s -> s.getState("page", int.class) == 1), new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page", int.class) + "/" + state.getCache("maxpage")).asDisabled(true), new ButtonComponent("next", ButtonColor.GRAY, Emoji.fromUnicode("➡")).appendHandler(s -> {
+			s.<Integer>setState("page", p -> p + 1);
+			s.update();
+		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage")), new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩")).appendHandler(s -> {
+			s.setState("page", Integer.MAX_VALUE);
+			s.update();
+		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))));
 		components.addAll(Arrays.asList(additionalComponents));
 
-		return uiManager.createMenu(
-				"list." + path,
-				MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))),
-				components
-		).cache(s -> {
+		return uiManager.createMenu("list." + path, MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))), components).cache(s -> {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
@@ -149,12 +134,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		var menu = new AtomicReference<MessageMenu>();
 
-		return new ListCommand<>(
-				menu,
-				state,
-				commandManager,
-				pageOption
-		) {
+		return new ListCommand<>(menu, state, commandManager, pageOption) {
 			public void register() {
 				super.register();
 				menu.set(createListMenu(getPath("."), object, additionalComponents));
@@ -169,6 +149,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 	 */
 	@NotNull
 	public <T extends ListEntry> ListCommand<C> createCommand(@NotNull Function<DataState<MessageMenu>, Listable<T>> object, @NotNull ComponentRow... additionalComponents) {
-		return createCommand((c, state) -> {}, object, additionalComponents);
+		return createCommand((c, state) -> {
+		}, object, additionalComponents);
 	}
 }

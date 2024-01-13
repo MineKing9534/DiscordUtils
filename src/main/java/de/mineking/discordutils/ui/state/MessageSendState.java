@@ -31,9 +31,7 @@ public class MessageSendState extends SendState<MessageMenu> {
 	public void display(@NotNull MessageChannel channel) {
 		Checks.notNull(channel, "channel");
 
-		menu.components.stream()
-				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this, null));
+		menu.components.stream().flatMap(r -> r.getComponents().stream()).forEach(c -> c.register(this, null));
 
 		try {
 			channel.sendMessage(MessageCreateData.fromEditData(menu.buildMessage(prepareState(new UpdateState(null, menu, data))))).queue();
@@ -48,14 +46,15 @@ public class MessageSendState extends SendState<MessageMenu> {
 	public void display(@NotNull IReplyCallback event, boolean ephemeral) {
 		Checks.notNull(event, "event");
 
-		menu.components.stream()
-				.flatMap(r -> r.getComponents().stream())
-				.forEach(c -> c.register(this, event));
+		menu.components.stream().flatMap(r -> r.getComponents().stream()).forEach(c -> c.register(this, event));
 
 		try {
-			if(event.isAcknowledged()) event.getHook().editOriginal(menu.buildMessage(prepareState(new UpdateState(event, menu, data)))).queue();
-			else if(event instanceof IMessageEditCallback edit) edit.editMessage(menu.buildMessage(prepareState(new UpdateState(event, menu, data)))).queue();
-			else event.reply(MessageCreateData.fromEditData(menu.buildMessage(prepareState(new UpdateState(event, menu, data))))).setEphemeral(ephemeral).queue();
+			if(event.isAcknowledged())
+				event.getHook().editOriginal(menu.buildMessage(prepareState(new UpdateState(event, menu, data)))).queue();
+			else if(event instanceof IMessageEditCallback edit)
+				edit.editMessage(menu.buildMessage(prepareState(new UpdateState(event, menu, data)))).queue();
+			else
+				event.reply(MessageCreateData.fromEditData(menu.buildMessage(prepareState(new UpdateState(event, menu, data))))).setEphemeral(ephemeral).queue();
 		} catch(RenderTermination ignored) {
 		}
 	}

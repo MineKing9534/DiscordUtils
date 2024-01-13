@@ -36,14 +36,10 @@ import java.util.function.Function;
 public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompleteContext> extends Command<C> {
 	private final static Map<String, CooldownImpl<?>> cooldowns = new HashMap<>();
 
-	@NotNull
-	public final Class<T> clazz;
-	@NotNull
-	public final ApplicationCommand info;
-	@NotNull
-	public final Function<C, Optional<T>> instance;
-	@NotNull
-	public final Function<A, Optional<T>> autocompleteInstance;
+	private final Class<T> clazz;
+	private final ApplicationCommand info;
+	private final Function<C, Optional<T>> instance;
+	private final Function<A, Optional<T>> autocompleteInstance;
 
 	private final Method method;
 
@@ -95,8 +91,10 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		var tInstance = instance.apply(null).orElse(null);
 		for(var f : clazz.getFields()) {
 			try {
-				if(IExecutionCondition.class.isAssignableFrom(f.getType())) condition = getCondition().and((IExecutionCondition<C>) f.get(tInstance));
-				else if(IRegistrationCondition.class.isAssignableFrom(f.getType())) registration = getRegistration().and((IRegistrationCondition<C>) f.get(tInstance));
+				if(IExecutionCondition.class.isAssignableFrom(f.getType()))
+					condition = getCondition().and((IExecutionCondition<C>) f.get(tInstance));
+				else if(IRegistrationCondition.class.isAssignableFrom(f.getType()))
+					registration = getRegistration().and((IRegistrationCondition<C>) f.get(tInstance));
 			} catch(Exception e) {
 				CommandManager.logger.error("Failed to read condition field '{}' for command '{}'", f.getName(), name, e);
 			}
@@ -106,18 +104,16 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			var cooldown = m.getAnnotation(Cooldown.class);
 
 			if(cooldown != null) {
-				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), (man, context) ->
-						instance.apply(context).ifPresent(i -> {
-							try {
-								manager.getManager().invokeMethod(m, i, (x, p) -> {
-									if(p.getType().isAssignableFrom(context.getClass())) return context;
-									else return null;
-								});
-							} catch(InvocationTargetException | IllegalAccessException e) {
-								CommandManager.logger.error("Failed to execute cooldown error method", e);
-							}
-						})
-				);
+				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), (man, context) -> instance.apply(context).ifPresent(i -> {
+					try {
+						manager.getManager().invokeMethod(m, i, (x, p) -> {
+							if(p.getType().isAssignableFrom(context.getClass())) return context;
+							else return null;
+						});
+					} catch(InvocationTargetException | IllegalAccessException e) {
+						CommandManager.logger.error("Failed to execute cooldown error method", e);
+					}
+				}));
 
 				if(!cooldown.identifier().isEmpty()) cooldowns.put(cooldown.identifier(), impl);
 
@@ -129,7 +125,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 
 		if(clazz.isAnnotationPresent(CooldownPool.class)) {
 			var impl = cooldowns.get(clazz.getAnnotation(CooldownPool.class).value());
-			if(impl == null) CommandManager.logger.warn("Cooldown-Pool referenced by " + getPath(".") + " not found - Ignoring...");
+			if(impl == null)
+				CommandManager.logger.warn("Cooldown-Pool referenced by " + getPath(".") + " not found - Ignoring...");
 			else condition = getCondition().and((CooldownImpl<C>) impl);
 		}
 
@@ -156,7 +153,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			}
 		}
 
-		if(getSubcommands().isEmpty() && method == null) CommandManager.logger.warn("Command '{}' has neither subcommands nor a method. NOTE: You might have forgotten to add @ApplicationCommandMethod", name);
+		if(getSubcommands().isEmpty() && method == null)
+			CommandManager.logger.warn("Command '{}' has neither subcommands nor a method. NOTE: You might have forgotten to add @ApplicationCommandMethod", name);
 	}
 
 	private static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> createCommand(Class<T> type, CommandManager<C, A> manager) {
@@ -173,17 +171,15 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	 * @param autocompleteInstance A function to provide the instance from {@link A}
 	 * @return The resulting {@link Command} instance
 	 */
-	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromClass(@NotNull CommandManager<C, A> manager,
-	                                                                                                                    @NotNull Class<T> clazz,
-	                                                                                                                    @NotNull Function<C, Optional<T>> instance,
-	                                                                                                                    @NotNull Function<A, Optional<T>> autocompleteInstance) {
+	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromClass(@NotNull CommandManager<C, A> manager, @NotNull Class<T> clazz, @NotNull Function<C, Optional<T>> instance, @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(clazz, "clazz");
 		Checks.notNull(instance, "instance");
 		Checks.notNull(autocompleteInstance, "autocompleteInstance");
 
 		var info = clazz.getAnnotation(ApplicationCommand.class);
-		if(info == null) throw new IllegalArgumentException("The provided class is not annotated with ApplicationCommand");
+		if(info == null)
+			throw new IllegalArgumentException("The provided class is not annotated with ApplicationCommand");
 
 		Method method = null;
 
@@ -197,11 +193,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		return new AnnotatedCommand<>(manager, info, clazz, method, instance, autocompleteInstance);
 	}
 
-	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromMethod(@NotNull CommandManager<C, A> manager,
-	                                                                                                                     @NotNull Class<T> clazz,
-	                                                                                                                     @NotNull Method method,
-	                                                                                                                     @NotNull Function<C, Optional<T>> instance,
-	                                                                                                                     @NotNull Function<A, Optional<T>> autocompleteInstance) {
+	public static <T, C extends ICommandContext, A extends IAutocompleteContext> AnnotatedCommand<T, C, A> getFromMethod(@NotNull CommandManager<C, A> manager, @NotNull Class<T> clazz, @NotNull Method method, @NotNull Function<C, Optional<T>> instance, @NotNull Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(clazz, "clazz");
 		Checks.notNull(method, "method");
@@ -209,9 +201,42 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 		Checks.notNull(autocompleteInstance, "autocompleteInstance");
 
 		var info = method.getAnnotation(ApplicationCommand.class);
-		if(info == null) throw new IllegalArgumentException("The provided method is not annotated with ApplicationCommand");
+		if(info == null)
+			throw new IllegalArgumentException("The provided method is not annotated with ApplicationCommand");
 
 		return new AnnotatedCommand<>(manager, info, clazz, method, instance, autocompleteInstance);
+	}
+
+	/**
+	 * @return The {@link Class} declaring this {@link AnnotatedCommand}
+	 */
+	@NotNull
+	public Class<T> getClazz() {
+		return clazz;
+	}
+
+	/**
+	 * @return The {@link ApplicationCommand} information for this {@link AnnotatedCommand}
+	 */
+	@NotNull
+	public final ApplicationCommand getInfo() {
+		return info;
+	}
+
+	/**
+	 * @return A function to get the instance for this command based on a {@link C}
+	 */
+	@NotNull
+	public Function<C, Optional<T>> getInstanceCreator() {
+		return instance;
+	}
+
+	/**
+	 * @return A function to get the instance for this command based on a {@link A}
+	 */
+	@NotNull
+	public Function<A, Optional<T>> getAutocompleteInstance() {
+		return autocompleteInstance;
 	}
 
 	@Override
@@ -228,14 +253,16 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				manager.getManager().invokeMethod(method, instance.get(), (i, p) -> {
 					if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
 					else if(p.getType().isAssignableFrom(context.getClass())) return context;
-					else if(p.isAnnotationPresent(Option.class)) return manager.parseOption(context.getEvent(), getOptionName(p), p, method.getGenericParameterTypes()[i]);
+					else if(p.isAnnotationPresent(Option.class))
+						return manager.parseOption(context.getEvent(), getOptionName(p), p, method.getGenericParameterTypes()[i]);
 					else return null;
 				});
 			} catch(CommandCancellation ignored) {
 
 			} catch(InvocationTargetException e) {
 				CommandManager.logger.error("Command threw exception", e.getCause());
-				if(manager.exceptionHandler != null) manager.exceptionHandler.accept(context.getEvent(), new CommandException(this, e.getCause()));
+				if(manager.exceptionHandler != null)
+					manager.exceptionHandler.accept(context.getEvent(), new CommandException(this, e.getCause()));
 			}
 		}
 	}
@@ -248,7 +275,8 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 	private OptionData buildOption(Option info, Parameter param, Type generic, String name, Method autocomplete, Field choiceInfo) {
 		OptionData option;
 
-		if(autocomplete == null) option = new OptionData(manager.getOptionType(generic, param), name, "---", info.required());
+		if(autocomplete == null)
+			option = new OptionData(manager.getOptionType(generic, param), name, "---", info.required());
 		else option = new AutocompleteOption<A>(manager.getOptionType(generic, param), name, "---", info.required()) {
 			@Override
 			public void handleAutocomplete(@NotNull A context) {
@@ -289,16 +317,12 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 					var choices = (Collection<? extends net.dv8tion.jda.api.interactions.commands.Command.Choice>) choiceInfo.get(instance);
 					var prefix = choiceInfo.getAnnotation(Choice.class).prefix();
 
-					option.addChoices(
-							choices.stream()
-									.peek(c -> {
-										c.setName(prefix + c.getName());
+					option.addChoices(choices.stream().peek(c -> {
+						c.setName(prefix + c.getName());
 
-										var cLocalization = manager.getManager().getLocalization(f -> f.getChoicePath(this, option, c), prefix.isEmpty() ? null : c.getName());
-										c.setNameLocalizations(cLocalization.values());
-									})
-									.toList()
-					);
+						var cLocalization = manager.getManager().getLocalization(f -> f.getChoicePath(this, option, c), prefix.isEmpty() ? null : c.getName());
+						c.setNameLocalizations(cLocalization.values());
+					}).toList());
 				} catch(IllegalAccessException e) {
 					CommandManager.logger.error("Failed to read choices", e);
 				}

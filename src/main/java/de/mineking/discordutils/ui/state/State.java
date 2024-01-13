@@ -15,16 +15,11 @@ public abstract class State<M extends Menu> {
 		return str.contains(".") ? Double.parseDouble(str) : Integer.parseInt(str);
 	};
 
-	public final static Gson gson = new GsonBuilder()
-			.setNumberToNumberStrategy(numberStrategy)
-			.setObjectToNumberStrategy(numberStrategy)
-			.create();
+	public final static Gson gson = new GsonBuilder().setNumberToNumberStrategy(numberStrategy).setObjectToNumberStrategy(numberStrategy).create();
 
-	@NotNull
-	public final M menu;
+	private final M menu;
 
-	@NotNull
-	public final JsonObject data;
+	private final JsonObject data;
 
 	State(@NotNull M menu, @NotNull JsonObject data) {
 		Checks.notNull(menu, "menu");
@@ -32,6 +27,22 @@ public abstract class State<M extends Menu> {
 
 		this.menu = menu;
 		this.data = data;
+	}
+
+	/**
+	 * @return The menu owning this state
+	 */
+	@NotNull
+	public M getMenu() {
+		return menu;
+	}
+
+	/**
+	 * @return The {@link JsonObject} holding the state data
+	 */
+	@NotNull
+	public JsonObject getData() {
+		return data;
 	}
 
 	/**

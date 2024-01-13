@@ -26,14 +26,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	private OptionData targetOption = new AutocompleteOption<>(OptionType.STRING, "target", "target") {
 		@Override
 		public void handleAutocomplete(@NotNull IAutocompleteContext context) {
-			context.getEvent().replyChoices(
-					targets.stream()
-							.filter(t -> t.matches(context.getEvent().getFocusedOption().getValue()))
-							.filter(t -> t.isAvailable(context))
-							.map(t -> new Command.Choice(t.getDisplay(context.getEvent().getUserLocale()), t.getKey()))
-							.limit(OptionData.MAX_CHOICES)
-							.toList()
-			).queue();
+			context.getEvent().replyChoices(targets.stream().filter(t -> t.matches(context.getEvent().getFocusedOption().getValue())).filter(t -> t.isAvailable(context)).map(t -> new Command.Choice(t.getDisplay(context.getEvent().getUserLocale()), t.getKey())).limit(OptionData.MAX_CHOICES).toList()).queue();
 		}
 	};
 
@@ -54,17 +47,9 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 		this.mainTarget = mainTarget;
 		var uiManager = manager.getUIManager();
 
-		this.mainMenu = uiManager.createMenu(
-				"help",
-				MessageRenderer.embed(mainTarget::build),
-				mainTarget.getComponents()
-		);
+		this.mainMenu = uiManager.createMenu("help", MessageRenderer.embed(mainTarget::build), mainTarget.getComponents());
 
-		this.menus = this.targets.stream().collect(Collectors.toMap(HelpTarget::getKey, t -> uiManager.createMenu(
-				"help." + t.getKey(),
-				MessageRenderer.embed(t::build),
-				t.getComponents()
-		)));
+		this.menus = this.targets.stream().collect(Collectors.toMap(HelpTarget::getKey, t -> uiManager.createMenu("help." + t.getKey(), MessageRenderer.embed(t::build), t.getComponents())));
 
 		var commandManager = manager.<C, IAutocompleteContext>getCommandManager();
 		commandManager.registerCommand(new HelpCommand<>(commandManager, this));
@@ -107,9 +92,7 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	public Optional<? extends HelpTarget> getTarget(@Nullable String key) {
 		if(key == null) return Optional.empty();
 
-		return targets.stream()
-				.filter(t -> t.getKey().equals(key))
-				.findFirst();
+		return targets.stream().filter(t -> t.getKey().equals(key)).findFirst();
 	}
 
 	/**
@@ -129,8 +112,6 @@ public class HelpManager<C extends ICommandContext> extends Manager {
 	public void display(@Nullable String key, @NotNull IReplyCallback event) {
 		Checks.notNull(event, "event");
 
-		getMenu(key).createState()
-				.setState("target", key)
-				.display(event);
+		getMenu(key).createState().setState("target", key).display(event);
 	}
 }

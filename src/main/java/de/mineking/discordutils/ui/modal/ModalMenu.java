@@ -65,29 +65,20 @@ public class ModalMenu extends Menu {
 			data.delete(0, pos);
 		}
 
-		var temp = Modal.create(id, title.apply(state))
-				.addComponents(
-						components.stream()
-								.map(c -> {
-									var name = c.name + ":";
+		var temp = Modal.create(id, title.apply(state)).addComponents(components.stream().map(c -> {
+			var name = c.name + ":";
 
-									if(!data.isEmpty()) {
-										var pos = Math.min(TextInput.MAX_ID_LENGTH - name.length(), data.length());
-										name += data.substring(0, pos);
-										data.delete(0, pos);
-									}
+			if(!data.isEmpty()) {
+				var pos = Math.min(TextInput.MAX_ID_LENGTH - name.length(), data.length());
+				name += data.substring(0, pos);
+				data.delete(0, pos);
+			}
 
-									return ActionRow.of(c.build(name, state));
-								})
-								.toList()
-				).build();
+			return ActionRow.of(c.build(name, state));
+		}).toList()).build();
 
-		if(!data.isEmpty()) throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(
-				state.data.toString().length(),
-				state.data.toString(),
-				data.length(),
-				data.toString()
-		));
+		if(!data.isEmpty())
+			throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(state.data.toString().length(), state.data.toString(), data.length(), data.toString()));
 
 		return temp;
 	}

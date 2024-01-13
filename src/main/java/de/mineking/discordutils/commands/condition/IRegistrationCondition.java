@@ -137,9 +137,7 @@ public interface IRegistrationCondition<C extends ICommandContext> {
 		@NotNull
 		@Override
 		public String format(@NotNull DiscordLocale locale) {
-			return (a instanceof IRegistrationCondition.CombineRegistrationCondition<?> ? "(" + a.format(locale) + ")" : a.format(locale)) +
-					delimiter +
-					(b instanceof IRegistrationCondition.CombineRegistrationCondition<?> ? "(" + b.format(locale) + ")" : b.format(locale));
+			return (a instanceof IRegistrationCondition.CombineRegistrationCondition<?> ? "(" + a.format(locale) + ")" : a.format(locale)) + delimiter + (b instanceof IRegistrationCondition.CombineRegistrationCondition<?> ? "(" + b.format(locale) + ")" : b.format(locale));
 		}
 
 		@NotNull

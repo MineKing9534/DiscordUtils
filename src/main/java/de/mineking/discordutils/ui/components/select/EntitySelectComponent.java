@@ -31,7 +31,8 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	private Function<DataState<MessageMenu>, Integer> maxValues = state -> null;
 	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
-	private BiConsumer<UpdateState, Mentions> handler = (state, options) -> {};
+	private BiConsumer<UpdateState, Mentions> handler = (state, options) -> {
+	};
 
 	public EntitySelectComponent(@NotNull String name, @NotNull List<EntitySelectMenu.SelectTarget> targets) {
 		super(name);
@@ -189,9 +190,7 @@ public class EntitySelectComponent extends Component<EntitySelectInteractionEven
 	@NotNull
 	@Override
 	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
-		var temp = EntitySelectMenu.create(id, targets)
-				.setPlaceholder(placeholder.apply(state))
-				.setDisabled(disabled.test(state));
+		var temp = EntitySelectMenu.create(id, targets).setPlaceholder(placeholder.apply(state)).setDisabled(disabled.test(state));
 
 		var minValues = this.minValues.apply(state);
 		var maxValues = this.maxValues.apply(state);

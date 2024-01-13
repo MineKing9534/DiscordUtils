@@ -18,9 +18,7 @@ public interface ComponentRow {
 	 * @return The total required space of all components in this row
 	 */
 	default int size() {
-		return getComponents().stream()
-				.mapToInt(Component::requiredSpace)
-				.sum();
+		return getComponents().stream().mapToInt(Component::requiredSpace).sum();
 	}
 
 	/**

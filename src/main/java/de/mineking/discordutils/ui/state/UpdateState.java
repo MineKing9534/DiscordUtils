@@ -33,12 +33,7 @@ public class UpdateState extends DataState<MessageMenu> {
 
 		var data = new StringBuilder();
 
-		event.getMessage().getComponents().stream()
-				.flatMap(r -> r.getComponents().stream())
-				.filter(c -> c instanceof ActionComponent)
-				.map(c -> (ActionComponent) c)
-				.filter(c -> c.getId() != null)
-				.forEach(c -> data.append(c.getId().split(":", 3)[2]));
+		event.getMessage().getComponents().stream().flatMap(r -> r.getComponents().stream()).filter(c -> c instanceof ActionComponent).map(c -> (ActionComponent) c).filter(c -> c.getId() != null).forEach(c -> data.append(c.getId().split(":", 3)[2]));
 
 		return new UpdateState(event, menu, JsonParser.parseString(data.toString()).getAsJsonObject());
 	}
@@ -49,7 +44,8 @@ public class UpdateState extends DataState<MessageMenu> {
 	public void instantUpdate() {
 		if(event == null) return;
 
-		if(event instanceof IMessageEditCallback edit && !edit.isAcknowledged()) edit.editMessage(menu.buildMessage(this)).queue();
+		if(event instanceof IMessageEditCallback edit && !edit.isAcknowledged())
+			edit.editMessage(menu.buildMessage(this)).queue();
 		else event.getHook().editOriginal(menu.buildMessage(this)).queue();
 	}
 
@@ -59,13 +55,7 @@ public class UpdateState extends DataState<MessageMenu> {
 	public void update() {
 		if(event == null || !(event instanceof GenericComponentInteractionCreateEvent evt)) return;
 
-		var components = evt.getMessage().getComponents().stream()
-				.map(a -> ActionRow.of(
-						a.getComponents().stream()
-								.map(c -> c instanceof ActionComponent ac ? ac.withDisabled(true) : c)
-								.toList()
-				))
-				.toList();
+		var components = evt.getMessage().getComponents().stream().map(a -> ActionRow.of(a.getComponents().stream().map(c -> c instanceof ActionComponent ac ? ac.withDisabled(true) : c).toList())).toList();
 
 		if(!evt.isAcknowledged()) evt.editComponents(components).queue();
 		else evt.getHook().editOriginalComponents(components).queue();

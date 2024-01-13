@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class DataState<M extends Menu> extends State<M> {
 	protected final Map<String, Object> cache = new HashMap<>();
-	public final IReplyCallback event;
+	private final IReplyCallback event;
 
 	public DataState(@Nullable IReplyCallback event, @NotNull M menu, @NotNull JsonObject data) {
 		super(menu, data);
@@ -55,8 +55,16 @@ public class DataState<M extends Menu> extends State<M> {
 	 * @return An {@link Optional} holding the last interaction event
 	 */
 	@NotNull
-	public Optional<IReplyCallback> getEvent() {
+	public Optional<IReplyCallback> event() {
 		return Optional.ofNullable(event);
+	}
+
+	/**
+	 * @return The last interaction event or throws an exception if none is present
+	 */
+	@NotNull
+	public IReplyCallback getEvent() {
+		return event().orElseThrow();
 	}
 
 	/**
