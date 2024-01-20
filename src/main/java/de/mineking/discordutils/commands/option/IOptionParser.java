@@ -332,21 +332,16 @@ public interface IOptionParser {
 		public OptionData configure(@NotNull de.mineking.discordutils.commands.Command<?> command, @NotNull OptionData option, @NotNull Parameter param, @NotNull Type type) {
 			var clazz = ReflectionUtils.getClass(type);
 
-			return option.addChoices(Arrays.stream((Enum<?>[]) clazz.getEnumConstants())
-					.filter(e -> {
-						try {
-							return !clazz.getField(e.name()).isAnnotationPresent(IgnoreEnumConstant.class);
-						} catch(NoSuchFieldException ex) {
-							throw new RuntimeException(ex);
-						}
-					})
-					.map(c -> new Command.Choice(c.toString(), c.name()))
-					.peek(c -> {
-						var localization = command.manager.getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
-						c.setNameLocalizations(localization.values());
-					})
-					.toList()
-			);
+			return option.addChoices(Arrays.stream((Enum<?>[]) clazz.getEnumConstants()).filter(e -> {
+				try {
+					return !clazz.getField(e.name()).isAnnotationPresent(IgnoreEnumConstant.class);
+				} catch(NoSuchFieldException ex) {
+					throw new RuntimeException(ex);
+				}
+			}).map(c -> new Command.Choice(c.toString(), c.name())).peek(c -> {
+				var localization = command.getManager().getManager().getLocalization(f -> f.getChoicePath(command, option, c), null);
+				c.setNameLocalizations(localization.values());
+			}).toList());
 		}
 	};
 
@@ -367,14 +362,9 @@ public interface IOptionParser {
 		public Object parse(@NotNull CommandManager<?, ?> manager, @NotNull GenericCommandInteractionEvent event, @NotNull String name, @NotNull Parameter param, @NotNull Type type) {
 			var component = ReflectionUtils.getComponentType(type);
 
-			var array = event.getOptions().stream()
-					.filter(o -> o.getName().matches(Matcher.quoteReplacement(name) + "\\d+"))
-					.map(o -> manager.parseOption(event, o.getName(), param, component))
-					.toList();
+			var array = event.getOptions().stream().filter(o -> o.getName().matches(Matcher.quoteReplacement(name) + "\\d+")).map(o -> manager.parseOption(event, o.getName(), param, component)).toList();
 
-			return ReflectionUtils.isArray(type, false)
-					? array.toArray(i -> ReflectionUtils.createArray(component, i))
-					: createCollection(ReflectionUtils.getClass(type), ReflectionUtils.getClass(component), array);
+			return ReflectionUtils.isArray(type, false) ? array.toArray(i -> ReflectionUtils.createArray(component, i)) : createCollection(ReflectionUtils.getClass(type), ReflectionUtils.getClass(component), array);
 		}
 
 

@@ -36,8 +36,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer {
-	public final JDA jda;
-	public final B bot;
+	private final JDA jda;
+	private final B bot;
 
 	private final LocalizationManager localization;
 	private final Set<Manager> managers;
@@ -64,6 +64,14 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 	@Override
 	public Set<Manager> getManagers() {
 		return managers;
+	}
+
+	/**
+	 * @return The {@link JDA} instance managed by this {@link DiscordUtils} instance
+	 */
+	@NotNull
+	public JDA getJDA() {
+		return jda;
 	}
 
 	/**
@@ -119,7 +127,8 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 
 			if(bot != null && p.getType().isAssignableFrom(bot.getClass())) result[i] = bot;
 			else if(p.getType().isAssignableFrom(DiscordUtils.class)) result[i] = this;
-			else if(Manager.class.isAssignableFrom(p.getType())) result[i] = getManager((Class<? extends Manager>) p.getType()).orElseThrow();
+			else if(Manager.class.isAssignableFrom(p.getType()))
+				result[i] = getManager((Class<? extends Manager>) p.getType()).orElseThrow();
 			else result[i] = args.apply(i, p);
 		}
 
@@ -147,14 +156,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 
 		if(localization == null) return new Localization(path, Collections.emptyMap());
 
-		return new Localization(
-				localization.function().localize(path, localization.defaultLocale()),
-				localization.locales().stream()
-						.collect(Collectors.toMap(
-								l -> l,
-								l -> localization.function().localize(path, l)
-						))
-		);
+		return new Localization(localization.function().localize(path, localization.defaultLocale()), localization.locales().stream().collect(Collectors.toMap(l -> l, l -> localization.function().localize(path, l))));
 	}
 
 	public static class Builder<B> implements ManagerContainer {
@@ -190,9 +192,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 			if(targets.isEmpty()) return this;
 
 			setup.add(0, discordUtils -> {
-				var discordStreams = targets.stream()
-						.map(t -> new DiscordOutputStream(mes -> t.sendMessage(discordUtils, mes), 10))
-						.toList();
+				var discordStreams = targets.stream().map(t -> new DiscordOutputStream(mes -> t.sendMessage(discordUtils, mes), 10)).toList();
 
 				if(stdout) System.setOut(new MirrorPrintStream(discordStreams, System.out));
 				if(stderr) System.setErr(new MirrorPrintStream(discordStreams, System.err));
@@ -267,8 +267,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		 * @return {@code this}
 		 */
 		@NotNull
-		public <C extends ICommandContext, A extends IAutocompleteContext> Builder<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, ? extends C> context,
-		                                                                                                @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
+		public <C extends ICommandContext, A extends IAutocompleteContext> Builder<B> useCommandManager(@NotNull Function<GenericCommandInteractionEvent, ? extends C> context, @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocomplete, @Nullable Consumer<CommandManager<C, A>> config) {
 			Checks.notNull(context, "context");
 			Checks.notNull(autocomplete, "autocomplete");
 

@@ -26,9 +26,7 @@ public class CooldownImpl<C extends ICommandContext> implements IExecutionCondit
 	 * @param handler  A handler that is executed if an execution is blocked due to the user being on cooldown. You should send an error message here.
 	 */
 	public CooldownImpl(@NotNull Duration duration, int uses, @NotNull BiConsumer<CommandManager<C, ?>, C> handler) {
-		cooldown = Caffeine.newBuilder()
-				.expireAfterWrite(duration)
-				.build();
+		cooldown = Caffeine.newBuilder().expireAfterWrite(duration).build();
 
 		this.duration = duration;
 		this.uses = uses;

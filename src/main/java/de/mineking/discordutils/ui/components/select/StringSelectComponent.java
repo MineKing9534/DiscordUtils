@@ -26,7 +26,8 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	private Function<DataState<MessageMenu>, Integer> maxValues = state -> null;
 	private Predicate<DataState<MessageMenu>> disabled = state -> false;
 
-	private BiConsumer<UpdateState, List<SelectOption>> handler = (state, options) -> {};
+	private BiConsumer<UpdateState, List<SelectOption>> handler = (state, options) -> {
+	};
 
 	public StringSelectComponent(@NotNull String name, @NotNull Function<DataState<MessageMenu>, List<SelectOption>> options) {
 		super(name);
@@ -173,10 +174,7 @@ public class StringSelectComponent extends Component<StringSelectInteractionEven
 	@NotNull
 	@Override
 	public ActionComponent build(@NotNull String id, @NotNull DataState<MessageMenu> state) {
-		var temp = StringSelectMenu.create(id)
-				.addOptions(options.apply(state))
-				.setPlaceholder(placeholder.apply(state))
-				.setDisabled(disabled.test(state));
+		var temp = StringSelectMenu.create(id).addOptions(options.apply(state)).setPlaceholder(placeholder.apply(state)).setDisabled(disabled.test(state));
 
 		var minValues = this.minValues.apply(state);
 		var maxValues = this.maxValues.apply(state);

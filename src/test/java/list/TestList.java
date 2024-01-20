@@ -21,6 +21,6 @@ public class TestList implements Listable<StringEntry> {
 	@NotNull
 	@Override
 	public EmbedBuilder createEmbed(@NotNull DataState<MessageMenu> state, @NotNull ListContext<StringEntry> context) {
-		return new EmbedBuilder().setThumbnail(state.event.getGuild().getIconUrl());
+		return new EmbedBuilder().setThumbnail(state.getEvent().getGuild().getIconUrl());
 	}
 }

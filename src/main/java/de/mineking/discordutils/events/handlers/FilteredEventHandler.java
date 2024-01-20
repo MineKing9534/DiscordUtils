@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Predicate;
 
 public abstract class FilteredEventHandler<T extends GenericEvent> extends EventHandler<T> {
-	public final Predicate<T> filter;
+	private final Predicate<T> filter;
 
 	/**
 	 * @param type   The java type of the event to handle

@@ -43,7 +43,7 @@ public class ModalMenu extends Menu {
 	}
 
 	public IEventHandler<ModalInteractionEvent> createHandler() {
-		return new FilteredEventHandler<>(ModalInteractionEvent.class, event -> event.getModalId().startsWith(id + ":")) {
+		return new FilteredEventHandler<>(ModalInteractionEvent.class, event -> event.getModalId().startsWith(getId() + ":")) {
 			@Override
 			public void handleEvent(ModalInteractionEvent event) {
 				handler.accept(DataState.load(ModalMenu.this, event), new ModalResponse(event.getValues()));
@@ -55,9 +55,9 @@ public class ModalMenu extends Menu {
 	public Modal buildModal(@NotNull DataState<ModalMenu> state) {
 		Checks.notNull(state, "state");
 
-		var data = new StringBuilder(state.data.toString());
+		var data = new StringBuilder(state.getData().toString());
 
-		var id = this.id + ":";
+		var id = this.getId() + ":";
 
 		if(!data.isEmpty()) {
 			var pos = Math.min(Modal.MAX_ID_LENGTH - id.length(), data.length());
@@ -65,29 +65,20 @@ public class ModalMenu extends Menu {
 			data.delete(0, pos);
 		}
 
-		var temp = Modal.create(id, title.apply(state))
-				.addComponents(
-						components.stream()
-								.map(c -> {
-									var name = c.name + ":";
+		var temp = Modal.create(id, title.apply(state)).addComponents(components.stream().map(c -> {
+			var name = c.getName() + ":";
 
-									if(!data.isEmpty()) {
-										var pos = Math.min(TextInput.MAX_ID_LENGTH - name.length(), data.length());
-										name += data.substring(0, pos);
-										data.delete(0, pos);
-									}
+			if(!data.isEmpty()) {
+				var pos = Math.min(TextInput.MAX_ID_LENGTH - name.length(), data.length());
+				name += data.substring(0, pos);
+				data.delete(0, pos);
+			}
 
-									return ActionRow.of(c.build(name, state));
-								})
-								.toList()
-				).build();
+			return ActionRow.of(c.build(name, state));
+		}).toList()).build();
 
-		if(!data.isEmpty()) throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(
-				state.data.toString().length(),
-				state.data.toString(),
-				data.length(),
-				data.toString()
-		));
+		if(!data.isEmpty())
+			throw new IllegalStateException("State is too large. Either add more components to give more space or shrink your state size: [%d] %s, left: [%d] %s".formatted(state.getData().toString().length(), state.getData().toString(), data.length(), data.toString()));
 
 		return temp;
 	}
@@ -117,7 +108,7 @@ public class ModalMenu extends Menu {
 	@NotNull
 	@Override
 	public ModalSendState createState(@Nullable State<?> state) {
-		return new ModalSendState(this, state == null ? JsonParser.parseString("{}").getAsJsonObject() : state.data);
+		return new ModalSendState(this, state == null ? JsonParser.parseString("{}").getAsJsonObject() : state.getData());
 	}
 
 	@NotNull

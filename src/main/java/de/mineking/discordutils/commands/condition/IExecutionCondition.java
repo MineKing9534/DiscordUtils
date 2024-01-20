@@ -133,9 +133,7 @@ public interface IExecutionCondition<C extends ICommandContext> {
 		@NotNull
 		@Override
 		public String format(@NotNull DiscordLocale locale) {
-			return (a instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + a.format(locale) + ")" : a.format(locale)) +
-					delimiter +
-					(b instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + b.format(locale) + ")" : b.format(locale));
+			return (a instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + a.format(locale) + ")" : a.format(locale)) + delimiter + (b instanceof IExecutionCondition.CombineExecutionCondition<?> ? "(" + b.format(locale) + ")" : b.format(locale));
 		}
 
 		@NotNull

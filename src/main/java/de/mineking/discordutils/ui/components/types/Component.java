@@ -15,12 +15,20 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public abstract class Component<T extends GenericComponentInteractionCreateEvent> implements ComponentRow {
-	public final @NotNull String name;
+	private final String name;
 
 	public Component(@NotNull String name) {
 		Checks.notNull(name, "name");
 
 		this.name = name;
+	}
+
+	/**
+	 * @return The name of this {@link Component}
+	 */
+	@NotNull
+	public String getName() {
+		return name;
 	}
 
 	/**

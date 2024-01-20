@@ -38,13 +38,13 @@ public abstract class CustomRestAction<T> implements RestAction<T> {
 
 	@NotNull
 	public CustomRestActionManager getManager() {
-		return host.manager;
+		return host.getManager();
 	}
 
 	@NotNull
 	@Override
 	public JDA getJDA() {
-		return host.manager.getManager().jda;
+		return host.getManager().getManager().getJDA();
 	}
 
 	@NotNull

@@ -30,10 +30,7 @@ public interface ManagerContainer {
 	default <T extends Manager> Optional<T> getManager(@NotNull Class<T> type) {
 		Checks.notNull(type, "type");
 
-		return getManagers().stream()
-				.filter(m -> m.getClass().equals(type))
-				.map(m -> (T) m)
-				.findAny();
+		return getManagers().stream().filter(m -> m.getClass().equals(type)).map(m -> (T) m).findAny();
 	}
 
 	/**

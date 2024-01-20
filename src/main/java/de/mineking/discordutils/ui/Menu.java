@@ -15,11 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class Menu {
-	@NotNull
-	public final UIManager manager;
-
-	@NotNull
-	public final String id;
+	private final UIManager manager;
+	private final String id;
 
 	@SuppressWarnings("rawtypes")
 	private final Map<String, EffectHandler> effect = new HashMap<>();
@@ -30,6 +27,22 @@ public abstract class Menu {
 	public Menu(@NotNull UIManager manager, @NotNull String id) {
 		this.manager = manager;
 		this.id = id;
+	}
+
+	/**
+	 * @return The {@link UIManager} for this menu
+	 */
+	@NotNull
+	public UIManager getManager() {
+		return manager;
+	}
+
+	/**
+	 * @return The id of this menu
+	 */
+	@NotNull
+	public String getId() {
+		return id;
 	}
 
 	/**

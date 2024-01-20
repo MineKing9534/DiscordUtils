@@ -35,7 +35,7 @@ public class ListCommand<C extends ICommandContext> extends Command<C> {
 	@NotNull
 	@Override
 	public List<OptionData> getOptions() {
-		var temp = new ArrayList<>(options);
+		var temp = new ArrayList<>(super.getOptions());
 		temp.add(pageOption);
 		return temp;
 	}

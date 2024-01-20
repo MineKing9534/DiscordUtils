@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 public class HttpHost {
-	public final CustomRestActionManager manager;
+	private final CustomRestActionManager manager;
 
-	public final String baseUrl;
-	public final CaseInsensitiveMap<String, String> defaultHeaders = new CaseInsensitiveMap<>();
+	private final String baseUrl;
+	private final CaseInsensitiveMap<String, String> defaultHeaders = new CaseInsensitiveMap<>();
 
 	HttpHost(@NotNull CustomRestActionManager manager, @NotNull String baseUrl) {
 		Checks.notNull(manager, "manager");
@@ -28,6 +28,39 @@ public class HttpHost {
 		this.baseUrl = baseUrl;
 	}
 
+	/**
+	 * @return The {@link CustomRestActionManager} managing this host
+	 */
+	@NotNull
+	public CustomRestActionManager getManager() {
+		return manager;
+	}
+
+	/**
+	 * @return The base url for this host
+	 */
+	@NotNull
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	/**
+	 * @return A modifiable {@link CaseInsensitiveMap} for the default headers for this host
+	 */
+	@NotNull
+	public CaseInsensitiveMap<String, String> getDefaultHeaders() {
+		return defaultHeaders;
+	}
+
+	/**
+	 * Creates a {@link CustomRestAction} representing an arbitrary HTTP request
+	 *
+	 * @param route   The {@link Route.CompiledRoute} to make the request to
+	 * @param handler A response handler
+	 * @param body    The {@link RequestBody}
+	 * @param headers Additional headers specific for this request
+	 * @return A {@link CustomRestAction} managing the call
+	 */
 	@NotNull
 	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull IOBiFunction<CustomRequest<T>, Response, T> handler, @Nullable RequestBody body, @Nullable Headers headers) {
 		Checks.notNull(route, "route");
@@ -41,11 +74,24 @@ public class HttpHost {
 		};
 	}
 
+	/**
+	 * Creates a {@link CustomRestAction} representing an arbitrary HTTP request
+	 *
+	 * @param route   The {@link Route.CompiledRoute} to make the request to
+	 * @param handler A response handler
+	 * @return A {@link CustomRestAction} managing the call
+	 */
 	@NotNull
 	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route, @NotNull IOBiFunction<CustomRequest<T>, Response, T> handler) {
 		return request(route, handler, null, null);
 	}
 
+	/**
+	 * Creates a {@link CustomRestAction} representing an arbitrary HTTP request
+	 *
+	 * @param route The {@link Route.CompiledRoute} to make the request to
+	 * @return A {@link CustomRestAction} managing the call
+	 */
 	@NotNull
 	public <T> CustomRestAction<T> request(@NotNull Route.CompiledRoute route) {
 		return request(route, (request, response) -> null);

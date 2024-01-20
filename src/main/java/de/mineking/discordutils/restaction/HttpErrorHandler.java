@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class HttpErrorHandler implements Consumer<Throwable> {
-	private final static Consumer<Throwable> empty = e -> {};
+	private final static Consumer<Throwable> empty = e -> {
+	};
 
 	private final Consumer<Throwable> base;
 	private final Map<Predicate<? extends Throwable>, Consumer<? extends Throwable>> cases = new LinkedHashMap<>();

@@ -8,6 +8,13 @@ import org.jetbrains.annotations.Nullable;
 public class Headers {
 	final CaseInsensitiveMap<String, String> headers = new CaseInsensitiveMap<>();
 
+	/**
+	 * Adds a header
+	 *
+	 * @param name  The name of the headers
+	 * @param value The value of the header
+	 * @return {@code this}
+	 */
 	@NotNull
 	public Headers with(@NotNull String name, @Nullable String value) {
 		Checks.notNull(name, "name");

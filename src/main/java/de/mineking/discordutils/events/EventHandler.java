@@ -5,8 +5,8 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class EventHandler<T extends GenericEvent> implements IEventHandler<T> {
-	public final Class<T> type;
-	public final boolean remove;
+	private final Class<T> type;
+	private final boolean remove;
 
 	/**
 	 * @param type   The java type of the event to handle

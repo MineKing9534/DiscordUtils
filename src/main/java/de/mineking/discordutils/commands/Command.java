@@ -7,6 +7,7 @@ import de.mineking.discordutils.commands.condition.Scope;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command.Type;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +31,12 @@ public abstract class Command<C extends ICommandContext> {
 	@NotNull
 	protected Scope scope = Scope.GLOBAL;
 
-	public final CommandManager<C, ?> manager;
-	private Command<C> parent;
+	protected final CommandManager<C, ?> manager;
+	protected Command<C> parent;
 
 	final Map<Object, Long> id = new HashMap<>();
 
-	public final net.dv8tion.jda.api.interactions.commands.Command.Type type;
+	protected final Type type;
 
 	/**
 	 * The {@link IExecutionCondition} of this command. You can chain multiple conditions using {@link IExecutionCondition#and(IExecutionCondition)} and {@link IExecutionCondition#or(IExecutionCondition)}
@@ -49,27 +50,19 @@ public abstract class Command<C extends ICommandContext> {
 	@Nullable
 	protected IRegistrationCondition<C> registration = null;
 
-	/**
-	 * The options of this command. Only for {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
-	 */
-	@NotNull
-	public final List<OptionData> options = new ArrayList<>();
+	private final List<OptionData> options = new ArrayList<>();
 
-	/**
-	 * The subcommands of this command. Only for {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
-	 */
-	@NotNull
-	public final Set<Command<C>> subcommands = new HashSet<>();
+	private final Set<Command<C>> subcommands = new HashSet<>();
 
 	/**
 	 * Creates a new {@link Command} instance
 	 *
 	 * @param manager     The responsible {@link CommandManager}
-	 * @param type        The {@link net.dv8tion.jda.api.interactions.commands.Command.Type} of this command
+	 * @param type        The {@link Type} of this command
 	 * @param name        The name of this command
-	 * @param description The description of this command (only for {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH})
+	 * @param description The description of this command (only for {@link Type#SLASH})
 	 */
-	public Command(@NotNull CommandManager<C, ?> manager, @NotNull net.dv8tion.jda.api.interactions.commands.Command.Type type, @NotNull String name, @NotNull String description) {
+	public Command(@NotNull CommandManager<C, ?> manager, @NotNull Type type, @NotNull String name, @NotNull String description) {
 		Checks.notNull(manager, "manager");
 		Checks.notNull(type, "type");
 		Checks.notNull(name, "name");
@@ -85,32 +78,32 @@ public abstract class Command<C extends ICommandContext> {
 	 * Creates a new {@link Command} instance
 	 *
 	 * @param manager The responsible {@link CommandManager}
-	 * @param type    The {@link net.dv8tion.jda.api.interactions.commands.Command.Type} of this command
+	 * @param type    The {@link Type} of this command
 	 * @param name    The name of this command
 	 */
-	public Command(@NotNull CommandManager<C, ?> manager, @NotNull net.dv8tion.jda.api.interactions.commands.Command.Type type, @NotNull String name) {
+	public Command(@NotNull CommandManager<C, ?> manager, @NotNull Type type, @NotNull String name) {
 		this(manager, type, name, "");
 	}
 
 	/**
-	 * Creates a new {@link Command} instance of type {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
+	 * Creates a new {@link Command} instance of type {@link Type#SLASH}
 	 *
 	 * @param manager     The responsible {@link CommandManager}
 	 * @param name        The name of this command
 	 * @param description The description of this command
 	 */
 	public Command(@NotNull CommandManager<C, ?> manager, @NotNull String name, @NotNull String description) {
-		this(manager, net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH, name, description);
+		this(manager, Type.SLASH, name, description);
 	}
 
 	/**
-	 * Creates a new {@link Command} instance of type {@link net.dv8tion.jda.api.interactions.commands.Command.Type#SLASH}
+	 * Creates a new {@link Command} instance of type {@link Type#SLASH}
 	 *
 	 * @param manager The responsible {@link CommandManager}
 	 * @param name    The name of this command
 	 */
 	public Command(@NotNull CommandManager<C, ?> manager, @NotNull String name) {
-		this(manager, net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH, name, "");
+		this(manager, Type.SLASH, name, "");
 	}
 
 	/**
@@ -134,6 +127,16 @@ public abstract class Command<C extends ICommandContext> {
 		subcommands.forEach(handler);
 	}
 
+	@NotNull
+	public CommandManager<C, ?> getManager() {
+		return manager;
+	}
+
+	@NotNull
+	public Type getType() {
+		return type;
+	}
+
 	/**
 	 * @return The name of this command
 	 */
@@ -143,14 +146,14 @@ public abstract class Command<C extends ICommandContext> {
 	}
 
 	/**
-	 * @return An unmodifiable copy of this command's subcommands
+	 * @return An unmodifiable copy of this command's subcommands. Only for {@link Type#SLASH}
 	 */
 	public Set<Command<C>> getSubcommands() {
 		return Collections.unmodifiableSet(subcommands);
 	}
 
 	/**
-	 * @return An unmodifiable copy of this command's options
+	 * @return An unmodifiable copy of this command's options. Only for {@link Type#SLASH}
 	 */
 	@NotNull
 	public List<OptionData> getOptions() {
@@ -179,9 +182,7 @@ public abstract class Command<C extends ICommandContext> {
 	 */
 	@Nullable
 	public Long getId(long guild) {
-		return getRoot().scope == Scope.GUILD
-				? id.get(guild)
-				: id.get(0);
+		return getRoot().scope == Scope.GUILD ? id.get(guild) : id.get(0);
 	}
 
 	/**
@@ -231,15 +232,12 @@ public abstract class Command<C extends ICommandContext> {
 
 	@NotNull
 	public ICommandPermission<C> getPermission() {
-		return getCondition().all().stream()
-				.filter(e -> e instanceof ICommandPermission<C>)
-				.map(e -> (ICommandPermission<C>) e)
-				.findFirst().orElse(new ICommandPermission<>() {
-					@Override
-					public boolean isAllowed(@NotNull CommandManager<C, ?> manager, @NotNull C context) {
-						return true;
-					}
-				});
+		return getCondition().all().stream().filter(e -> e instanceof ICommandPermission<C>).map(e -> (ICommandPermission<C>) e).findFirst().orElse(new ICommandPermission<>() {
+			@Override
+			public boolean isAllowed(@NotNull CommandManager<C, ?> manager, @NotNull C context) {
+				return true;
+			}
+		});
 	}
 
 	/**
@@ -321,24 +319,19 @@ public abstract class Command<C extends ICommandContext> {
 		CommandData cmd;
 
 		if(type != net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) {
-			cmd = Commands.context(type, name)
-					.setDefaultPermissions(getPermission().requiredPermissions())
-					.setGuildOnly(scope == Scope.GUILD_GLOBAL);
+			cmd = Commands.context(type, name).setDefaultPermissions(getPermission().requiredPermissions()).setGuildOnly(scope == Scope.GUILD_GLOBAL);
 		} else {
 			var sc = Commands.slash(name, "---");
 
 			try {
-				sc.addOptions(getOptions())
-						.setDefaultPermissions(getPermission().requiredPermissions())
-						.setGuildOnly(scope == Scope.GUILD_GLOBAL);
+				sc.addOptions(getOptions()).setDefaultPermissions(getPermission().requiredPermissions()).setGuildOnly(scope == Scope.GUILD_GLOBAL);
 
 				subcommands.forEach(group -> {
 					if(!group.getRegistration().shouldRegister(manager, guild, data)) return;
 
 					if(group.subcommands.isEmpty()) sc.addSubcommands(group.buildSubcommand(""));
 					else {
-						var gd = new SubcommandGroupData(group.name, "---")
-								.addSubcommands(group.buildSubcommands("", guild, data));
+						var gd = new SubcommandGroupData(group.name, "---").addSubcommands(group.buildSubcommands("", guild, data));
 
 						var localization = manager.getManager().getLocalization(f -> f.getCommandPath(group), group.description);
 						gd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
@@ -354,15 +347,15 @@ public abstract class Command<C extends ICommandContext> {
 		}
 
 		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
-		if(cmd instanceof SlashCommandData sc && cmd.getType() == net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH) sc.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
+		if(cmd instanceof SlashCommandData sc && cmd.getType() == net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH)
+			sc.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());
 		else cmd.setNameLocalizations(localization.values());
 
 		return cmd;
 	}
 
 	private SubcommandData buildSubcommand(String prefix) {
-		var cmd = new SubcommandData(prefix + name, "---")
-				.addOptions(getOptions());
+		var cmd = new SubcommandData(prefix + name, "---").addOptions(getOptions());
 
 		var localization = manager.getManager().getLocalization(f -> f.getCommandPath(this), description);
 		cmd.setDescription(localization.defaultValue()).setDescriptionLocalizations(localization.values());

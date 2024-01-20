@@ -15,11 +15,7 @@ public class ModalResponse {
 	private final Map<String, String> values;
 
 	public ModalResponse(List<ModalMapping> values) {
-		this.values = values.stream()
-				.collect(Collectors.toMap(
-						m -> m.getId().split(":")[0],
-						ModalMapping::getAsString
-				));
+		this.values = values.stream().collect(Collectors.toMap(m -> m.getId().split(":")[0], ModalMapping::getAsString));
 	}
 
 	@Nullable
@@ -57,8 +53,7 @@ public class ModalResponse {
 
 	@NotNull
 	public Optional<Integer> getOptionalInteger(@NotNull String name) {
-		return Optional.ofNullable(getNullableString(name))
-				.map(Integer::parseInt);
+		return Optional.ofNullable(getNullableString(name)).map(Integer::parseInt);
 	}
 
 	@Nullable
@@ -72,8 +67,7 @@ public class ModalResponse {
 
 	@NotNull
 	public Optional<Double> getOptionalDouble(@NotNull String name) {
-		return Optional.ofNullable(getNullableString(name))
-				.map(Double::parseDouble);
+		return Optional.ofNullable(getNullableString(name)).map(Double::parseDouble);
 	}
 
 	@Nullable

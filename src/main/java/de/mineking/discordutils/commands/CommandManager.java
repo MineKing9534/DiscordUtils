@@ -56,8 +56,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 
 	BiConsumer<GenericCommandInteractionEvent, CommandException> exceptionHandler;
 
-	public CommandManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull Function<GenericCommandInteractionEvent, ? extends C> contextCreator,
-	                      @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator) {
+	public CommandManager(@NotNull DiscordUtils.Builder<?> manager, @NotNull Function<GenericCommandInteractionEvent, ? extends C> contextCreator, @NotNull Function<CommandAutoCompleteInteractionEvent, ? extends A> autocompleteContextCreator) {
 		Checks.notNull(contextCreator, "contextCreator");
 		Checks.notNull(autocompleteContextCreator, "autocompleteContextCreator");
 
@@ -138,7 +137,8 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public <T> CommandManager<C, A> registerCommand(@NotNull Class<T> type, Function<C, Optional<T>> instance, Function<A, Optional<T>> autocompleteInstance) {
 		Checks.notNull(type, "type");
 
-		if(type.isAnnotationPresent(ApplicationCommand.class)) registerCommand(AnnotatedCommand.getFromClass(this, type, instance, autocompleteInstance));
+		if(type.isAnnotationPresent(ApplicationCommand.class))
+			registerCommand(AnnotatedCommand.getFromClass(this, type, instance, autocompleteInstance));
 		else {
 			var flag = false;
 
@@ -149,7 +149,8 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 				registerCommand(AnnotatedCommand.getFromMethod(this, type, m, instance, autocompleteInstance));
 			}
 
-			if(!flag) throw new IllegalArgumentException("Provided type is neither annotated with ApplicationCommand nor does it contain any methods with that annotation");
+			if(!flag)
+				throw new IllegalArgumentException("Provided type is neither annotated with ApplicationCommand nor does it contain any methods with that annotation");
 		}
 
 		getManager().getManager(EventManager.class).ifPresent(eventManager -> {
@@ -223,10 +224,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public OptionType getOptionType(@NotNull Type type, @NotNull Parameter param) {
 		Checks.notNull(type, "type");
 
-		return optionParsers.stream()
-				.filter(p -> p.accepts(type, param))
-				.map(p -> p.getType(this, type, param))
-				.findFirst().orElse(OptionType.UNKNOWN);
+		return optionParsers.stream().filter(p -> p.accepts(type, param)).map(p -> p.getType(this, type, param)).findFirst().orElse(OptionType.UNKNOWN);
 	}
 
 	/**
@@ -245,10 +243,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		Checks.notNull(param, "param");
 		Checks.notNull(type, "type");
 
-		return optionParsers.stream()
-				.filter(p -> p.accepts(type, param))
-				.map(p -> Optional.ofNullable(p.parse(this, event, name, param, type)))
-				.findFirst().flatMap(o -> o).orElse(null);
+		return optionParsers.stream().filter(p -> p.accepts(type, param)).map(p -> Optional.ofNullable(p.parse(this, event, name, param, type))).findFirst().flatMap(o -> o).orElse(null);
 	}
 
 	/**
@@ -265,9 +260,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		Checks.notNull(param, "param");
 		Checks.notNull(type, "type");
 
-		return getParser(param, type)
-				.map(p -> p.configure(command, option, param, type))
-				.orElse(option);
+		return getParser(param, type).map(p -> p.configure(command, option, param, type)).orElse(option);
 	}
 
 	/**
@@ -279,9 +272,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	public Optional<IOptionParser> getParser(@NotNull Parameter param, @NotNull Type type) {
 		Checks.notNull(param, "param");
 
-		return optionParsers.stream()
-				.filter(p -> p.accepts(type, param))
-				.findFirst();
+		return optionParsers.stream().filter(p -> p.accepts(type, param)).findFirst();
 	}
 
 	/**
@@ -310,9 +301,9 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 		autoUpdate = true;
 		this.data = cache;
 
-		if(getManager().jda.getStatus() == JDA.Status.CONNECTED) {
+		if(getManager().getJDA().getStatus() == JDA.Status.CONNECTED) {
 			updateGlobalCommands().queue();
-			getManager().jda.getGuilds().forEach(g -> updateGuildCommands(g).queue());
+			getManager().getJDA().getGuilds().forEach(g -> updateGuildCommands(g).queue());
 		}
 
 		return this;
@@ -341,9 +332,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	 */
 	@NotNull
 	public Set<Command<C>> findCommands(@NotNull CommandFilter<C> filter) {
-		return commands.values().stream()
-				.filter(filter::filter)
-				.collect(Collectors.toSet());
+		return commands.values().stream().filter(filter::filter).collect(Collectors.toSet());
 	}
 
 	/**
@@ -353,9 +342,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	@NotNull
 	public <T> AnnotatedCommand<T, C, A> getCommand(@NotNull Class<T> type) {
 		Checks.notNull(type, "type");
-		return commands.values().stream()
-				.filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.clazz.equals(type))
-				.findFirst().map(c -> (AnnotatedCommand<T, C, A>) c).orElseThrow();
+		return commands.values().stream().filter(c -> c instanceof AnnotatedCommand<?, ?, ?> ac && ac.getClazz().equals(type)).findFirst().map(c -> (AnnotatedCommand<T, C, A>) c).orElseThrow();
 	}
 
 	/**
@@ -366,16 +353,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public RestAction<List<net.dv8tion.jda.api.interactions.commands.Command>> updateGlobalCommands() {
-		return getManager().jda.updateCommands()
-				.addCommands(
-						findCommands(CommandFilter.all(
-								CommandFilter.top(),
-								(CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert()
-						)).stream()
-								.map(c -> c.buildCommand(null, new Cache()))
-								.toList()
-				)
-				.onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(0, c.getIdLong()))));
+		return getManager().getJDA().updateCommands().addCommands(findCommands(CommandFilter.all(CommandFilter.top(), (CommandFilter<C>) CommandFilter.scope(Scope.GUILD).invert())).stream().map(c -> c.buildCommand(null, new Cache())).toList()).onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(0, c.getIdLong()))));
 	}
 
 	/**
@@ -391,17 +369,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 
 		if(this.data != null) data.putAll(this.data.apply(guild).asMap());
 
-		return guild.updateCommands()
-				.addCommands(
-						findCommands(CommandFilter.all(
-								CommandFilter.top(),
-								CommandFilter.scope(Scope.GUILD),
-								c -> c.getRegistration().shouldRegister(this, guild, data)
-						)).stream()
-								.map(c -> c.buildCommand(guild, data))
-								.toList()
-				)
-				.onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(guild.getIdLong(), c.getIdLong()))));
+		return guild.updateCommands().addCommands(findCommands(CommandFilter.all(CommandFilter.top(), CommandFilter.scope(Scope.GUILD), c -> c.getRegistration().shouldRegister(this, guild, data))).stream().map(c -> c.buildCommand(guild, data)).toList()).onSuccess(commands -> commands.forEach(c -> this.commands.get(c.getName()).forAll(cmd -> cmd.id.put(guild.getIdLong(), c.getIdLong()))));
 	}
 
 	/**

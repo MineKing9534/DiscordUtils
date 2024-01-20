@@ -21,9 +21,7 @@ public interface MessageRenderer {
 	static MessageRenderer embeds(@NotNull Function<DataState<MessageMenu>, Collection<MessageEmbed>> function) {
 		Checks.notNull(function, "function");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setEmbeds(function.apply(state))
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setEmbeds(function.apply(state)).setComponents(components);
 	}
 
 	/**
@@ -34,9 +32,7 @@ public interface MessageRenderer {
 	static MessageRenderer embeds(@NotNull Collection<MessageEmbed> embeds) {
 		Checks.notNull(embeds, "embeds");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setEmbeds(embeds)
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setEmbeds(embeds).setComponents(components);
 	}
 
 	/**
@@ -47,9 +43,7 @@ public interface MessageRenderer {
 	static MessageRenderer embeds(@NotNull MessageEmbed... embeds) {
 		Checks.notNull(embeds, "embeds");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setEmbeds(embeds)
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setEmbeds(embeds).setComponents(components);
 	}
 
 	/**
@@ -60,9 +54,7 @@ public interface MessageRenderer {
 	static MessageRenderer embed(@NotNull Function<DataState<MessageMenu>, MessageEmbed> function) {
 		Checks.notNull(function, "function");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setEmbeds(function.apply(state))
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setEmbeds(function.apply(state)).setComponents(components);
 	}
 
 	/**
@@ -73,9 +65,7 @@ public interface MessageRenderer {
 	static MessageRenderer content(@NotNull Function<DataState<MessageMenu>, String> function) {
 		Checks.notNull(function, "function");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setContent(function.apply(state))
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setContent(function.apply(state)).setComponents(components);
 	}
 
 	/**
@@ -86,9 +76,7 @@ public interface MessageRenderer {
 	static MessageRenderer content(@NotNull String content) {
 		Checks.notNull(content, "content");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setContent(content)
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setContent(content).setComponents(components);
 	}
 
 	/**
@@ -99,9 +87,7 @@ public interface MessageRenderer {
 	static MessageRenderer files(@NotNull Function<DataState<MessageMenu>, Collection<FileUpload>> function) {
 		Checks.notNull(function, "function");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setFiles(function.apply(state))
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setFiles(function.apply(state)).setComponents(components);
 	}
 
 	/**
@@ -112,9 +98,7 @@ public interface MessageRenderer {
 	static MessageRenderer files(@NotNull Collection<FileUpload> files) {
 		Checks.notNull(files, "files");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setFiles(files)
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setFiles(files).setComponents(components);
 	}
 
 	/**
@@ -125,9 +109,7 @@ public interface MessageRenderer {
 	static MessageRenderer files(@NotNull FileUpload... files) {
 		Checks.notNull(files, "files");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setFiles(files)
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setFiles(files).setComponents(components);
 	}
 
 	/**
@@ -138,9 +120,7 @@ public interface MessageRenderer {
 	static MessageRenderer file(@NotNull Function<DataState<MessageMenu>, FileUpload> function) {
 		Checks.notNull(function, "function");
 
-		return (state, components) -> new MessageEditBuilder()
-				.setFiles(function.apply(state))
-				.setComponents(components);
+		return (state, components) -> new MessageEditBuilder().setFiles(function.apply(state)).setComponents(components);
 	}
 
 	/**

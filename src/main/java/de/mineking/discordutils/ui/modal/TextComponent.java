@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public class TextComponent {
-	public final String name;
+	private final String name;
 
 	private final Function<DataState<ModalMenu>, String> label;
 	private final TextInputStyle style;
@@ -45,6 +45,14 @@ public class TextComponent {
 	 */
 	public TextComponent(@NotNull String name, @NotNull String label, @NotNull TextInputStyle style) {
 		this(name, x -> label, style);
+	}
+
+	/**
+	 * @return The name of this component
+	 */
+	@NotNull
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -154,10 +162,7 @@ public class TextComponent {
 	 */
 	@NotNull
 	public TextInput build(@NotNull String id, @NotNull DataState<ModalMenu> state) {
-		var temp = TextInput.create(id, label.apply(state), style)
-				.setValue(value.apply(state))
-				.setPlaceholder(placeholder.apply(state))
-				.setRequired(required.apply(state));
+		var temp = TextInput.create(id, label.apply(state), style).setValue(value.apply(state)).setPlaceholder(placeholder.apply(state)).setRequired(required.apply(state));
 
 		var minLength = this.minLength.apply(state);
 		var maxLength = this.maxLength.apply(state);

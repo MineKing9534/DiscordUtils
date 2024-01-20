@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class ComponentHandler<T extends GenericComponentInteractionCreateEvent> extends FilteredEventHandler<T> {
-	public final Consumer<T> handler;
+	private final Consumer<T> handler;
 
 	/**
 	 * @param type    The java type of the event to handle

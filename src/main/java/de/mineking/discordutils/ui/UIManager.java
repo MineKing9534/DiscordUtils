@@ -64,14 +64,7 @@ public class UIManager extends Manager {
 
 		var menu = new MessageMenu(this, identifier, renderer, components);
 
-		components.stream()
-				.flatMap(c -> c.getComponents().stream())
-				.forEach(c ->
-						eventManager.addEventHandler(c.createHandler(
-								menu,
-								event -> event.getComponentId().startsWith(identifier + ":" + c.name + ":"))
-						)
-				);
+		components.stream().flatMap(c -> c.getComponents().stream()).forEach(c -> eventManager.addEventHandler(c.createHandler(menu, event -> event.getComponentId().startsWith(identifier + ":" + c.getName() + ":"))));
 
 		menus.put(identifier, menu);
 
