@@ -35,6 +35,15 @@ public interface Listable<T extends ListEntry> {
 	}
 
 	/**
+	 * This method is called by the default {@link #buildEmbed(DataState, ListContext)} implementation before returning to allow for further customization
+	 * @param builder The current {@link EmbedBuilder}
+	 * @param state The {@link DataState} holding information about the current state of the list ui
+	 * @param context The {@link ListContext}
+	 */
+	default void finalizeEmbed(@NotNull EmbedBuilder builder, @NotNull DataState<MessageMenu> state, @NotNull ListContext<T> context) {
+	}
+
+	/**
 	 * @param state   The {@link DataState} holding information about the current state of the list ui
 	 * @param context The {@link ListContext}
 	 * @return The {@link MessageEmbed} to display
@@ -49,6 +58,8 @@ public interface Listable<T extends ListEntry> {
 			int i = ((page - 1) * entriesPerPage());
 			for(var e : context.entries()) embed.appendDescription(e.build(i++, context) + "\n");
 		}
+
+		finalizeEmbed(embed, state, context);
 
 		return embed.build();
 	}
