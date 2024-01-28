@@ -17,11 +17,10 @@ public class ExampleBot {
 	public final DiscordUtils<ExampleBot> discordUtils;
 
 	public ExampleBot(String token) {
-		jda = JDABuilder.createDefault(token)
-				.setStatus(OnlineStatus.ONLINE)
-				.build();
+		var builder = JDABuilder.createDefault(token)
+				.setStatus(OnlineStatus.ONLINE);
 
-		discordUtils = DiscordUtils.create(jda, this)
+		this.discordUtils = DiscordUtils.create(builder, this)
 				.mirrorConsole(RedirectTarget.channel(1174751088575000666L))
 				.useEventManager(null)
 				.useUIManager(null)
@@ -32,5 +31,7 @@ public class ExampleBot {
 								.registerCommand(UITestCommand.class)
 								.updateCommands()
 				).build();
+
+		this.jda = discordUtils.getJDA();
 	}
 }

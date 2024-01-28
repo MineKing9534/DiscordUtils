@@ -20,11 +20,10 @@ public class ListBot {
 	public final DiscordUtils<ListBot> discordUtils;
 
 	public ListBot(String token) {
-		jda = JDABuilder.createDefault(token)
-				.setStatus(OnlineStatus.ONLINE)
-				.build();
+		var builder = JDABuilder.createDefault(token)
+				.setStatus(OnlineStatus.ONLINE);
 
-		discordUtils = DiscordUtils.create(jda, this)
+		this.discordUtils = DiscordUtils.create(builder, this)
 				.useEventManager(null)
 				.useUIManager(null)
 				.useCommandManager(
@@ -34,5 +33,7 @@ public class ListBot {
 				)
 				.useListManager(config -> config.getManager().getCommandManager().registerCommand(config.createCommand(state -> new TestList(), new ButtonComponent("test", ButtonColor.GRAY, "TEST").appendHandler(UpdateState::update)).withName("list_test")))
 				.build();
+
+		this.jda = discordUtils.getJDA();
 	}
 }

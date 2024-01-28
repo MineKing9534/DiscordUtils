@@ -17,6 +17,7 @@ import de.mineking.discordutils.localization.LocalizationManager;
 import de.mineking.discordutils.restaction.CustomRestActionManager;
 import de.mineking.discordutils.ui.UIManager;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -43,21 +44,21 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 	private final Set<Manager> managers;
 
 	/**
-	 * @param jda Your {@link JDA} instance
+	 * @param jda Your {@link JDABuilder} instance
 	 * @param bot Your bot instance
 	 * @return A builder to create a {@link DiscordUtils} instance
 	 */
-	public static <B> Builder<B> create(@NotNull JDA jda, @Nullable B bot) {
+	public static <B> Builder<B> create(@NotNull JDABuilder jda, @Nullable B bot) {
 		Checks.notNull(jda, "jda");
 		return new Builder<>(jda, bot);
 	}
 
-	DiscordUtils(JDA jda, B bot, LocalizationManager localization, Set<Manager> managers) {
+	DiscordUtils(JDABuilder jda, B bot, LocalizationManager localization, Set<Manager> managers) {
 		this.bot = bot;
-		this.jda = jda;
 		this.localization = localization;
 		this.managers = managers;
 
+		this.jda = jda.build();
 		this.jda.addEventListener(this);
 	}
 
@@ -165,10 +166,10 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 
 		private LocalizationManager localization;
 
-		private final JDA jda;
+		private final JDABuilder jda;
 		private final B bot;
 
-		Builder(JDA jda, B bot) {
+		Builder(JDABuilder jda, B bot) {
 			this.jda = jda;
 			this.bot = bot;
 		}
@@ -252,7 +253,7 @@ public class DiscordUtils<B> extends ListenerAdapter implements ManagerContainer
 		public <T extends Manager> Builder<B> addManager(@NotNull T manager, @Nullable Consumer<T> config) {
 			Checks.notNull(manager, "manager");
 
-			jda.addEventListener(manager);
+			jda.addEventListeners(manager);
 			managers.add(manager);
 
 			if(config != null) setup.add(discordUtils -> config.accept(manager));

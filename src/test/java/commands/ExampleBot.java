@@ -19,13 +19,12 @@ public class ExampleBot {
 	public final DiscordUtils<ExampleBot> discordUtils;
 
 	public ExampleBot(String token) {
-		jda = JDABuilder.createDefault(token)
-				.setStatus(OnlineStatus.ONLINE)
-				.build();
+		var builder = JDABuilder.createDefault(token)
+				.setStatus(OnlineStatus.ONLINE);
 
 		var methodTestInstance = Optional.of(new MethodCommandTest());
 
-		discordUtils = DiscordUtils.create(jda, this)
+		this.discordUtils = DiscordUtils.create(builder, this)
 				.mirrorConsole(RedirectTarget.directMessage(723571803133313055L))
 				.useCommandManager(
 						CommandContext::new,
@@ -39,6 +38,8 @@ public class ExampleBot {
 								.registerCommand(MethodCommandTest.class, c -> methodTestInstance, c -> methodTestInstance)
 								.updateCommands()
 				).build();
+
+		this.jda = discordUtils.getJDA();
 	}
 
 }
