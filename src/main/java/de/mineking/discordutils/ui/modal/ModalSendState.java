@@ -10,6 +10,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,8 +45,14 @@ public class ModalSendState extends SendState<ModalMenu> {
 
 	@NotNull
 	@Override
-	public <T> ModalSendState setState(@NotNull String name, @NotNull Function<T, T> value) {
-		return (ModalSendState) super.setState(name, value);
+	public <T> ModalSendState setState(@NotNull String name, @NotNull Class<T> type, @NotNull Function<T, T> value) {
+		return (ModalSendState) super.setState(name, type, value);
+	}
+
+	@NotNull
+	@Override
+	public <T> ModalSendState setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value) {
+		return (ModalSendState) super.setState(name, type, value);
 	}
 
 	@NotNull

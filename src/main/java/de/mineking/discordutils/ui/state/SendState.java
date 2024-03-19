@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteract
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,8 +33,14 @@ public abstract class SendState<M extends Menu> extends DataState<M> {
 
 	@NotNull
 	@Override
-	public <T> SendState<M> setState(@NotNull String name, @NotNull Function<T, T> value) {
-		return (SendState<M>) super.setState(name, value);
+	public <T> SendState<M> setState(@NotNull String name, @NotNull Class<T> type, @NotNull Function<T, T> value) {
+		return (SendState<M>) super.setState(name, type, value);
+	}
+
+	@NotNull
+	@Override
+	public <T> SendState<M> setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value) {
+		return (SendState<M>) super.setState(name, type, value);
 	}
 
 	@NotNull
