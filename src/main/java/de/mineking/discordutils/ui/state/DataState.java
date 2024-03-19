@@ -2,7 +2,6 @@ package de.mineking.discordutils.ui.state;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import de.mineking.discordutils.ui.Menu;
 import de.mineking.discordutils.ui.modal.ModalMenu;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -197,12 +196,11 @@ public class DataState<M extends Menu> extends State<M> {
 
 	@NotNull
 	@Override
-	public <T> DataState<M> setState(@NotNull String name, @NotNull Function<T, T> value) {
+	public <T> DataState<M> setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value) {
 		Checks.notNull(name, "name");
 		Checks.notNull(value, "value");
 
-		var currentValue = this.<T>getNullableState(name, new TypeToken<T>() {
-		}.getType());
+		var currentValue = this.<T>getNullableState(name, type);
 		var newValue = value.apply(currentValue);
 
 		if(newValue != null) data.add(name, gson.toJsonTree(newValue));
