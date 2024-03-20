@@ -6,6 +6,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -52,16 +53,28 @@ public abstract class State<M extends Menu> {
 	 */
 	@NotNull
 	public <T> State<M> setState(@NotNull String name, @Nullable T value) {
-		return setState(name, old -> value);
+		return setState(name, Object.class, old -> value);
 	}
 
 	/**
 	 * @param name  The name of this state
+	 * @param type The {@link Type} of the state
 	 * @param value A function to calculate the new state from the current state
 	 * @return {@code this}
 	 */
 	@NotNull
-	public abstract <T> State<M> setState(@NotNull String name, @NotNull Function<T, T> value);
+	public abstract <T> State<M> setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value);
+
+	/**
+	 * @param name  The name of this state
+	 * @param type  type The {@link Class} of the state
+	 * @param value A function to calculate the new state from the current state
+	 * @return {@code this}
+	 */
+	@NotNull
+	public <T> State<M> setState(@NotNull String name, @NotNull Class<T> type, @NotNull Function<T, T> value) {
+		return setState(name, (Type) type, value);
+	}
 
 	/**
 	 * @param states A {@link Map} of states to set

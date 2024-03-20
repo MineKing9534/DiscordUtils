@@ -28,7 +28,7 @@ public class UITestCommand {
 				ComponentRow.of(
 						new ButtonComponent("button", ButtonColor.BLUE, "Append !")
 								.appendHandler(state -> {
-									state.setState("text", current -> current + "!");
+									state.setState("text", String.class, current -> current + "!");
 									state.update();
 								}),
 						new ToggleComponent("toggle", state -> state ? ButtonColor.GREEN : ButtonColor.RED, "Toggle")

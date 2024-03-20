@@ -13,6 +13,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.function.Function;
 
 public class UpdateState extends DataState<MessageMenu> {
@@ -89,7 +90,13 @@ public class UpdateState extends DataState<MessageMenu> {
 
 	@NotNull
 	@Override
-	public <T> UpdateState setState(@NotNull String name, @NotNull Function<T, T> value) {
-		return (UpdateState) super.setState(name, value);
+	public <T> UpdateState setState(@NotNull String name, @NotNull Class<T> type, @NotNull Function<T, T> value) {
+		return (UpdateState) super.setState(name, type, value);
+	}
+
+	@NotNull
+	@Override
+	public <T> UpdateState setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value) {
+		return (UpdateState) super.setState(name, type, value);
 	}
 }

@@ -70,10 +70,10 @@ public class ListManager<C extends ICommandContext> extends Manager {
 			s.setState("page", 1);
 			s.update();
 		}).asDisabled(s -> s.getState("page", int.class) == 1), new ButtonComponent("back", ButtonColor.GRAY, Emoji.fromUnicode("⬅")).appendHandler(s -> {
-			s.<Integer>setState("page", p -> p - 1);
+			s.setState("page", int.class, p -> p - 1);
 			s.update();
 		}).asDisabled(s -> s.getState("page", int.class) == 1), new ButtonComponent("page", ButtonColor.GRAY, (TextLabel) state -> "\uD83D\uDCD6 " + state.getState("page", int.class) + "/" + state.getCache("maxpage")).asDisabled(true), new ButtonComponent("next", ButtonColor.GRAY, Emoji.fromUnicode("➡")).appendHandler(s -> {
-			s.<Integer>setState("page", p -> p + 1);
+			s.setState("page", int.class, p -> p + 1);
 			s.update();
 		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage")), new ButtonComponent("last", ButtonColor.GRAY, Emoji.fromUnicode("⏩")).appendHandler(s -> {
 			s.setState("page", Integer.MAX_VALUE);
