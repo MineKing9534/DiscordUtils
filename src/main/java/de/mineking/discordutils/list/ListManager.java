@@ -5,7 +5,6 @@ import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.MessageMenu;
-import de.mineking.discordutils.ui.MessageRenderer;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
@@ -81,7 +80,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))));
 		components.addAll(Arrays.asList(additionalComponents));
 
-		return uiManager.createMenu("list." + path, MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))), components).cache(s -> {
+		return uiManager.createMenu("list." + path, (state, rows) -> state.<Listable<T>>getCache("object").render(state.getCache("context")).buildMessage(state, rows)).cache(s -> {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
