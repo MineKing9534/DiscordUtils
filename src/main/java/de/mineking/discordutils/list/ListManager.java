@@ -80,7 +80,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))));
 		components.addAll(Arrays.asList(additionalComponents));
 
-		return uiManager.createMenu("list." + path, (state, rows) -> state.<Listable<T>>getCache("object").render(state.getCache("context")).buildMessage(state, rows)).cache(s -> {
+		return uiManager.createMenu("list." + path, (state, rows) -> state.<Listable<T>>getCache("object").render(state.getCache("context")).buildMessage(state, rows), components).cache(s -> {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
