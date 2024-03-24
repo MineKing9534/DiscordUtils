@@ -95,7 +95,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 			setEntries(s);
 		}).effect("page", (state, name, old, n) -> {
-			if(old != null && toInt(old) == toInt(n)) return;
+			if (old != null && (int) old == (int) n) return;
 			setEntries((DataState<MessageMenu>) state);
 		});
 	}
@@ -113,10 +113,6 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		context.entries().clear();
 		context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
-	}
-
-	private Integer toInt(Object o) {
-		return o instanceof Double d ? d.intValue() : (int) o;
 	}
 
 	/**
