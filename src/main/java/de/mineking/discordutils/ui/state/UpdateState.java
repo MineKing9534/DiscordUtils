@@ -51,16 +51,22 @@ public class UpdateState extends DataState<MessageMenu> {
 	}
 
 	/**
-	 * Disables all components and then re-renders the menu. This should be used if your rendering takes very long
+	 * Disables all components and waits for an actual rerender using {@link #instantUpdate()}
 	 */
-	public void update() {
-		if(event == null || !(event instanceof GenericComponentInteractionCreateEvent evt)) return;
+	public void deferUpdate() {
+		if (event == null || !(event instanceof GenericComponentInteractionCreateEvent evt)) return;
 
 		var components = evt.getMessage().getComponents().stream().map(a -> ActionRow.of(a.getComponents().stream().map(c -> c instanceof ActionComponent ac ? ac.withDisabled(true) : c).toList())).toList();
 
-		if(!evt.isAcknowledged()) evt.editComponents(components).queue();
+		if (!evt.isAcknowledged()) evt.editComponents(components).queue();
 		else evt.getHook().editOriginalComponents(components).queue();
+	}
 
+	/**
+	 * Disables all components and then re-renders the menu. This should be used if your rendering takes very long
+	 */
+	public void update() {
+		deferUpdate();
 		instantUpdate();
 	}
 

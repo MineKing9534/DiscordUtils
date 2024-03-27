@@ -31,7 +31,10 @@ public class ListBot {
 						AutocompleteContext::new,
 						CommandManager::updateCommands
 				)
-				.useListManager(config -> config.getManager().getCommandManager().registerCommand(config.createCommand(state -> new TestList(), new ButtonComponent("test", ButtonColor.GRAY, "TEST").appendHandler(UpdateState::update)).withName("list_test")))
+				.useListManager(config -> config.getManager().getCommandManager().registerCommand(config.createCommand(
+						state -> new TestList(),
+						new ButtonComponent("test", ButtonColor.GRAY, "TEST").appendHandler(UpdateState::update)
+				).withName("list_test")))
 				.build();
 
 		this.jda = discordUtils.getJDA();

@@ -5,7 +5,6 @@ import de.mineking.discordutils.Manager;
 import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.ui.MessageMenu;
-import de.mineking.discordutils.ui.MessageRenderer;
 import de.mineking.discordutils.ui.UIManager;
 import de.mineking.discordutils.ui.components.button.ButtonColor;
 import de.mineking.discordutils.ui.components.button.ButtonComponent;
@@ -81,7 +80,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 		}).asDisabled(s -> s.getState("page", int.class) == s.getCache("maxpage"))));
 		components.addAll(Arrays.asList(additionalComponents));
 
-		return uiManager.createMenu("list." + path, MessageRenderer.embed(s -> s.<Listable<T>>getCache("object").buildEmbed(s, s.getCache("context"))), components).cache(s -> {
+		return uiManager.createMenu("list." + path, (state, rows) -> state.<Listable<T>>getCache("object").render(state.getCache("context")).buildMessage(state, rows), components).cache(s -> {
 			var o = object.apply(s);
 			s.setCache("object", o);
 
@@ -96,7 +95,7 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 			setEntries(s);
 		}).effect("page", (state, name, old, n) -> {
-			if(old != null && toInt(old) == toInt(n)) return;
+			if (old != null && (int) old == (int) n) return;
 			setEntries((DataState<MessageMenu>) state);
 		});
 	}
@@ -114,10 +113,6 @@ public class ListManager<C extends ICommandContext> extends Manager {
 
 		context.entries().clear();
 		context.entries().addAll(entries.subList(((page - 1) * o.entriesPerPage()), Math.min((page * o.entriesPerPage()), entries.size())));
-	}
-
-	private Integer toInt(Object o) {
-		return o instanceof Double d ? d.intValue() : (int) o;
 	}
 
 	/**

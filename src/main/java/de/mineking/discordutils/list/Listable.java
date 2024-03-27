@@ -1,6 +1,7 @@
 package de.mineking.discordutils.list;
 
 import de.mineking.discordutils.ui.MessageMenu;
+import de.mineking.discordutils.ui.MessageRenderer;
 import de.mineking.discordutils.ui.state.DataState;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -62,5 +63,14 @@ public interface Listable<T extends ListEntry> {
 		finalizeEmbed(embed, state, context);
 
 		return embed.build();
+	}
+
+	/**
+	 * @param context The {@link ListContext}
+	 * @return A {@link MessageRenderer} that renders the actual message. The default implementation uses {@link #createEmbed(DataState, ListContext)}, {@link #buildEmbed(DataState, ListContext)} and {@link #finalizeEmbed(EmbedBuilder, DataState, ListContext)}
+	 */
+	@NotNull
+	default MessageRenderer render(@NotNull ListContext<T> context) {
+		return MessageRenderer.embed(s -> buildEmbed(s, context));
 	}
 }
