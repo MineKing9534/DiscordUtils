@@ -53,7 +53,7 @@ public abstract class State<M extends Menu> {
 	 */
 	@NotNull
 	public <T> State<M> setState(@NotNull String name, @Nullable T value) {
-		return setState(name, Object.class, old -> value);
+		return setState(name, value == null ? Object.class : value.getClass(), old -> value);
 	}
 
 	/**

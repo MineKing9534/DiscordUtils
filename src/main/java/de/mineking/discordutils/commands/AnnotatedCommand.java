@@ -4,6 +4,7 @@ import de.mineking.discordutils.commands.condition.IExecutionCondition;
 import de.mineking.discordutils.commands.condition.IRegistrationCondition;
 import de.mineking.discordutils.commands.condition.cooldown.Cooldown;
 import de.mineking.discordutils.commands.condition.cooldown.CooldownImpl;
+import de.mineking.discordutils.commands.condition.cooldown.CooldownIncrement;
 import de.mineking.discordutils.commands.condition.cooldown.CooldownPool;
 import de.mineking.discordutils.commands.context.IAutocompleteContext;
 import de.mineking.discordutils.commands.context.ICommandContext;
@@ -34,7 +35,7 @@ import java.util.function.Function;
  * @see CommandManager#registerCommand(Class)
  */
 public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompleteContext> extends Command<C> {
-	private final static Map<String, CooldownImpl<?>> cooldowns = new HashMap<>();
+	public final static Map<String, CooldownImpl<?>> cooldowns = new HashMap<>();
 
 	private final Class<T> clazz;
 	private final ApplicationCommand info;
@@ -104,7 +105,7 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 			var cooldown = m.getAnnotation(Cooldown.class);
 
 			if(cooldown != null) {
-				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), (man, context) -> instance.apply(context).ifPresent(i -> {
+				var impl = new CooldownImpl<C>(Duration.ofMillis(cooldown.unit().toMillis(cooldown.interval())), cooldown.uses(), cooldown.auto(), (man, context) -> instance.apply(context).ifPresent(i -> {
 					try {
 						manager.getManager().invokeMethod(m, i, (x, p) -> {
 							if(p.getType().isAssignableFrom(context.getClass())) return context;
@@ -253,8 +254,12 @@ public class AnnotatedCommand<T, C extends ICommandContext, A extends IAutocompl
 				manager.getManager().invokeMethod(method, instance.get(), (i, p) -> {
 					if(p.getType().isAssignableFrom(context.getEvent().getClass())) return context.getEvent();
 					else if(p.getType().isAssignableFrom(context.getClass())) return context;
-					else if(p.isAnnotationPresent(Option.class))
-						return manager.parseOption(context.getEvent(), getOptionName(p), p, method.getGenericParameterTypes()[i]);
+					else if (p.isAnnotationPresent(Option.class)) return manager.parseOption(context.getEvent(), getOptionName(p), p, method.getGenericParameterTypes()[i]);
+					else if (p.isAnnotationPresent(CooldownIncrement.class)) return (Runnable) () -> getCondition().all().forEach(ec -> {
+						if (ec instanceof CooldownImpl<C> c) {
+							c.increment(context.getEvent().getUser().getIdLong());
+						}
+					});
 					else return null;
 				});
 			} catch(CommandCancellation ignored) {
