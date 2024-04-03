@@ -162,7 +162,12 @@ public class TextComponent {
 	 */
 	@NotNull
 	public TextInput build(@NotNull String id, @NotNull DataState<ModalMenu> state) {
-		var temp = TextInput.create(id, label.apply(state), style).setValue(value.apply(state)).setPlaceholder(placeholder.apply(state)).setRequired(required.apply(state));
+		var value = this.value.apply(state);
+
+		var temp = TextInput.create(id, label.apply(state), style)
+				.setPlaceholder(placeholder.apply(state))
+				.setRequired(required.apply(state))
+				.setValue(value != null && value.isBlank() ? null : value);
 
 		var minLength = this.minLength.apply(state);
 		var maxLength = this.maxLength.apply(state);
