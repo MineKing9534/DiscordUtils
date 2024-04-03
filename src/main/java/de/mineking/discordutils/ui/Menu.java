@@ -8,20 +8,20 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public abstract class Menu {
+	private final static Logger logger = LoggerFactory.getLogger(Menu.class);
+
 	private final UIManager manager;
 	private final String id;
 
 	@SuppressWarnings("rawtypes")
-	private final Map<String, EffectHandler> effect = new HashMap<>();
-	@SuppressWarnings("rawtypes")
-	private final Set<EffectHandler> genericEffect = new HashSet<>();
+	private final Set<EffectHandler> effect = new HashSet<>();
 
 
 	public Menu(@NotNull UIManager manager, @NotNull String id) {
@@ -50,8 +50,13 @@ public abstract class Menu {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> void triggerEffect(@NotNull DataState<?> state, @NotNull String name, @Nullable T oldValue, @Nullable T newValue) {
-		if(effect.containsKey(name)) effect.get(name).handle(state, name, oldValue, newValue);
-		genericEffect.forEach(h -> h.handle(state, name, oldValue, newValue));
+		effect.forEach(h -> {
+			try {
+				h.handle(state, name, oldValue, newValue);
+			} catch (Exception e) {
+				logger.error("Failed to trigger effect handler", e);
+			}
+		});
 	}
 
 	/**
@@ -65,11 +70,15 @@ public abstract class Menu {
 	 * @return {@code this}
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	public <T> Menu effect(@NotNull String name, @NotNull EffectHandler<T> handler) {
 		Checks.notNull(name, "name");
 		Checks.notNull(handler, "handler");
 
-		effect.put(name, handler);
+		effect.add((state, n, oldValue, newValue) -> {
+			if (!n.equals(name)) return;
+			handler.handle(state, n, (T) oldValue, (T) newValue);
+		});
 		return this;
 	}
 
@@ -80,7 +89,7 @@ public abstract class Menu {
 	@NotNull
 	public Menu effect(@NotNull EffectHandler<?> handler) {
 		Checks.notNull(handler, "handler");
-		genericEffect.add(handler);
+		effect.add(handler);
 		return this;
 	}
 
