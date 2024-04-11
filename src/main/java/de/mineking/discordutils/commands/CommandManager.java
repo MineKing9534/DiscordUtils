@@ -8,7 +8,6 @@ import de.mineking.discordutils.commands.context.ICommandContext;
 import de.mineking.discordutils.commands.option.AutocompleteOption;
 import de.mineking.discordutils.commands.option.IOptionParser;
 import de.mineking.discordutils.events.EventManager;
-import de.mineking.discordutils.events.Listener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -24,14 +23,12 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -153,33 +150,7 @@ public class CommandManager<C extends ICommandContext, A extends IAutocompleteCo
 				throw new IllegalArgumentException("Provided type is neither annotated with ApplicationCommand nor does it contain any methods with that annotation");
 		}
 
-		getManager().getManager(EventManager.class).ifPresent(eventManager -> {
-			for(var m : type.getMethods()) {
-				var listener = m.getAnnotation(Listener.class);
-				if(listener == null) continue;
-
-				try {
-					eventManager.addEventHandler(getManager().createInstance(listener.type(), (i, p) -> {
-						if(p.getName().equals("filter")) return listener.filter();
-						else if(p.getName().equals("handler")) return (Consumer<?>) event -> {
-							try {
-								getManager().invokeMethod(m, instance.apply(null).orElse(null), (x, mp) -> {
-									if(mp.getType().isAssignableFrom(event.getClass())) return event;
-									else return null;
-								});
-							} catch(InvocationTargetException e) {
-								logger.error("An error occurred in listener method", e.getCause());
-							} catch(Exception e) {
-								logger.error("Failed to invoke listener method", e);
-							}
-						};
-						else return null;
-					}));
-				} catch(Exception e) {
-					logger.error("Failed to instantiate event handler for listener method");
-				}
-			}
-		});
+		getManager().getManager(EventManager.class).ifPresent(eventManager -> eventManager.registerListener(type, () -> instance.apply(null).orElse(null)));
 
 		return this;
 	}
