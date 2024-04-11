@@ -31,4 +31,9 @@ public @interface Cooldown {
 	 * @see CooldownPool
 	 */
 	String identifier() default "";
+
+	/**
+	 * Whether to automatically increment the cooldown. Set this to false if you want to only increment the cooldown after validation in your handler method.
+	 */
+	boolean auto() default true;
 }
