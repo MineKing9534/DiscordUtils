@@ -4,6 +4,7 @@ import de.mineking.discordutils.commands.CommandManager;
 import de.mineking.discordutils.commands.option.defaultValue.*;
 import de.mineking.javautils.reflection.ReflectionUtils;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.nio.channels.Channel;
 import java.util.*;
 import java.util.regex.Matcher;
 
