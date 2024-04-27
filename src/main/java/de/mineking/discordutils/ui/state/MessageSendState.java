@@ -95,4 +95,10 @@ public class MessageSendState extends SendState<MessageMenu> {
 	public MessageSendState putStates(@NotNull Map<String, ?> states) {
 		return (MessageSendState) super.putStates(states);
 	}
+
+	@NotNull
+	@Override
+	public <T> MessageSendState setCache(@NotNull String name, @Nullable T value) {
+		return (MessageSendState) super.setCache(name, value);
+	}
 }

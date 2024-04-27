@@ -60,4 +60,10 @@ public class ModalSendState extends SendState<ModalMenu> {
 	public ModalSendState putStates(@NotNull Map<String, ?> states) {
 		return (ModalSendState) super.putStates(states);
 	}
+
+	@NotNull
+	@Override
+	public <T> ModalSendState setCache(@NotNull String name, @Nullable T value) {
+		return (ModalSendState) super.setCache(name, value);
+	}
 }
