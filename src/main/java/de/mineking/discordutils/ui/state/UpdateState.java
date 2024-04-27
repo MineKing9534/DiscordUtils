@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.function.Function;
 
 public class UpdateState extends DataState<MessageMenu> {
@@ -104,5 +105,17 @@ public class UpdateState extends DataState<MessageMenu> {
 	@Override
 	public <T> UpdateState setState(@NotNull String name, @NotNull Type type, @NotNull Function<T, T> value) {
 		return (UpdateState) super.setState(name, type, value);
+	}
+
+	@NotNull
+	@Override
+	public <T> UpdateState setCache(@NotNull String name, @Nullable T value) {
+		return (UpdateState) super.setCache(name, value);
+	}
+
+	@NotNull
+	@Override
+	public UpdateState putCaches(@NotNull Map<String, ?> cache) {
+		return (UpdateState) super.putCaches(cache);
 	}
 }

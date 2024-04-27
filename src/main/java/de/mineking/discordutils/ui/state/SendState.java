@@ -48,4 +48,16 @@ public abstract class SendState<M extends Menu> extends DataState<M> {
 	public SendState<M> putStates(@NotNull Map<String, ?> states) {
 		return (SendState<M>) super.putStates(states);
 	}
+
+	@NotNull
+	@Override
+	public <T> SendState<M> setCache(@NotNull String name, @Nullable T value) {
+		return (SendState<M>) super.setCache(name, value);
+	}
+
+	@NotNull
+	@Override
+	public SendState<M> putCaches(@NotNull Map<String, ?> cache) {
+		return (SendState<M>) super.putCaches(cache);
+	}
 }
