@@ -62,6 +62,8 @@ public class MessageSendState extends SendState<MessageMenu> {
 
 	private UpdateState prepareState(UpdateState state) {
 		setup.forEach(f -> f.accept(state));
+		state.putCaches(cache);
+
 		return state;
 	}
 
@@ -100,5 +102,11 @@ public class MessageSendState extends SendState<MessageMenu> {
 	@Override
 	public <T> MessageSendState setCache(@NotNull String name, @Nullable T value) {
 		return (MessageSendState) super.setCache(name, value);
+	}
+
+	@NotNull
+	@Override
+	public MessageSendState putCaches(@NotNull Map<String, ?> cache) {
+		return (MessageSendState) super.putCaches(cache);
 	}
 }

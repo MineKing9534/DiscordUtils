@@ -231,6 +231,18 @@ public class DataState<M extends Menu> extends State<M> {
 	}
 
 	/**
+	 * @param cache The values you want to add to the cache
+	 * @return {@code this}
+	 */
+	@NotNull
+	public DataState<M> putCaches(@NotNull Map<String, ?> cache) {
+		Checks.notNull(cache, "cache");
+
+		this.cache.putAll(cache);
+		return this;
+	}
+
+	/**
 	 * @param name The name of the cache to get
 	 * @return The cache value or {@code null}
 	 */

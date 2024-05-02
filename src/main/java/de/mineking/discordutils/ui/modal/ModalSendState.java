@@ -34,6 +34,8 @@ public class ModalSendState extends SendState<ModalMenu> {
 
 	private DataState<ModalMenu> prepareState(DataState<ModalMenu> state) {
 		setup.forEach(f -> f.accept(state));
+		state.putCaches(cache);
+
 		return state;
 	}
 
@@ -65,5 +67,11 @@ public class ModalSendState extends SendState<ModalMenu> {
 	@Override
 	public <T> ModalSendState setCache(@NotNull String name, @Nullable T value) {
 		return (ModalSendState) super.setCache(name, value);
+	}
+
+	@NotNull
+	@Override
+	public ModalSendState putCaches(@NotNull Map<String, ?> cache) {
+		return (ModalSendState) super.putCaches(cache);
 	}
 }
