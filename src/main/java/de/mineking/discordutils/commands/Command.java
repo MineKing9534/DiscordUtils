@@ -202,7 +202,7 @@ public abstract class Command<C extends ICommandContext> {
 	 */
 	@NotNull
 	public String getAsMention(long guild) {
-		return "</" + getPath(" ") + ":" + getId(guild) + ">";
+		return "</" + getDiscordPath() + ":" + getId(guild) + ">";
 	}
 
 	/**
